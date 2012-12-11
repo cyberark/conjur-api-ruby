@@ -14,4 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "conjur-api"
   gem.require_paths = ["lib"]
   gem.version       = Conjur::Api::VERSION
+  
+  gem.add_runtime_dependency 'rest-client'
 end
