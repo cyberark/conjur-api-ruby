@@ -7,7 +7,7 @@ module Conjur
   class API
     class << self
       def get_key user, pass
-        RestClient::Resource.new(host, user, pass)['user/api_key'].get
+        RestClient::Resource.new(Conjur::API.host, user, pass)['user/api_key'].get
       end
       
       def host
@@ -15,7 +15,7 @@ module Conjur
       end
       
       def default_host
-        "http://localhost:3000"
+        "http://localhost:5000"
       end
     end
     
