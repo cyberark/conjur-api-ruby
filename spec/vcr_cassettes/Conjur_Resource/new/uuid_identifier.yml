@@ -1,0 +1,87 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: http://master:master@localhost:5000/spec/ddd1f59a-494d-48fb-b045-0374c4a6eef9
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: ! 'OK '
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - ! '"5e88d434a1811d7162a9d093cfbf9290"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - cd9278e8c68899af10c76f8e6806a15e
+      X-Runtime:
+      - '0.313020'
+      Content-Length:
+      - '0'
+      Server:
+      - WEBrick/1.3.1 (Ruby/1.9.3/2012-11-10)
+      Date:
+      - Fri, 28 Dec 2012 19:41:18 GMT
+      Connection:
+      - Keep-Alive
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Fri, 28 Dec 2012 19:41:18 GMT
+- request:
+    method: put
+    uri: http://master:master@localhost:5000/spec/ddd1f59a-494d-48fb-b045-0374c4a6eef9
+    body:
+      encoding: ASCII-8BIT
+      string: !binary ""
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Content-Length:
+      - '0'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: ! 'OK '
+    headers:
+      Content-Type:
+      - text/html; charset=utf-8
+      Cache-Control:
+      - no-cache
+      X-Request-Id:
+      - 5c8fd884d46e624d4efefcce955f5cc8
+      X-Runtime:
+      - '0.016348'
+      Content-Length:
+      - '0'
+      Server:
+      - WEBrick/1.3.1 (Ruby/1.9.3/2012-11-10)
+      Date:
+      - Fri, 28 Dec 2012 19:41:18 GMT
+      Connection:
+      - Keep-Alive
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Fri, 28 Dec 2012 19:41:18 GMT
+recorded_with: VCR 2.3.0

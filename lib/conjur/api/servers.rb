@@ -3,7 +3,7 @@ require 'conjur/server'
 module Conjur
   class API
     def create_server options
-      resp = post '/servers', options
+      resp = self['/servers'].post(options)
       server(resp.headers[:location]) if resp.code == 201
     end
     

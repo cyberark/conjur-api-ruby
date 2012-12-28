@@ -2,6 +2,8 @@ require 'rest-client'
 require 'json'
 
 require 'conjur/api/servers'
+require 'conjur/api/roles'
+require 'conjur/api/resources'
 
 module Conjur
   class API
@@ -30,16 +32,8 @@ module Conjur
       self.class.host
     end
     
-    def post path, options, &block
-      resource[path].post(options)
-    end
-    
     def credentials
       { user: user, password: api_key }
-    end
-    
-    def resource url = host
-      RestClient::Resource.new(url, credentials)
     end
     
     def escape(str)
