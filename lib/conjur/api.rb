@@ -41,5 +41,10 @@ module Conjur
     def resource url = host
       RestClient::Resource.new(url, credentials)
     end
+    
+    def escape(str)
+      require 'uri'
+      URI.escape(str, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+    end
   end
 end
