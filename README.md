@@ -1,4 +1,4 @@
-# Conjur::Api
+# Conjur::API
 
 TODO: Write a gem description
 

@@ -1,5 +1,7 @@
 module Conjur
   class Resource < RestClient::Resource
+    include Exists
+    
     def kind
       match_path(1)
     end
@@ -16,15 +18,6 @@ module Conjur
       self.delete
     end
 
-    def exists?(options = {})
-      begin
-        self.head(options)
-        true
-      rescue RestClient::ResourceNotFound
-        false
-      end
-    end
-    
     def permit(privilege, role, options = {})
       self["/permissions?operation=grant&privilege=#{privilege}&role=#{escape role}"].post(options)
     end

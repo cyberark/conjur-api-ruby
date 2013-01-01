@@ -1,9 +1,12 @@
 require 'rest-client'
 require 'json'
 
+require 'conjur/exists'
+require 'conjur/has_attributes'
 require 'conjur/api/servers'
 require 'conjur/api/roles'
 require 'conjur/api/resources'
+require 'conjur/api/valuesets'
 
 module Conjur
   class API

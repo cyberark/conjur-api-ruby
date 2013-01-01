@@ -1,5 +1,7 @@
 module Conjur
   class Role < RestClient::Resource
+    include Exists
+
     def create
       self.put
     end
