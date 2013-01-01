@@ -1,5 +1,5 @@
 module Conjur
-  module API
+  class API
     VERSION = "0.0.1"
   end
 end
