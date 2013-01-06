@@ -16,7 +16,10 @@ Gem::Specification.new do |gem|
   gem.version       = Conjur::API::VERSION
   
   gem.add_runtime_dependency 'rest-client'
+  gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'spork'
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'vcr'
   gem.add_development_dependency 'webmock'
+  gem.add_development_dependency 'ci_reporter'
 end

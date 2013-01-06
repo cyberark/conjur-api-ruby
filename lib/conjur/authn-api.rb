@@ -1,13 +1,10 @@
 require 'conjur/api'
+require 'conjur/api/authn'
 
 module Conjur
   module Authn
     class API < Conjur::API
       class << self
-        def get_key user, pass
-          RestClient::Resource.new(host, user, pass)['user/api_key'].get
-        end
-  
         def host
           ENV['CONJUR_AUTHN_URL'] || default_host
         end
