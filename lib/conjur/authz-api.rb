@@ -12,7 +12,12 @@ module Conjur
         end
         
         def default_host
-          "http://localhost:5100"
+          case Conjur.env
+          when 'test', 'cucumber', 'development'
+            "http://localhost:#{Conjur.service_base_port + 100}"
+          else
+            "https://conjur-authz-#{Conjur.stack}.herokuapp.com"
+          end
         end
       end
     end

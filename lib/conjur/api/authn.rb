@@ -1,5 +1,14 @@
 require 'conjur/user'
 
+# Fails for the CLI client because it has no slosilo key
+#require 'rest-client'
+
+#RestClient.add_before_execution_proc do |req, params|
+#  require 'slosilo'
+#  req.extend Slosilo::HTTPRequest
+#  req.keyname = :authn
+#end
+
 module Conjur
   class API
     class << self
