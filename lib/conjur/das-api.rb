@@ -1,4 +1,5 @@
 require 'conjur/api'
+require 'conjur/api/das'
 
 module Conjur
   module DAS

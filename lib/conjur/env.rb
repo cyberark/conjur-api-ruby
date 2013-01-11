@@ -5,8 +5,8 @@ module Conjur
     (ENV['CONJUR_SERVICE_BASE_PORT'] || 5000 ).to_i
   end
   
-  def customer
-    ENV['CONJUR_CUSTOMER'] or raise "No CONJUR_CUSTOMER defined"
+  def account
+    ENV['CONJUR_ACCOUNT'] or raise "No CONJUR_ACCOUNT defined"
   end
   
   def env
