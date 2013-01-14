@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Conjur API}
   gem.homepage      = ""
 
-  gem.files         = `git ls-files`.split($\) + gem.files.grep('build_number')
+  gem.files         = `git ls-files`.split($\) + Dir['build_number']
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "conjur-api"
