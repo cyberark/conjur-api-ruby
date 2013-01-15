@@ -13,7 +13,7 @@ module Conjur
   class API
     class << self
       def login user, password
-        RestClient::Resource.new(Conjur::Authn::API.host, user, password)['/users/login'].get
+        RestClient::Resource.new(Conjur::Authn::API.host, user: user, password: password)['/users/login'].get
       end
 
       def user login

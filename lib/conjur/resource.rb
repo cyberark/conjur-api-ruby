@@ -36,7 +36,6 @@ module Conjur
     def match_path(index)
       require 'uri'
       match = URI.parse(self.url).path.match(/^\/([^\/]+)\/([^\/]+)(?:\/|$)/)
-      require 'uri'
       URI.unescape(match[index])
     end
   end

@@ -2,8 +2,8 @@ require 'conjur/role'
 
 module Conjur
   class API
-    def role identifier, location = Conjur::Authz::API.host
-      Role.new("#{location}/roles/#{escape identifier}", credentials)
+    def role identifier
+      Role.new("#{Conjur::Authz::API.host}/roles/#{escape identifier}", credentials)
     end
   end
 end

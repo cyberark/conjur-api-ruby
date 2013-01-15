@@ -3,16 +3,17 @@ require 'spec_helper'
 require 'conjur/api'
 
 describe Conjur::Resource do
-  let(:user) { 'master' }
-  let(:password) { 'master' }
+  let(:user) { 'admin' }
+  let(:api_key) { '^6feWZpr' }
   
   def conjur_api
-    Conjur::API.new(user, password)
+    Conjur::API.new_from_key(user, api_key)
   end
   
   def self.it_creates_with code
     it "should create with status #{code}" do
       resource = conjur_api.resource("spec", identifier)
+      resource.create
       resource.should exist
       conjur_api.resource("spec", identifier).kind.should == "spec"
       conjur_api.resource("spec", identifier).identifier.should == identifier
@@ -21,7 +22,7 @@ describe Conjur::Resource do
 
   def self.it_fails_with code
     it "should fail with status #{code}" do
-      expect { conjur_api.resource("spec", identifier) }.to raise_error { |error|
+      expect { conjur_api.resource("spec", identifier).create }.to raise_error { |error|
         error.should be_a(RestClient::Exception)
         error.http_code.should == code
       }

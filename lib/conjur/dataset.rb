@@ -1,5 +1,5 @@
 module Conjur
-  class Valueset < RestClient::Resource
+  class Dataset < RestClient::Resource
     include Exists
     include HasAttributes
     
@@ -34,11 +34,11 @@ module Conjur
         file.close
       end
 
-      self['/values'].post name: name, uuid: uuid, size: size
+      self['/datafiles'].post name: name, uuid: uuid, size: size
     end
     
-    def value identifier
-      Value.new self["values/#{escape identifier}"].url, credentials
+    def datafile identifier
+      Datafile.new self["datafiles/#{escape identifier}"].url, credentials
     end
   end
 end

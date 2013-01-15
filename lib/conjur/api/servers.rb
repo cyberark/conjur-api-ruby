@@ -7,9 +7,8 @@ module Conjur
       server(nil, resp.headers[:location]) if resp.code == 201
     end
     
-    def server identifier, location = Conjur::Core::API.host
-      location = "#{location}/servers/#{escape identifier}" if identifier
-      Server.new(location, credentials)
+    def server identifier
+      Server.new("#{Conjur::Core::API.host}/servers/#{escape identifier}", credentials)
     end
   end
 end

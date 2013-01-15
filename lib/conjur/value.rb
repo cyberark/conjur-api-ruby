@@ -2,11 +2,18 @@ module Conjur
   class Value < RestClient::Resource
     include Exists
     include HasAttributes
-    
-    def create(name, bytes, key)
-      uuid, size = DAS.upload bytes, name, key
-      
-      self.post(name: name, uuid: uuid, size: size, key: key)
+
+    def resource_kind
+      "conjur.value"
+    end
+
+    def resource_id
+      require 'uri'
+      URI.unescape URI.parse(self.url).path.split('/')[-1]
+    end
+
+    def create
+      self.put
     end
   end
 end
