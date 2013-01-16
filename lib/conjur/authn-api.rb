@@ -14,7 +14,7 @@ module Conjur
           when 'test', 'development'
             "http://localhost:#{Conjur.service_base_port}"
           else
-            "https://conjur-authn-#{Conjur.stack}.herokuapp.com"
+            "https://authn-#{Conjur.stack}-conjur.herokuapp.com"
           end
         end
       end

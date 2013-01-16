@@ -26,7 +26,7 @@ describe Conjur::API do
       end
       context "with empty params" do
         let(:params) { {} }
-        it { should == "https://conjur-das-v2.herokuapp.com/data/the-account/inscitiv/upload" }
+        it { should == "https://das-v2-conjur.herokuapp.com/data/the-account/inscitiv/upload" }
       end
     end
   end
