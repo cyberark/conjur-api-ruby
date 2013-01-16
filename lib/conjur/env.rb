@@ -14,11 +14,11 @@ module Conjur
   end
   
   def stack
-    case env
-    when "development", "stage"
-      "dev"
+    ENV['CONJUR_STACK'] || case env
+    when "production"
+      "v2"
     else
-      ENV['CONJUR_STACK'] || "echo"
+      env
     end
   end
 end

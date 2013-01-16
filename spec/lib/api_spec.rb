@@ -18,7 +18,15 @@ shared_examples_for "API endpoint" do
       Conjur.stub(:env).and_return "stage"
     end
     its "default_host" do
-      should == "https://conjur-#{service_name}-dev.herokuapp.com"
+      should == "https://conjur-#{service_name}-stage.herokuapp.com"
+    end
+  end
+  context "ci" do
+    before(:each) do
+      Conjur.stub(:env).and_return "ci"
+    end
+    its "default_host" do
+      should == "https://conjur-#{service_name}-ci.herokuapp.com"
     end
   end
   context "production" do
@@ -26,7 +34,16 @@ shared_examples_for "API endpoint" do
       Conjur.stub(:env).and_return "production"
     end
     its "default_host" do
-      should == "https://conjur-#{service_name}-echo.herokuapp.com"
+      should == "https://conjur-#{service_name}-v2.herokuapp.com"
+    end
+  end
+  context "named production version" do
+    before(:each) do
+      Conjur.stub(:env).and_return "production"
+      Conjur.stub(:stack).and_return "waffle"
+    end
+    its "default_host" do
+      should == "https://conjur-#{service_name}-waffle.herokuapp.com"
     end
   end
 end

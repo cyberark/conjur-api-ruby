@@ -12,7 +12,7 @@ module Conjur
         
         def default_host
           case Conjur.env
-          when 'test', 'cucumber', 'development'
+          when 'test', 'development'
             "http://localhost:#{Conjur.service_base_port + 300}"
           else
             "https://conjur-core-#{Conjur.stack}.herokuapp.com"
