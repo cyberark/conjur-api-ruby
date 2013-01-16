@@ -3,7 +3,7 @@ module Conjur
     include Exists
 
     def create
-      self.put
+      self.put("")
     end
     
     def all
@@ -11,7 +11,11 @@ module Conjur
     end
     
     def grant(member, admin_option = false)
-      self["/members/#{escape member}?admin_option=#{admin_option}"].put
+      self["/members/#{escape member}?admin_option=#{admin_option}"].put("")
+    end
+
+    def permitted?(resource_kind, resource_id, privilege)
+      self["/permitted?resource_kind=#{escape resource_kind}&resource_id=#{escape resource_id}&privilege=#{escape privilege}"].get
     end
   end
 end

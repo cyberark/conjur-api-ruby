@@ -3,9 +3,12 @@ require 'json'
 
 require 'conjur/exists'
 require 'conjur/has_attributes'
+require 'conjur/escape'
 
 module Conjur
   class API
+    include Escape
+    
     class << self
       def new_from_key(user, api_key)
         self.new user, api_key, nil
@@ -13,11 +16,6 @@ module Conjur
 
       def new_from_token(token)
         self.new nil, nil, token
-      end
-      
-      def escape(str)
-        require 'uri'
-        URI.escape(str, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
       end
     end
     
@@ -40,10 +38,6 @@ module Conjur
       else
         { user: user, password: api_key }
       end
-    end
-    
-    def escape(str)
-      self.class.escape str
     end
   end
 end

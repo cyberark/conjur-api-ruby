@@ -19,16 +19,11 @@ module Conjur
     end
 
     def permit(privilege, role, options = {})
-      self["/permissions?operation=grant&privilege=#{privilege}&role=#{escape role}"].post(options)
+      self["?grant&privilege=#{escape privilege}&role=#{escape role}"].post(options)
     end
     
     def deny(privilege, role, options = {})
-      self["/permissions?operation=revoke&privilege=#{privilege}&role=#{escape role}"].post(options)
-    end
-    
-    def permitted?(role, privilege)
-      roles = Role.expand(role)
-      !self["/permissions"].find{|p| p['privilege'] == privilege && roles.include?(p['role']) }.nil?
+      self["?revoke&privilege=#{escape privilege}&role=#{escape role}"].post(options)
     end
     
     protected
