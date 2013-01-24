@@ -1,7 +1,12 @@
 module Conjur
   class Role < RestClient::Resource
     include Exists
-
+    
+    def identifier
+      require 'uri'
+      URI.unescape URI.parse(self.url).path.split('/')[-1]
+    end
+    
     def create
       self.put("")
     end
