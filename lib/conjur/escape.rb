@@ -3,7 +3,7 @@ module Conjur
     module ClassMethods
       def escape(str)
         require 'uri'
-        URI.escape(str, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+        URI.escape(str.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
       end
     end
     
