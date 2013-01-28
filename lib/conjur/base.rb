@@ -34,7 +34,7 @@ module Conjur
     
     def credentials
       if token
-        { headers: { authorization: "Conjur #{Base64.encode64 token.to_json}" } }
+        { headers: { authorization: "Conjur #{Base64.strict_encode64 token.to_json}" } }
       else
         { user: user, password: api_key }
       end
