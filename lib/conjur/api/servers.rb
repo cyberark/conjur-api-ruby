@@ -2,8 +2,8 @@ require 'conjur/server'
 
 module Conjur
   class API
-    def create_server options
-      resp = RestClient::Resource.new("#{Conjur::Core::API.host}/servers", credentials).post(options)
+    def create_server id, options
+      resp = RestClient::Resource.new("#{Conjur::Core::API.host}/servers", credentials).post(options.merge(id: id))
       Server.new(resp.headers[:location], credentials)
     end
     

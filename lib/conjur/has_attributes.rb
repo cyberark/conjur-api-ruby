@@ -3,13 +3,17 @@ module Conjur
     def attributes=(a); @attributes = a; end
     def attributes
       return @attributes if @attributes
-      @attributes = JSON.parse(get.body)
+      fetch
+    end
+    
+    def save
+      self.put(attributes.to_json)
     end
     
     protected
     
     def fetch
-      self.attributes = JSON.parse(get)
+      @attributes = JSON.parse(get.body)
     end
   end
 end

@@ -1,18 +1,16 @@
 module Conjur
   class Role < RestClient::Resource
     include Exists
-    
-    def identifier
-      require 'uri'
-      URI.unescape URI.parse(self.url).path.split('/')[-1]
-    end
+    include HasIdentifier
     
     def create
       self.put("")
     end
     
     def all
-      JSON.parse self["/all"].get
+      JSON.parse(self["/all"].get).collect do |id|
+        Role.new("#{Conjur::Authz::API.host}/roles/#{escape id}", options)
+      end
     end
     
     def grant(member, admin_option = false)
