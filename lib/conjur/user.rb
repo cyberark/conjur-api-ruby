@@ -11,7 +11,12 @@ module Conjur
 
     def token_valid? token
       require 'slosilo'
-      Slosilo[:authn].token_valid? token
+      key = Slosilo[:authn]
+      if key
+        key.token_valid? token
+      else
+        raise KeyError, "authn key not found in Slosilo keystore"
+      end
     end
   end
 end
