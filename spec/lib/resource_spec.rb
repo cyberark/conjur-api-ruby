@@ -31,8 +31,26 @@ describe Conjur::Resource do
 
   let(:uuid) { "ddd1f59a-494d-48fb-b045-0374c4a6eef9" }
   
-  context "new" do
-    context "uuid identifier" do
+  context "identifier" do
+    include Conjur::Escape
+    let(:resource) { Conjur::Resource.new("#{Conjur::Authz::API.host}/#{kind}/#{path_escape identifier}") }
+    [ [ "foo", "bar/baz" ], [ "f:o", "bar" ], [ "@f", "bar.baz" ], [ "@f", "bar baz" ], [ "@f", "bar?baz" ] ].each do |p|
+      context "of /#{p[0]}/#{p[1]}" do
+        let(:kind) { p[0] }
+        let(:identifier) { p[1] }
+        context "resource_kind" do
+          subject { resource.kind }
+          specify { should == p[0] }
+        end
+        context "resource_id" do
+          subject { resource.identifier }
+          specify { should == ( p[1] ) }
+        end
+      end
+    end
+  end
+  context "#create" do
+    context "with uuid identifier" do
       use_vcr_cassette
       let(:identifier) { uuid }
       it_creates_with 204
@@ -41,12 +59,12 @@ describe Conjur::Resource do
         conjur_api.resource("spec", identifier).should exist
       end
     end
-    context "path-like identifier" do
+    context "with path-like identifier" do
       use_vcr_cassette
       let(:identifier) { [ uuid, "xxx" ].join("/") }
       it_creates_with 204
     end
-    context "un-encoded path-like identifier" do
+    context "with un-encoded path-like identifier" do
       use_vcr_cassette
       let(:identifier) { [ uuid, "+?!!?+/xxx" ].join("/") }
       it_creates_with 204

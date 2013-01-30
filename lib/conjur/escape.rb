@@ -1,7 +1,12 @@
 module Conjur
   module Escape
     module ClassMethods
-      def escape(str)
+      def path_escape(str)
+        require 'uri'
+        URI.escape(str.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+      end
+
+      def query_escape(str)
         require 'uri'
         URI.escape(str.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
       end
@@ -11,8 +16,8 @@ module Conjur
       base.extend ClassMethods
     end
 
-    def escape(str)
-      self.class.escape str
+    def path_escape(str)
+      self.class.path_escape str
     end
   end
 end

@@ -77,7 +77,7 @@ describe Conjur::API do
     context "from token" do
       let(:token) { { data: login } }
       let(:api) { Conjur::API.new_from_token(token) }
-      its(:credentials) { should == { headers: { authorization: "Conjur #{Base64.encode64(token.to_json)}" } } }
+      its(:credentials) { should == { headers: { authorization: "Conjur #{Base64.strict_encode64(token.to_json)}" } } }
     end
     context "from api key" do
       let(:api_key) { "theapikey" }

@@ -8,7 +8,7 @@ module Conjur
     end
     
     def secret identifier
-      Secret.new("#{Conjur::Core::API.host}/secrets/#{escape identifier}", credentials)
+      Secret.new("#{Conjur::Core::API.host}/secrets/#{path_escape identifier}", credentials)
     end
   end
 end

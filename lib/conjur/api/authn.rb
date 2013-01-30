@@ -17,7 +17,7 @@ module Conjur
       end
 
       def user login
-        User.new(Conjur::Authn::API.host)["/users/#{escape login}"]
+        User.new(Conjur::Authn::API.host)["/users/#{path_escape login}"]
       end
     end
   end

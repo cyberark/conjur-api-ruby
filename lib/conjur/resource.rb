@@ -3,11 +3,11 @@ module Conjur
     include Exists
     
     def kind
-      match_path(1)
+      match_path(0..0)
     end
 
     def identifier
-      match_path(2)
+      match_path(1..-1)
     end
     
     def create
@@ -19,19 +19,19 @@ module Conjur
     end
 
     def permit(privilege, role, options = {})
-      self["?grant&privilege=#{escape privilege}&role=#{escape role}"].post(options)
+      self["?grant&privilege=#{query_escape privilege}&role=#{query_escape role}"].post(options)
     end
     
     def deny(privilege, role, options = {})
-      self["?revoke&privilege=#{escape privilege}&role=#{escape role}"].post(options)
+      self["?revoke&privilege=#{query_escape privilege}&role=#{query_escape role}"].post(options)
     end
     
     protected
     
-    def match_path(index)
+    def match_path(range)
       require 'uri'
-      match = URI.parse(self.url).path.match(/^\/([^\/]+)\/([^\/]+)(?:\/|$)/)
-      URI.unescape(match[index])
+      tokens = URI.parse(self.url).path[1..-1].split('/')[range]
+      tokens.map{|t| URI.unescape(t)}.join('/')
     end
   end
 end

@@ -27,13 +27,13 @@ http_interactions:
       Cache-Control:
       - no-cache
       X-Request-Id:
-      - 22fcc26951710c01cca999bc45ea334a
+      - 9b6cc33f59907307da678452e0e3faa4
       X-Runtime:
-      - '0.085905'
+      - '0.086922'
       Server:
       - WEBrick/1.3.1 (Ruby/1.9.3/2012-11-10)
       Date:
-      - Tue, 15 Jan 2013 17:20:54 GMT
+      - Wed, 30 Jan 2013 18:17:15 GMT
       Content-Length:
       - '0'
       Connection:
@@ -42,7 +42,7 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Tue, 15 Jan 2013 17:20:54 GMT
+  recorded_at: Wed, 30 Jan 2013 18:17:15 GMT
 - request:
     method: head
     uri: http://admin:%5E6feWZpr@localhost:5100/spec/ddd1f59a-494d-48fb-b045-0374c4a6eef9%2F+%3F!!%3F+%2Fxxx
@@ -68,13 +68,13 @@ http_interactions:
       Cache-Control:
       - max-age=0, private, must-revalidate
       X-Request-Id:
-      - 3791d66f3aae692e7f29749492d63efa
+      - 9790615667d793e342ac1ece26a0bbde
       X-Runtime:
-      - '0.087570'
+      - '0.089211'
       Server:
       - WEBrick/1.3.1 (Ruby/1.9.3/2012-11-10)
       Date:
-      - Tue, 15 Jan 2013 17:20:54 GMT
+      - Wed, 30 Jan 2013 18:17:15 GMT
       Content-Length:
       - '0'
       Connection:
@@ -83,5 +83,5 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Tue, 15 Jan 2013 17:20:54 GMT
+  recorded_at: Wed, 30 Jan 2013 18:17:15 GMT
 recorded_with: VCR 2.3.0

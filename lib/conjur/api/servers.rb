@@ -8,7 +8,7 @@ module Conjur
     end
     
     def server identifier
-      Server.new("#{Conjur::Core::API.host}/servers/#{escape identifier}", credentials)
+      Server.new("#{Conjur::Core::API.host}/servers/#{path_escape identifier}", credentials)
     end
   end
 end
