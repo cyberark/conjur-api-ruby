@@ -1,10 +1,10 @@
 module Conjur
-  class Value < RestClient::Resource
+  class Secret < RestClient::Resource
     include Exists
     include HasIdentifier
     include ActsAsResource
     
-    def read
+    def value
       self['/download'].get.body
     end
   end

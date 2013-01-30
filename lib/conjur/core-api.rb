@@ -1,6 +1,6 @@
 
 require 'conjur/api/servers'
-require 'conjur/api/values'
+require 'conjur/api/secrets'
 
 module Conjur
   module Core

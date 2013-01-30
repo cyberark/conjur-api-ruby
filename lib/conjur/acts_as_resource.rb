@@ -13,5 +13,10 @@ module Conjur
     def resource_id
       identifier
     end
+
+    def delete
+      resource.delete
+      self.delete
+    end
   end
 end
