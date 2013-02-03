@@ -1,5 +1,5 @@
 module Conjur
-  class Server < RestClient::Resource
+  class Host < RestClient::Resource
     include Exists
     include HasIdentifier
     include HasAttributes

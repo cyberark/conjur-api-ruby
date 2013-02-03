@@ -1,5 +1,5 @@
 
-require 'conjur/api/servers'
+require 'conjur/api/hosts'
 require 'conjur/api/secrets'
 
 module Conjur
