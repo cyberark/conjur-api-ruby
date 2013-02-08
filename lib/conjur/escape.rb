@@ -19,5 +19,9 @@ module Conjur
     def path_escape(str)
       self.class.path_escape str
     end
+
+    def query_escape(str)
+      self.class.query_escape str
+    end
   end
 end
