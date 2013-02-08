@@ -10,7 +10,7 @@ describe Conjur::User do
   
   describe '#token_valid?' do
     it "raises KeyError when there's no authn key in the db" do
-      stub_const 'Slosilo', Module.new
+      require 'slosilo'
       Slosilo.stub(:[]).with(:authn).and_return nil
       expect { subject.token_valid? :whatever }.to raise_error(KeyError)
     end
