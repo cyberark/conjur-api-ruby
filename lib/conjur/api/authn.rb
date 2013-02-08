@@ -20,5 +20,10 @@ module Conjur
         User.new(Conjur::Authn::API.host)["/users/#{path_escape login}"]
       end
     end
+    
+    def create_user(login, options = {})
+      resp = RestClient::Resource.new(Conjur::Authn::API.host, credentials)['/users'].post(options.merge(login: login))
+      User.new(resp.headers[:location], credentials)
+    end
   end
 end

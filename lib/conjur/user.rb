@@ -3,6 +3,8 @@ module Conjur
   end
   
   class User < RestClient::Resource
+    include HasAttributes
+    
     def authenticate password
       JSON::parse(self["/authenticate"].post password, content_type: 'text/plain').tap do |token|
         raise InvalidToken.new unless token_valid?(token)
