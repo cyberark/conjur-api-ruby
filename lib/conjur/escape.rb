@@ -2,11 +2,13 @@ module Conjur
   module Escape
     module ClassMethods
       def path_escape(str)
+        str = str.id if str.respond_to?(:id)
         require 'uri'
         URI.escape(str.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
       end
 
       def query_escape(str)
+        str = str.id if str.respond_to?(:id)
         require 'uri'
         URI.escape(str.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
       end

@@ -34,6 +34,17 @@ describe Conjur::Resource do
   context "identifier" do
     include Conjur::Escape
     let(:resource) { Conjur::Resource.new("#{Conjur::Authz::API.host}/#{kind}/#{path_escape identifier}") }
+    
+    context "Object with an #id" do
+      let(:kind) { "host" }
+      let(:identifier) do
+        Conjur::Host.new("#{Conjur::Core::API.host}/hosts/foobar", {})
+      end
+      it "identifier should obtained from the id" do
+        resource.identifier.should == "foobar"
+      end
+    end
+    
     [ [ "foo", "bar/baz" ], [ "f:o", "bar" ], [ "@f", "bar.baz" ], [ "@f", "bar baz" ], [ "@f", "bar?baz" ] ].each do |p|
       context "of /#{p[0]}/#{p[1]}" do
         let(:kind) { p[0] }

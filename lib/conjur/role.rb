@@ -1,7 +1,7 @@
 module Conjur
   class Role < RestClient::Resource
     include Exists
-    include HasIdentifier
+    include HasId
     
     def create
       self.put("")
@@ -13,8 +13,12 @@ module Conjur
       end
     end
     
-    def grant(member, admin_option = false)
+    def grant_to(member, admin_option = false)
       self["/members/#{path_escape member}?admin_option=#{query_escape admin_option}"].put("")
+    end
+
+    def revoke_from(member)
+      self["/members/#{path_escape member}"].delete
     end
 
     def permitted?(resource_kind, resource_id, privilege)

@@ -7,8 +7,8 @@ module Conjur
       Host.new(resp.headers[:location], credentials)
     end
     
-    def host identifier
-      Host.new("#{Conjur::Core::API.host}/hosts/#{path_escape identifier}", credentials)
+    def host id
+      Host.new("#{Conjur::Core::API.host}/hosts/#{path_escape id}", credentials)
     end
   end
 end

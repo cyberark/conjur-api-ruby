@@ -3,9 +3,10 @@ module Conjur
     include Exists
     include HasIdentifier
     include ActsAsResource
+    include HasAttributes
     
     def value
-      self['/download'].get.body
+      self['/value'].get.body
     end
   end
 end

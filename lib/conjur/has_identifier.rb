@@ -1,8 +1,13 @@
 module Conjur
   module HasIdentifier
+    def self.included(base)
+      base.instance_eval do
+        include HasAttributes
+      end
+    end
+    
     def identifier
-      require 'uri'
-      URI.unescape URI.parse(self.url).path.split('/')[-1]
+      attributes['identifier']
     end    
   end
 end

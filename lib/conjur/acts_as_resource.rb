@@ -11,7 +11,7 @@ module Conjur
     end
 
     def resource_id
-      identifier
+      id
     end
 
     def delete
