@@ -23,6 +23,9 @@ module Conjur
 
     def permitted?(resource_kind, resource_id, privilege)
       self["/permitted?resource_kind=#{query_escape resource_kind}&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get
+      true
+    rescue RestClient::ResourceNotFound
+      false
     end
   end
 end
