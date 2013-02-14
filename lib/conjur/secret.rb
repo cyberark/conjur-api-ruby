@@ -1,9 +1,8 @@
 module Conjur
   class Secret < RestClient::Resource
-    include Exists
-    include HasIdentifier
     include ActsAsResource
-    include HasAttributes
+    include Exists
+    include HasId
     
     def value
       self['/value'].get.body
