@@ -1,6 +1,7 @@
-
 require 'conjur/api/hosts'
 require 'conjur/api/secrets'
+require 'conjur/api/users'
+require 'conjur/api/groups'
 
 module Conjur
   module Core

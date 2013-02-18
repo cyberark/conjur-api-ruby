@@ -14,10 +14,25 @@ module Conjur
     end
     
     def grant_to(member, admin_option = false)
+      log do |logger|
+        logger << "Granting role "
+        logger << id
+        logger << " to "
+        logger << member
+        if admin_option
+          logger << " with admin option"
+        end
+      end
       self["/members/#{path_escape member}?admin_option=#{query_escape admin_option}"].put("")
     end
 
     def revoke_from(member)
+      log do |logger|
+        logger << "Revoking role "
+        logger << id
+        logger << " from "
+        logger << member
+      end
       self["/members/#{path_escape member}"].delete
     end
 

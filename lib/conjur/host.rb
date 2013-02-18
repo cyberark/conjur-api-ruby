@@ -4,15 +4,14 @@ module Conjur
     include HasId
     include HasIdentifier
     include HasAttributes
-    include ActsAsResource
-    include ActsAsRole
+    include ActsAsUser
     
-    def generate_enrollment_script
-      self['/enroll'].head{|response, request, result| response }.headers[:location]
-    end
-    
-    def roleid
-      "host-#{id}"
+    def enrollment_url
+      log do |logger|
+        logger << "Fetching enrollment_url for "
+        logger << id
+      end
+      self['/enrollment_url'].head{|response, request, result| response }.headers[:location]
     end
   end
 end
