@@ -10,12 +10,16 @@ module Conjur
       match_path(1..-1)
     end
     
-    def create
+    def create(options = {})
       log do |logger|
         logger << "Creating resource "
         logger << kind
         logger << ":"
         logger << identifier
+        unless options.empty?
+          logger << " with options "
+          logger << options.to_json
+        end
       end
       self.put({}, content_type: :json)
     end
