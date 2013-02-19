@@ -12,6 +12,11 @@ module Conjur
     
     protected
     
+    def invalidate(&block)
+      yield
+      @attributes = nil
+    end
+    
     def fetch
       @attributes = JSON.parse(get.body)
     end
