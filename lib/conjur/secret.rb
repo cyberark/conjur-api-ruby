@@ -1,6 +1,7 @@
 module Conjur
   class Secret < RestClient::Resource
     include ActsAsResource
+    include HasAttributes
     include Exists
     include HasId
     
