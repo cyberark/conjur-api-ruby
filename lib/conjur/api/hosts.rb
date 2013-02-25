@@ -14,6 +14,18 @@ module Conjur
         end
       end
     end
+
+    def enroll_host(key)
+      log do |logger|
+        logger << "Enrolling #{id}"
+      end
+      mime_type = body = nil
+      RestClient::Resource.new("#{Conjur::Core::API.host}/hosts/enroll?key=#{query_escape key}", credentials).get do |response|
+        mime_type = response.headers[:content_type]
+        body = response.body
+      end
+      [ mime_type, body ]
+    end
     
     def host id
       Host.new("#{Conjur::Core::API.host}/hosts/#{path_escape id}", credentials)
