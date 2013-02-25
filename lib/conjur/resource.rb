@@ -26,50 +26,36 @@ module Conjur
 
     def delete
       log do |logger|
-        logger << "Creating resource "
-        logger << kind
-        logger << ":"
-        logger << identifier
+        logger << "Creating resource #{kind} : #{identifier}"
       end
       self.delete
     end
 
     def permit(privilege, role, options = {})
-      log do |logger|
-        logger << "Permitting "
-        logger << privilege
-        logger << " on resource "
-        logger << kind
-        logger << ":"
-        logger << identifier
-        logger << " by "
-        logger << role
-        if options[:grantor]
-          logger << " with grantor "
-          logger << options[:grantor]
+      eachable(privilege).each do |p|
+        log do |logger|
+          logger << "Permitting #{p} on resource #{kind} : #{identifier} by #{role}"
+          logger << " with grantor #{options[:grantor]}" if options[:grantor]
+          logger << " with grant option" if options[:grant_option]
         end
-        if options[:grant_option]
-          logger << " with grant option"
-        end
+        self["?grant&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
       end
-      self["?grant&privilege=#{query_escape privilege}&role=#{query_escape role}"].post(options)
     end
     
     def deny(privilege, role, options = {})
-      log do |logger|
-        logger << "Denying "
-        logger << privilege
-        logger << "on resource "
-        logger << kind
-        logger << ":"
-        logger << identifier
-        logger << " by "
-        logger << role
+      eachable(privilege).each do |p|
+        log do |logger|
+          logger << "Denying #{p} on resource #{kind} : #{identifier} by #{role}"
+        end
+        self["?revoke&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
       end
-      self["?revoke&privilege=#{query_escape privilege}&role=#{query_escape role}"].post(options)
     end
     
     protected
+    
+    def eachable(item)
+      item.respond_to?(:each) ? item : [ item ]
+    end
     
     def match_path(range)
       require 'uri'
