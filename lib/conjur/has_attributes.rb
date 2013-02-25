@@ -10,6 +10,10 @@ module Conjur
       self.put(attributes.to_json)
     end
     
+    def refresh
+      fetch
+    end
+    
     protected
     
     def invalidate(&block)
