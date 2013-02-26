@@ -10,6 +10,8 @@ module Conjur
       self.put(attributes.to_json)
     end
     
+    # Reload the attributes. This action can be used to guarantee a current view of the entity in the case
+    # that it has been modified by an update method or by an external party.
     def refresh
       fetch
     end
