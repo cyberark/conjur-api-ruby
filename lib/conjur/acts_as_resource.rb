@@ -6,8 +6,7 @@ module Conjur
     end
     
     def resource_kind
-      class_name = self.class.name.split("::")[-1].downcase
-      [ "conjur", class_name ].join("-")
+      self.class.name.split("::")[1..-1].join('-').downcase
     end
 
     def resource_id
@@ -16,7 +15,7 @@ module Conjur
 
     def delete
       resource.delete
-      self.delete
+      super
     end
   end
 end
