@@ -12,10 +12,7 @@ module Conjur
     
     def create(options = {})
       log do |logger|
-        logger << "Creating resource "
-        logger << kind
-        logger << ":"
-        logger << identifier
+        logger << "Creating resource #{kind} : #{identifier}"
         unless options.empty?
           logger << " with options "
           logger << options.to_json
@@ -26,9 +23,9 @@ module Conjur
 
     def delete
       log do |logger|
-        logger << "Creating resource #{kind} : #{identifier}"
+        logger << "Deleting resource #{kind} : #{identifier}"
       end
-      self.delete
+      super.delete
     end
 
     def permit(privilege, role, options = {})
@@ -38,6 +35,7 @@ module Conjur
           logger << " with grantor #{options[:grantor]}" if options[:grantor]
           logger << " with grant option" if options[:grant_option]
         end
+        
         self["?grant&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
       end
     end
