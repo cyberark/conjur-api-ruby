@@ -14,7 +14,7 @@ describe Conjur::User do
       its(:login) { should == login }
       its(:roleid) { should == login }
       its(:resource_id) { should == login }
-      its(:resource_kind) { should == "conjur-user" }
+      its(:resource_kind) { should == "user" }
       its(:options) { should == credentials }
     end
     it "connects to a Resource" do
