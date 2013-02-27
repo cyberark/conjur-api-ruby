@@ -9,7 +9,7 @@ module Conjur
           logger << " with options #{options.inspect}"
         end
       end
-      resp = RestClient::Resource.new(Conjur::Core::API.host, credentials)['/variables'].post(options.merge(mime_type: mime_type, kind: kind))
+      resp = RestClient::Resource.new(Conjur::Core::API.host, credentials)['variables'].post(options.merge(mime_type: mime_type, kind: kind))
       Variable.new(resp.headers[:location], credentials).tap do |variable|
         log do |logger|
           logger << "Created variable "
