@@ -1,8 +1,3 @@
-require 'conjur/api'
-
-require 'conjur/api/roles'
-require 'conjur/api/resources'
-
 module Conjur
   module Authz
     class API < Conjur::API
@@ -23,3 +18,6 @@ module Conjur
     end
   end
 end
+
+require 'conjur/api/roles'
+require 'conjur/api/resources'

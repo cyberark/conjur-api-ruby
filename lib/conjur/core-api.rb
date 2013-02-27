@@ -1,9 +1,3 @@
-require 'conjur/api/hosts'
-require 'conjur/api/secrets'
-require 'conjur/api/users'
-require 'conjur/api/groups'
-require 'conjur/api/variables'
-
 module Conjur
   module Core
     class API < Conjur::API
@@ -24,3 +18,9 @@ module Conjur
     end
   end
 end
+
+require 'conjur/api/hosts'
+require 'conjur/api/secrets'
+require 'conjur/api/users'
+require 'conjur/api/groups'
+require 'conjur/api/variables'

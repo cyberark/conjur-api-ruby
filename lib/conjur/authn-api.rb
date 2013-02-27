@@ -1,6 +1,3 @@
-require 'conjur/api'
-require 'conjur/api/authn'
-
 module Conjur
   module Authn
     class API < Conjur::API
@@ -21,3 +18,5 @@ module Conjur
     end
   end
 end
+
+require 'conjur/api/authn'
