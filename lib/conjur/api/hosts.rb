@@ -14,17 +14,20 @@ module Conjur
         end
       end
     end
-
-    def enroll_host(key)
-      log do |logger|
-        logger << "Enrolling #{id}"
-      end
-      mime_type = body = nil
-      RestClient::Resource.new("#{Conjur::Core::API.host}/hosts/enroll?key=#{query_escape key}", credentials).get do |response|
-        mime_type = response.headers[:content_type]
+    
+    class << self
+      def enroll_host(url)
+        if Conjur.log
+          logger << "Enrolling host with URL #{url}"
+        end
+        require 'uri'
+        url = URI.parse(url) if url.is_a?(String)
+        response = Net::HTTP.get_response url
+        raise "Host enrollment failed with status #{response.code} : #{response.body}" unless response.code.to_i == 200
+        mime_type = response['Content-Type']
         body = response.body
+        [ mime_type, body ]
       end
-      [ mime_type, body ]
     end
     
     def host id
