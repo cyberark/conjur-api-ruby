@@ -3,7 +3,7 @@ module Conjur
     include Exists
     include HasId
     
-    def create(options)
+    def create(options = {})
       log do |logger|
         logger << "Creating role #{id}"
         unless options.empty?
@@ -13,7 +13,7 @@ module Conjur
       self.put(options)
     end
     
-    def all(options)
+    def all(options = {})
       JSON.parse(self["/all"].get(options)).collect do |id|
         Role.new("#{Conjur::Authz::API.host}/roles/#{path_escape id}", self.options)
       end
