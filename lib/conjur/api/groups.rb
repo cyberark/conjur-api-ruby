@@ -1,3 +1,5 @@
+require 'conjur/group'
+
 module Conjur
   class API
     def create_group(id, options = {})

@@ -2,7 +2,7 @@ module Conjur
   module ActsAsResource
     def resource
       require 'conjur/resource'
-      Conjur::Resource.new("#{Conjur::Authz::API.host}/#{path_escape resource_kind}/#{path_escape resource_id}", options)
+      Conjur::Resource.new("#{Conjur::Authz::API.host}/#{path_escape resource_kind}/#{path_escape resource_id}", self.options)
     end
     
     def resource_kind

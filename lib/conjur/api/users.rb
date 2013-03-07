@@ -1,3 +1,5 @@
+require 'conjur/user'
+
 module Conjur
   class API
     def create_user(login, options = {})

@@ -14,26 +14,34 @@ module Conjur
       log do |logger|
         logger << "Creating resource #{kind} : #{identifier}"
         unless options.empty?
-          logger << " with options "
-          logger << options.to_json
+          logger << " with options #{options.to_json}"
         end
       end
-      self.put({}, content_type: :json)
+      self.put(options)
+    end
+    
+    # Changes the owner of a resource
+    def give_to(owner, options = {})
+      self.put(options.mergee(owner: owner))
     end
 
-    def delete
+    def delete(options = {})
       log do |logger|
         logger << "Deleting resource #{kind} : #{identifier}"
+        unless options.empty?
+          logger << " with options #{options.to_json}"
+        end
       end
-      super.delete
+      super.delete(options)
     end
 
     def permit(privilege, role, options = {})
       eachable(privilege).each do |p|
         log do |logger|
           logger << "Permitting #{p} on resource #{kind} : #{identifier} by #{role}"
-          logger << " with grantor #{options[:grantor]}" if options[:grantor]
-          logger << " with grant option" if options[:grant_option]
+          unless options.empty?
+            logger << " with options #{options.to_json}"
+          end
         end
         
         self["?grant&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
@@ -44,6 +52,9 @@ module Conjur
       eachable(privilege).each do |p|
         log do |logger|
           logger << "Denying #{p} on resource #{kind} : #{identifier} by #{role}"
+          unless options.empty?
+            logger << " with options #{options.to_json}"
+          end
         end
         self["?revoke&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
       end
