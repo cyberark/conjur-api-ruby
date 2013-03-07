@@ -12,22 +12,29 @@ require 'conjur/user'
 module Conjur
   class API
     class << self
-      def login user, password
+      # Perform login by Basic authentication.
+      def login username, password
         if Conjur.log
-          Conjur.log << "Logging in "
-          Conjur.log << user
-          Conjur.log << "\n"
+          Conjur.log << "Logging in #{username} via Basic authentication"
         end
-        RestClient::Resource.new(Conjur::Authn::API.host, user: user, password: password)['/users/login'].get
+        RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['/users/login'].get
       end
 
-      def authenticate user, password
+      # Perform login by CAS authentication.
+      def login_cas username, password, cas_api_url
         if Conjur.log
-          Conjur.log << "Authenticating "
-          Conjur.log << user
-          Conjur.log << "\n"
+          Conjur.log << "Logging in #{username} via CAS authentication"
         end
-        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["/users/#{path_escape user}/authenticate"].post password, content_type: 'text/plain').tap do |token|
+        require 'cas_rest_client'
+        client = CasRestClient.new(:username => username, :password => password, :uri => [ cas_api_url, 'v1', 'tickets' ].join('/'), :use_cookies => false)
+        client.get("#{Conjur::Authn::API.host}/users/login").body
+      end
+
+      def authenticate username, password
+        if Conjur.log
+          Conjur.log << "Authenticating #{username}"
+        end
+        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["/users/#{path_escape username}/authenticate"].post password, content_type: 'text/plain').tap do |token|
           raise InvalidToken.new unless token_valid?(token)
         end
       end
@@ -45,8 +52,7 @@ module Conjur
 
     def create_authn_user login, password = nil, options = {}
       log do |logger|
-        logger << "Creating authn user "
-        logger << login
+        logger << "Creating authn user #{login}"
       end
       RestClient::Resource.new(Conjur::Authn::API.host, credentials)['/users'].post(options.merge(login: login, password: password))
     end
