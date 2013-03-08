@@ -15,7 +15,7 @@ module Conjur
       # Perform login by Basic authentication.
       def login username, password
         if Conjur.log
-          Conjur.log << "Logging in #{username} via Basic authentication"
+          Conjur.log << "Logging in #{username} via Basic authentication\n"
         end
         RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['/users/login'].get
       end
@@ -23,7 +23,7 @@ module Conjur
       # Perform login by CAS authentication.
       def login_cas username, password, cas_api_url
         if Conjur.log
-          Conjur.log << "Logging in #{username} via CAS authentication"
+          Conjur.log << "Logging in #{username} via CAS authentication\n"
         end
         require 'cas_rest_client'
         client = CasRestClient.new(:username => username, :password => password, :uri => [ cas_api_url, 'v1', 'tickets' ].join('/'), :use_cookies => false)
@@ -32,7 +32,7 @@ module Conjur
 
       def authenticate username, password
         if Conjur.log
-          Conjur.log << "Authenticating #{username}"
+          Conjur.log << "Authenticating #{username}\n"
         end
         JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["/users/#{path_escape username}/authenticate"].post password, content_type: 'text/plain').tap do |token|
           raise InvalidToken.new unless token_valid?(token)
