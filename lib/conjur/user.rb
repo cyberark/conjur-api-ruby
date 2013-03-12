@@ -4,6 +4,7 @@ module Conjur
   
   class User < RestClient::Resource
     include HasId
+    include HasAttributes
     include ActsAsResource
     include ActsAsUser
     

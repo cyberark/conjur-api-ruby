@@ -6,12 +6,12 @@ module Conjur
       log do |logger|
         logger << "Creating host"
       end
-      resp = RestClient::Resource.new("#{Conjur::Core::API.host}/hosts", credentials).post(options)
-      Host.new(resp.headers[:location], credentials).tap do |host|
+      resp = JSON.parse RestClient::Resource.new("#{Conjur::Core::API.host}/hosts", credentials).post(options)
+      host(resp['id']).tap do |h|
         log do |logger|
-          logger << "Created host "
-          logger << host.id
+          logger << "Created host #{h.id}"
         end
+        h.attributes = resp
       end
     end
     
