@@ -50,11 +50,17 @@ module Conjur
       end
     end
 
-    def create_authn_user login, password = nil, options = {}
+    # Options:
+    # +password+
+    #
+    # Response:
+    # +login+
+    # +api_key+
+    def create_authn_user login, options = {}
       log do |logger|
         logger << "Creating authn user #{login}"
       end
-      RestClient::Resource.new(Conjur::Authn::API.host, credentials)['/users'].post(options.merge(login: login, password: password))
+      JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['/users'].post(options.merge(login: login))
     end
   end
 end
