@@ -6,6 +6,9 @@ module Conjur
     include HasId
     
     def add_value value
+      log do |logger|
+        logger << "Adding #{value} to variable #{id}"
+      end
       invalidate do
         self['values'].post value: value
       end
