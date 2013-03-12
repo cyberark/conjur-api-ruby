@@ -1,6 +1,7 @@
 module Conjur
   class Resource < RestClient::Resource
     include Exists
+    include HasAttributes
     
     def kind
       match_path(0..0)
@@ -19,10 +20,15 @@ module Conjur
       end
       self.put(options)
     end
+
+    # Lists roles that have a specified permission on the resource.
+    def permitted_roles(permission, options = {})
+      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}"].get(options)
+    end
     
     # Changes the owner of a resource
     def give_to(owner, options = {})
-      self.put(options.mergee(owner: owner))
+      self.put(options.merge(owner: owner))
     end
 
     def delete(options = {})
