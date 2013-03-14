@@ -15,14 +15,13 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Conjur::API::VERSION
   
-  gem.add_runtime_dependency 'rest-client'
-  gem.add_runtime_dependency 'slosilo'
-  gem.add_runtime_dependency 'activesupport'
+  gem.add_dependency 'rest-client'
+  gem.add_dependency 'slosilo'
+  gem.add_dependency 'activesupport'
   
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'spork'
   gem.add_development_dependency 'rspec'
-  gem.add_development_dependency 'vcr'
   gem.add_development_dependency 'webmock'
   gem.add_development_dependency 'ci_reporter'
 end
