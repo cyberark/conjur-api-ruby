@@ -6,7 +6,7 @@ module Conjur
     include HasId
     
     def value
-      self['/value'].get.body
+      self['value'].get.body
     end
   end
 end

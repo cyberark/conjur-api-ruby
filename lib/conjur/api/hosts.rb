@@ -2,19 +2,6 @@ require 'conjur/host'
 
 module Conjur
   class API
-    def create_host options
-      log do |logger|
-        logger << "Creating host"
-      end
-      resp = JSON.parse RestClient::Resource.new("#{Conjur::Core::API.host}/hosts", credentials).post(options)
-      host(resp['id']).tap do |h|
-        log do |logger|
-          logger << "Created host #{h.id}"
-        end
-        h.attributes = resp
-      end
-    end
-    
     class << self
       def enroll_host(url)
         if Conjur.log
@@ -30,8 +17,12 @@ module Conjur
       end
     end
     
+    def create_host options
+      standard_create Conjur::Core::API.host, :host, nil, options
+    end
+    
     def host id
-      Host.new("#{Conjur::Core::API.host}/hosts/#{path_escape id}", credentials)
+      standard_show Conjur::Core::API.host, :host, id
     end
   end
 end

@@ -60,11 +60,6 @@ describe Conjur::API do
       let(:api) { Conjur::Authz::API }
       it_should_behave_like "API endpoint"
     end
-    context "of das service" do
-      let(:port_offset) { 200 }
-      let(:api) { Conjur::DAS::API }
-      it_should_behave_like "API endpoint"
-    end
     context "of core service" do
       let(:port_offset) { 300 }
       let(:api) { Conjur::Core::API }
@@ -83,16 +78,37 @@ describe Conjur::API do
   end
   context "credential handling" do
     let(:login) { "bob" }
+    let(:token) { { 'data' => login, 'timestamp' => (Time.now + elapsed ).to_s } }
+    let(:elapsed) { 0 }
+    before {
+      Conjur::TokenCache.class_variable_set("@@tokens", Hash.new)
+    }
     subject { api }
     context "from token" do
-      let(:token) { { 'data' => login } }
       let(:api) { Conjur::API.new_from_token(token) }
-      its(:credentials) { should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login } }
+      context "expired" do
+        before {
+          Conjur::TokenCache.stub(:expired?).and_return true
+        }
+        it "should raise an error" do
+          $stderr.should_receive(:puts).with("Token is expired and no api_key is available to renew it")
+          
+          api.credentials
+        end
+      end
+      context "not expired" do
+        its(:credentials) { should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login } }
+      end
     end
     context "from api key" do
       let(:api_key) { "theapikey" }
       let(:api) { Conjur::API.new_from_key(login, api_key) }
-      its(:credentials) { should == { user: login, password: api_key } }
+      it("should authenticate to get a token") do
+        Conjur::API.should_receive(:authenticate).with(login, api_key).and_return token
+        
+        api.instance_variable_get("@token").should == nil
+        api.credentials.should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }
+      end
     end
   end
 end

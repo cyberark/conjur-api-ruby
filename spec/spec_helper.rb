@@ -11,18 +11,10 @@ Spork.prefork do
   # Allows loading of an environment config based on the environment
   require 'rspec'
   require 'webmock/rspec'
-  require 'vcr'
   require 'securerandom'
   
   # Uncomment the next line to use webrat's matchers
   #require 'webrat/integrations/rspec-rails'
-
-  VCR.configure do |c|
-    c.cassette_library_dir = 'spec/vcr_cassettes'
-    c.hook_into :webmock
-    c.default_cassette_options = { :record => :new_episodes }
-#    c.ignore_localhost = true
-  end
 
   RSpec.configure do |config|
     # If you're not using ActiveRecord you should remove these
@@ -62,8 +54,6 @@ Spork.prefork do
     # == Notes
     #
     # For more information take a look at Spec::Runner::Configuration and Spec::Runner
-
-    config.extend VCR::RSpec::Macros
   end
 end
 

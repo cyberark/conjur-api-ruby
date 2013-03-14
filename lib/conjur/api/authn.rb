@@ -17,7 +17,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Logging in #{username} via Basic authentication\n"
         end
-        RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['/users/login'].get
+        RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/login'].get
       end
 
       # Perform login by CAS authentication.
@@ -34,7 +34,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
-        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["/users/#{path_escape username}/authenticate"].post password, content_type: 'text/plain').tap do |token|
+        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{path_escape username}/authenticate"].post password, content_type: 'text/plain').tap do |token|
           raise InvalidToken.new unless token_valid?(token)
         end
       end
@@ -60,7 +60,7 @@ module Conjur
       log do |logger|
         logger << "Creating authn user #{login}"
       end
-      JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['/users'].post(options.merge(login: login))
+      JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['users'].post(options.merge(login: login))
     end
   end
 end

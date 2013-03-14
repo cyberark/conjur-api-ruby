@@ -14,7 +14,7 @@ module Conjur
     end
     
     def all(options = {})
-      JSON.parse(self["/all"].get(options)).collect do |id|
+      JSON.parse(self["all"].get(options)).collect do |id|
         Role.new("#{Conjur::Authz::API.host}/roles/#{path_escape id}", self.options)
       end
     end
@@ -29,7 +29,7 @@ module Conjur
           logger << " and extended options #{options.to_json}"
         end
       end
-      self["/members/#{path_escape member}?admin_option=#{query_escape admin_option}"].put(options)
+      self["members/#{path_escape member}?admin_option=#{query_escape admin_option}"].put(options)
     end
 
     def revoke_from(member, options = {})
@@ -39,11 +39,11 @@ module Conjur
           logger << " with options #{options.to_json}"
         end
       end
-      self["/members/#{path_escape member}"].delete(options)
+      self["members/#{path_escape member}"].delete(options)
     end
 
     def permitted?(resource_kind, resource_id, privilege, options = {})
-      self["/permitted?resource_kind=#{query_escape resource_kind}&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
+      self["permitted?resource_kind=#{query_escape resource_kind}&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
       true
     rescue RestClient::ResourceNotFound
       false
