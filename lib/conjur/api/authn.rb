@@ -1,14 +1,5 @@
 require 'conjur/user'
 
-# Fails for the CLI client because it has no slosilo key
-#require 'rest-client'
-
-#RestClient.add_before_execution_proc do |req, params|
-#  require 'slosilo'
-#  req.extend Slosilo::HTTPRequest
-#  req.keyname = :authn
-#end
-
 module Conjur
   class API
     class << self
@@ -34,19 +25,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
-        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{path_escape username}/authenticate"].post password, content_type: 'text/plain').tap do |token|
-          raise InvalidToken.new unless token_valid?(token)
-        end
-      end
-      
-      def token_valid? token
-        require 'slosilo'
-        key = Slosilo[:authn]
-        if key
-          key.token_valid? token
-        else
-          raise KeyError, "authn key not found in Slosilo keystore"
-        end
+        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{path_escape username}/authenticate"].post password, content_type: 'text/plain')
       end
     end
 

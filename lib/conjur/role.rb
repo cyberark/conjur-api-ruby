@@ -1,11 +1,15 @@
 module Conjur
   class Role < RestClient::Resource
     include Exists
-    include HasId
+    include PathBased
+
+    def identifier
+      match_path(1..-1)
+    end
     
     def create(options = {})
       log do |logger|
-        logger << "Creating role #{id}"
+        logger << "Creating role #{identifier}"
         unless options.empty?
           logger << " with options #{options.to_json}"
         end
@@ -15,13 +19,14 @@ module Conjur
     
     def all(options = {})
       JSON.parse(self["all"].get(options)).collect do |id|
-        Role.new("#{Conjur::Authz::API.host}/roles/#{path_escape id}", self.options)
+        Role.new("#{Conjur::Authz::API.host}/roles/#{path_escape id}?all", self.options)
       end
     end
     
     def grant_to(member, admin_option = false, options = {})
+      self.members.grant_to member, admin_option, options
       log do |logger|
-        logger << "Granting role #{id} to #{member}"
+        logger << "Granting role #{identifier} to #{member}"
         if admin_option
           logger << " with admin option"
         end
@@ -29,24 +34,28 @@ module Conjur
           logger << " and extended options #{options.to_json}"
         end
       end
-      self["members/#{path_escape member}?admin_option=#{query_escape admin_option}"].put(options)
+      self["?members&member=#{query_escape member}&admin_option=#{query_escape admin_option}"].put(options)
     end
 
     def revoke_from(member, options = {})
       log do |logger|
-        logger << "Revoking role #{id} from #{member}"
+        logger << "Revoking role #{identifier} from #{member}"
         unless options.empty?
           logger << " with options #{options.to_json}"
         end
       end
-      self["members/#{path_escape member}"].delete(options)
+      self["?members&member=#{query_escape member}"].delete(options)
     end
 
     def permitted?(resource_kind, resource_id, privilege, options = {})
-      self["permitted?resource_kind=#{query_escape resource_kind}&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
+      self["?check&resource_kind=#{query_escape resource_kind}&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
       true
     rescue RestClient::ResourceNotFound
       false
+    end
+    
+    def members
+      Role.new(Conjur::Authz::API.host, credentials)[role_path(role)]
     end
   end
 end

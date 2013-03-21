@@ -66,16 +66,6 @@ describe Conjur::API do
       it_should_behave_like "API endpoint"
     end    
   end
-  context ".class" do
-    describe '#token_valid?' do
-      subject { Conjur::API }
-      it "raises KeyError when there's no authn key in the db" do
-        require 'slosilo'
-        Slosilo.stub(:[]).with(:authn).and_return nil
-        expect { subject.token_valid? :whatever }.to raise_error(KeyError)
-      end
-    end
-  end
   context "credential handling" do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => (Time.now + elapsed ).to_s } }

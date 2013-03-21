@@ -16,7 +16,6 @@ Gem::Specification.new do |gem|
   gem.version       = Conjur::API::VERSION
   
   gem.add_dependency 'rest-client'
-  gem.add_dependency 'slosilo'
   gem.add_dependency 'activesupport'
   
   gem.add_development_dependency 'rake'

@@ -2,13 +2,14 @@ module Conjur
   class Resource < RestClient::Resource
     include Exists
     include HasAttributes
+    include PathBased
     
     def kind
-      match_path(0..0)
+      match_path(1..1)
     end
 
     def identifier
-      match_path(1..-1)
+      match_path(2..-1)
     end
     
     def create(options = {})
@@ -70,12 +71,6 @@ module Conjur
     
     def eachable(item)
       item.respond_to?(:each) ? item : [ item ]
-    end
-    
-    def match_path(range)
-      require 'uri'
-      tokens = URI.parse(self.url).path[1..-1].split('/')[range]
-      tokens.map{|t| URI.unescape(t)}.join('/')
     end
   end
 end

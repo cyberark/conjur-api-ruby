@@ -3,6 +3,7 @@ require 'json'
 
 require 'conjur/exists'
 require 'conjur/has_attributes'
+require 'conjur/path_based'
 require 'conjur/escape'
 require 'conjur/log'
 require 'conjur/log_source'
@@ -16,6 +17,10 @@ module Conjur
     include StandardMethods
     
     class << self
+      def default_account
+        Conjur.account
+      end
+      
       def new_from_key(username, api_key)
         self.new username, api_key, nil
       end
