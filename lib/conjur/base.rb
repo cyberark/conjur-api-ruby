@@ -17,6 +17,12 @@ module Conjur
     include StandardMethods
     
     class << self
+      # Parse a role id into [ account, 'roles', kind, id ]
+      def parse_role_id(id)
+        paths = path_escape(id).split(':')
+        [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
+      end
+
       def new_from_key(username, api_key)
         self.new username, api_key, nil
       end

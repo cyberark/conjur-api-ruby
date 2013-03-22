@@ -10,7 +10,7 @@ module Conjur
     
     def resource identifier
       paths = path_escape(identifier).split(':')
-      path = [ paths[0], paths[1], paths[2..-1].join(':') ].flatten.join('/')
+      path = [ paths[0], 'resources', paths[1], paths[2..-1].join(':') ].flatten.join('/')
       Resource.new(Conjur::Authz::API.host, credentials)[path]
     end
   end

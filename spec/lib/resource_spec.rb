@@ -8,7 +8,7 @@ describe Conjur::Resource do
   
   context "identifier" do
     include Conjur::Escape
-    let(:resource) { Conjur::Resource.new("#{Conjur::Authz::API.host}/#{account}/#{kind}/#{path_escape identifier}") }
+    let(:resource) { Conjur::Resource.new("#{Conjur::Authz::API.host}/#{account}/resources/#{kind}/#{path_escape identifier}") }
     
     context "Object with an #id" do
       let(:kind) { "host" }

@@ -9,9 +9,7 @@ module Conjur
     end
 
     def role role
-      paths = path_escape(role).split(':')
-      path = [ paths[0], 'roles', paths[1..-1].join(':') ].flatten.join('/')
-      Role.new(Conjur::Authz::API.host, credentials)[path]
+      Role.new(Conjur::Authz::API.host, credentials)[self.class.parse_role_id(role).join('/')]
     end
   end
 end

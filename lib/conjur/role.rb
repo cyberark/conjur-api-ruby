@@ -11,7 +11,7 @@ module Conjur
     
     def create(options = {})
       log do |logger|
-        logger << "Creating role #{identifier}"
+        logger << "Creating role #{kind}:#{identifier}"
         unless options.empty?
           logger << " with options #{options.to_json}"
         end
@@ -21,7 +21,7 @@ module Conjur
     
     def all(options = {})
       JSON.parse(self["?all"].get(options)).collect do |id|
-        Role.new("#{Conjur::Authz::API.host}/roles/#{path_escape id}?all", self.options)
+        Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
       end
     end
     
@@ -57,7 +57,9 @@ module Conjur
     end
     
     def members
-      Role.new(Conjur::Authz::API.host, credentials)[role_path(role)]
+      JSON.parse(self["?members"].get(options)).collect do |id|
+        Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
+      end
     end
   end
 end

@@ -4,17 +4,13 @@ module Conjur
     include HasAttributes
     include PathBased
     
-    def kind
-      match_path(1..1)
-    end
-
     def identifier
-      match_path(2..-1)
+      match_path(3..-1)
     end
     
     def create(options = {})
       log do |logger|
-        logger << "Creating resource #{kind} : #{identifier}"
+        logger << "Creating resource #{kind}:#{identifier}"
         unless options.empty?
           logger << " with options #{options.to_json}"
         end

@@ -4,7 +4,7 @@ require 'conjur/api'
 
 shared_examples_for "properties" do
   subject { role }
-  its(:id) { should == [ kind, id ].join(':') }
+  its(:id) { should == [ kind, id ].join('/') }
 end
 
 describe Conjur::Role do
@@ -21,7 +21,7 @@ describe Conjur::Role do
       it_should_behave_like "properties"
     end
     context "with more complex id" do
-      let(:id) { "@foo/bar" }
+      let(:id) { "@:foo/bar" }
       it_should_behave_like "properties"
     end
   end

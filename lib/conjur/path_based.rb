@@ -4,6 +4,10 @@ module Conjur
       match_path(0..0)
     end
 
+    def kind
+      match_path(2..2)
+    end
+    
     protected
     
     def match_path(range)
