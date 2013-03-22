@@ -7,7 +7,7 @@ module Conjur
     include ActsAsUser
     
     def roleid
-      "host-#{id}"
+      "host:#{id}"
     end
     
     def enrollment_url

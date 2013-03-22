@@ -17,10 +17,6 @@ module Conjur
     include StandardMethods
     
     class << self
-      def default_account
-        Conjur.account
-      end
-      
       def new_from_key(username, api_key)
         self.new username, api_key, nil
       end

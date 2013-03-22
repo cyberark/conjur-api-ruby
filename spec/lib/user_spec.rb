@@ -12,7 +12,7 @@ describe Conjur::User do
       subject { user }
       its(:id) { should == login }
       its(:login) { should == login }
-      its(:roleid) { should == login }
+      its(:roleid) { should == ["user", login].join(':') }
       its(:resource_id) { should == login }
       its(:resource_kind) { should == "user" }
       its(:options) { should == credentials }

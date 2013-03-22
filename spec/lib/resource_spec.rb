@@ -3,11 +3,12 @@ require 'spec_helper'
 require 'conjur/api'
 
 describe Conjur::Resource do
+  let(:account) { "the-account" }
   let(:uuid) { "ddd1f59a-494d-48fb-b045-0374c4a6eef9" }
   
   context "identifier" do
     include Conjur::Escape
-    let(:resource) { Conjur::Resource.new("#{Conjur::Authz::API.host}/#{kind}/#{path_escape identifier}") }
+    let(:resource) { Conjur::Resource.new("#{Conjur::Authz::API.host}/#{account}/#{kind}/#{path_escape identifier}") }
     
     context "Object with an #id" do
       let(:kind) { "host" }
@@ -19,7 +20,7 @@ describe Conjur::Resource do
       end
     end
     
-    [ [ "foo", "bar/baz" ], [ "f:o", "bar" ], [ "@f", "bar.baz" ], [ "@f", "bar baz" ], [ "@f", "bar?baz" ] ].each do |p|
+    [ [ "foo", "bar/baz" ], [ "f:o", "bar" ], [ "@f", "bar.baz" ], [ "@f", "bar baz" ], [ "@f", "@:bar/baz" ] ].each do |p|
       context "of /#{p[0]}/#{p[1]}" do
         let(:kind) { p[0] }
         let(:identifier) { p[1] }

@@ -9,5 +9,9 @@ module Conjur
     include ActsAsUser
     
     alias login id
+
+    def roleid
+      [ 'user', id ].join(':')
+    end
   end
 end

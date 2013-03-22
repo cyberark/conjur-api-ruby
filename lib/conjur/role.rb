@@ -4,8 +4,10 @@ module Conjur
     include PathBased
 
     def identifier
-      match_path(1..-1)
+      match_path(2..-1)
     end
+    
+    alias id identifier
     
     def create(options = {})
       log do |logger|
@@ -18,7 +20,7 @@ module Conjur
     end
     
     def all(options = {})
-      JSON.parse(self["all"].get(options)).collect do |id|
+      JSON.parse(self["?all"].get(options)).collect do |id|
         Role.new("#{Conjur::Authz::API.host}/roles/#{path_escape id}?all", self.options)
       end
     end

@@ -5,9 +5,5 @@ module Conjur
         include ActsAsRole
       end
     end
-    
-    def roleid
-      id
-    end
   end
 end
