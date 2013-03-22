@@ -5,7 +5,7 @@ module Conjur
     class << self
       def enroll_host(url)
         if Conjur.log
-          logger << "Enrolling host with URL #{url}"
+          Conjur.log << "Enrolling host with URL #{url}\n"
         end
         require 'uri'
         url = URI.parse(url) if url.is_a?(String)
