@@ -17,9 +17,13 @@ describe Conjur::User do
       its(:resource_kind) { should == "user" }
       its(:options) { should == credentials }
     end
+    before {
+      Conjur.stub(:account).and_return 'ci'
+    }
     it "connects to a Resource" do
       require 'conjur/resource'
-      Conjur::Resource.should_receive(:new).with("#{Conjur::Authz::API.host}/#{user.resource_kind}/#{user.resource_id}", credentials)
+      Conjur::Resource.should_receive(:new).with(Conjur::Authz::API.host, credentials).and_return resource = double(:resource)
+      resource.should_receive(:[]).with("ci/resources/user/the-login")
       
       user.resource
     end
