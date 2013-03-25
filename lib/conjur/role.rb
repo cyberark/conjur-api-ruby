@@ -4,7 +4,7 @@ module Conjur
     include PathBased
 
     def identifier
-      match_path(2..-1)
+      match_path(3..-1)
     end
     
     alias id identifier
@@ -26,7 +26,6 @@ module Conjur
     end
     
     def grant_to(member, admin_option = false, options = {})
-      self.members.grant_to member, admin_option, options
       log do |logger|
         logger << "Granting role #{identifier} to #{member}"
         if admin_option
