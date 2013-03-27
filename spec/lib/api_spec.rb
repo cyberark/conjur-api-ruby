@@ -34,7 +34,7 @@ shared_examples_for "API endpoint" do
       Conjur.stub(:env).and_return "production"
     end
     its "default_host" do
-      should == "https://#{service_name}-v2-conjur.herokuapp.com"
+      should == "https://#{service_name}-v21-conjur.herokuapp.com"
     end
   end
   context "in named production version" do
