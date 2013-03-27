@@ -20,6 +20,7 @@ module Conjur
     
     def invalidate(&block)
       yield
+    ensure
       @attributes = nil
     end
     
