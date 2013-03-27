@@ -16,7 +16,7 @@ module Conjur
   def stack
     ENV['CONJUR_STACK'] || case env
     when "production"
-      "v21"
+      "v3"
     else
       env
     end
