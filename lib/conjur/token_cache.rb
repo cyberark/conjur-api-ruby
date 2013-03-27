@@ -33,6 +33,7 @@ module Conjur
       
       # Expire tokens after 1 minute, even though they are valid for longer.
       def expired?(token, expiry = 1 * 60)
+        raise "No timestamp in token" unless token['timestamp']
         Time.parse(token["timestamp"]) + expiry < Time.now
       end
     end

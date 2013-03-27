@@ -14,14 +14,7 @@ module Conjur
       options ||= {}
       options[:id] = id if id
       resp = RestClient::Resource.new(host, credentials)[type.to_s.pluralize].post(options)
-      "Conjur::#{type.to_s.classify}".constantize.new(resp.headers[:location], credentials).tap do |obj|
-        obj.attributes = JSON.parse(resp.body)
-        if id.blank? && obj.respond_to?(:id)
-          log do |logger|
-            logger << "Created #{type} #{obj.id}"
-          end
-        end
-      end
+      "Conjur::#{type.to_s.classify}".constantize.build_from_response(resp, credentials)
     end
     
     def standard_list(host, type, options)
