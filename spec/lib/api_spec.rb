@@ -81,7 +81,7 @@ describe Conjur::API do
           Conjur::TokenCache.stub(:expired?).and_return true
         }
         it "should raise an error" do
-          $stderr.should_receive(:puts).with("Token is expired and no api_key is available to renew it")
+          $stderr.should_receive(:puts).with("Token will soon expire and no api_key is available to renew it")
           
           api.credentials
         end
