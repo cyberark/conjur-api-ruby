@@ -15,7 +15,7 @@ module Conjur
           elsif token.nil?
             raise "Token is nil and no api_key is available to create it"
           else
-            $stderr.puts "Token is expired and no api_key is available to renew it"
+            $stderr.puts "Token will soon expire and no api_key is available to renew it"
           end
         end
         token

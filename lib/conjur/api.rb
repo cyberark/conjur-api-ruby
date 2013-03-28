@@ -16,7 +16,6 @@ require 'conjur/core-api'
 class RestClient::Resource
   include Conjur::Escape
   include Conjur::LogSource
-  extend  Conjur::LogSource
   extend  Conjur::BuildFromResponse
   
   def path_components
