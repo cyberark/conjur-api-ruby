@@ -9,7 +9,7 @@ module Conjur
         def default_host
           case Conjur.env
           when 'test', 'development'
-            "http://localhost:#{Conjur.service_base_port + 300}"
+            "http://localhost:#{Conjur.service_base_port + 200}"
           else
             "https://core-#{Conjur.stack}-conjur.herokuapp.com"
           end
