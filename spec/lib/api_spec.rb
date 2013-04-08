@@ -61,7 +61,7 @@ describe Conjur::API do
       it_should_behave_like "API endpoint"
     end
     context "of core service" do
-      let(:port_offset) { 300 }
+      let(:port_offset) { 200 }
       let(:api) { Conjur::Core::API }
       it_should_behave_like "API endpoint"
     end    
