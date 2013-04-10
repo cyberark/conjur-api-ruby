@@ -18,7 +18,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Default service ports:
+ - authn: 5000,
+ - authz: 5100.
+
+```ruby
+ENV['CONJUR_ACCOUNT'] = 'account'
+conjur = Conjur::API.new_from_key 'admin', 'vJfQbiieBcv4SlxTZ7ULznc1zHZ4z+0sx5to3hLOic0='
+some_user = conjur.user 'foo'
+
+```
 
 ## Contributing
 
