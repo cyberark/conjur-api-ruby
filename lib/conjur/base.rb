@@ -20,6 +20,7 @@ module Conjur
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
         paths = path_escape(id).split(':')
+        raise "Expecting account:kind:id in role #{id}" unless paths.size >= 3
         [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
       end
 

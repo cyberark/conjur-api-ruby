@@ -4,9 +4,5 @@ module Conjur
     include ActsAsRole
     include HasId
     include HasAttributes
-    
-    def roleid
-      "group:#{id}"
-    end
   end
 end

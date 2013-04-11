@@ -12,10 +12,12 @@ describe Conjur::User do
       subject { user }
       its(:id) { should == login }
       its(:login) { should == login }
-      its(:roleid) { should == ["user", login].join(':') }
       its(:resource_id) { should == login }
       its(:resource_kind) { should == "user" }
       its(:options) { should == credentials }
+      specify {
+        lambda { user.roleid }.should raise_error
+      }
     end
     before {
       Conjur.stub(:account).and_return 'ci'
@@ -28,8 +30,11 @@ describe Conjur::User do
       user.resource
     end
     it "connects to a Role" do
+      user.stub(:roleid).and_return "ci:user:the-login"
+      
       require 'conjur/role'
-      Conjur::Role.should_receive(:new).with("#{Conjur::Authz::API.host}/roles/#{user.roleid}", credentials)
+      Conjur::Role.should_receive(:new).with(Conjur::Authz::API.host, credentials).and_return role = double(:role)
+      role.should_receive(:[]).with("ci/roles/user/the-login")
       
       user.role
     end

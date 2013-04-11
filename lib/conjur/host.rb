@@ -6,10 +6,6 @@ module Conjur
     include HasAttributes
     include ActsAsUser
     
-    def roleid
-      "host:#{id}"
-    end
-    
     def enrollment_url
       log do |logger|
         logger << "Fetching enrollment_url for #{id}"
