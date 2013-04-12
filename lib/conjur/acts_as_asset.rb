@@ -6,6 +6,7 @@ module Conjur
         include HasAttributes
         include Exists
         include HasId
+        include HasOwner
       end
     end
   end

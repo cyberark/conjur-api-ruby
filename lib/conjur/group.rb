@@ -1,8 +1,6 @@
 module Conjur
   class Group < RestClient::Resource
-    include ActsAsResource
+    include ActsAsAsset
     include ActsAsRole
-    include HasId
-    include HasAttributes
   end
 end

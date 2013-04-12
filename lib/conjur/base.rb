@@ -3,6 +3,7 @@ require 'json'
 
 require 'conjur/exists'
 require 'conjur/has_attributes'
+require 'conjur/has_owner'
 require 'conjur/path_based'
 require 'conjur/escape'
 require 'conjur/log'

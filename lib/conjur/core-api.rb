@@ -2,6 +2,14 @@ module Conjur
   module Core
     class API < Conjur::API
       class << self
+        def conjur_account
+          info['account'] or raise "No account field in #{info.inspect}"
+        end
+        
+        def info
+          @info ||= JSON.parse RestClient::Resource.new(Conjur::Core::API.host)['info'].get
+        end
+        
         def host
           ENV['CONJUR_CORE_URL'] || default_host
         end

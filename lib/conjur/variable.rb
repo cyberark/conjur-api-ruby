@@ -1,9 +1,6 @@
 module Conjur
   class Variable < RestClient::Resource
-    include ActsAsResource
-    include HasAttributes
-    include Exists
-    include HasId
+    include ActsAsAsset
     
     def add_value value
       log do |logger|

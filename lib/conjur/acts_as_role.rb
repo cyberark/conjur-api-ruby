@@ -1,7 +1,15 @@
 module Conjur
   module ActsAsRole
     def roleid
-      self.attributes['roleid'] or raise "roleid attribute not found"
+      [ conjur_account, role_kind, id ].join(':')
+    end
+    
+    def role_kind
+      self.class.name.split('::')[-1].underscore
+    end
+    
+    def conjur_account
+      Conjur::Core::API.conjur_account
     end
     
     def role

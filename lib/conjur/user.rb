@@ -3,9 +3,7 @@ module Conjur
   end
   
   class User < RestClient::Resource
-    include HasId
-    include HasAttributes
-    include ActsAsResource
+    include ActsAsAsset
     include ActsAsUser
     
     alias login id
