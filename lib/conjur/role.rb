@@ -9,6 +9,10 @@ module Conjur
     
     alias id identifier
     
+    def roleid
+      [ account, kind, identifier ].join(':')
+    end
+    
     def create(options = {})
       log do |logger|
         logger << "Creating role #{kind}:#{identifier}"
@@ -21,6 +25,7 @@ module Conjur
     
     def all(options = {})
       JSON.parse(self["?all"].get(options)).collect do |id|
+        id = [ id['account'], id['id'] ].join(':')
         Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
       end
     end
