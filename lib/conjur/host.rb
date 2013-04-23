@@ -6,6 +6,10 @@ module Conjur
     include HasAttributes
     include ActsAsUser
     
+    def api_key
+      self.attributes['api_key']
+    end
+    
     def enrollment_url
       log do |logger|
         logger << "Fetching enrollment_url for #{id}"
