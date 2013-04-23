@@ -1,6 +1,11 @@
 module Conjur
   module Escape
     module ClassMethods
+      def fully_escape(str)
+        require 'cgi'
+        CGI.escape(str.to_s)
+      end
+      
       def path_escape(str)
         path_or_query_escape str
       end
@@ -21,6 +26,10 @@ module Conjur
     
     def self.included(base)
       base.extend ClassMethods
+    end
+    
+    def fully_escape(str)
+      self.class.fully_escape str
     end
 
     def path_escape(str)

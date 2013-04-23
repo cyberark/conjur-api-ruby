@@ -25,7 +25,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
-        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{path_escape username}/authenticate"].post password, content_type: 'text/plain')
+        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
       end
     end
 
