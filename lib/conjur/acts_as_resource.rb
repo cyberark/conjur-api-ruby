@@ -6,7 +6,8 @@ module Conjur
     end
     
     def resource_kind
-      self.class.name.split("::")[1..-1].join('-').downcase
+      require 'active_support/core_ext'
+      self.class.name.split("::")[-1].underscore.split('/').join('-')
     end
 
     def resource_id
