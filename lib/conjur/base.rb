@@ -20,9 +20,16 @@ module Conjur
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
-        paths = path_escape(id).split(':')
-        raise "Expecting account:kind:id in role #{id}" unless paths.size >= 3
-        [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
+        if id.is_a?(Hash)
+          tokens = id['id'].split(':')
+          [ id['account'], 'roles', tokens[0], tokens[1..-1].join(':') ]
+        elsif id.is_a?(String)
+          paths = path_escape(id).split(':')
+          raise "Expecting account:kind:id in role #{id}" unless paths.size >= 3
+          [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
+        else
+          raise "Unexpected class #{id.class} for #{id}"
+        end
       end
 
       def new_from_key(username, api_key)
