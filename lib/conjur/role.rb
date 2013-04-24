@@ -1,3 +1,5 @@
+require 'conjur/role_grant'
+
 module Conjur
   class Role < RestClient::Resource
     include Exists
@@ -61,8 +63,8 @@ module Conjur
     end
     
     def members
-      JSON.parse(self["?members"].get(options)).collect do |id|
-        Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
+      JSON.parse(self["?members"].get(options)).collect do |json|
+        RoleGrant.parse_from_json(json, self.options)
       end
     end
   end
