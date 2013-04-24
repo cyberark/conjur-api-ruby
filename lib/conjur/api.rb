@@ -18,6 +18,10 @@ class RestClient::Resource
   include Conjur::LogSource
   extend  Conjur::BuildFromResponse
   
+  def to_json(options = {})
+    {}
+  end
+  
   def path_components
     require 'uri'
     URI.parse(self.url).path.split('/').map{|e| URI.unescape e}

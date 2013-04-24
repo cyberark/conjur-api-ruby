@@ -1,5 +1,9 @@
 module Conjur
   module HasAttributes
+    def to_json(options = {})
+      attributes
+    end
+
     def attributes=(a); @attributes = a; end
     def attributes
       return @attributes if @attributes
