@@ -6,6 +6,10 @@ module Conjur
     include HasAttributes
     include ActsAsUser
     
+    def login
+      [ 'host', id ].join('/')
+    end
+    
     def api_key
       self.attributes['api_key']
     end
