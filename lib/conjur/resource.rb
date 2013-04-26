@@ -47,7 +47,7 @@ module Conjur
           end
         end
         
-        self["?grant&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
+        self["?permit&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
       end
     end
     
@@ -59,7 +59,7 @@ module Conjur
             logger << " with options #{options.to_json}"
           end
         end
-        self["?revoke&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
+        self["?deny&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
       end
     end
     
