@@ -13,37 +13,25 @@ shared_examples_for "API endpoint" do
       should == "http://localhost:#{Conjur.service_base_port + port_offset}"
     end
   end
-  context "in stage" do
-    before(:each) do
-      Conjur.stub(:env).and_return "stage"
+  context "'ci' account" do
+    before {
+      Conjur.stub(:account).and_return 'ci'
+    }
+    context "in stage" do
+      before(:each) do
+        Conjur.stub(:env).and_return "stage"
+      end
+      its "default_host" do
+        should == "https://#{service_name}-ci-conjur.herokuapp.com"
+      end
     end
-    its "default_host" do
-      should == "https://#{service_name}-stage-conjur.herokuapp.com"
-    end
-  end
-  context "in ci" do
-    before(:each) do
-      Conjur.stub(:env).and_return "ci"
-    end
-    its "default_host" do
-      should == "https://#{service_name}-ci-conjur.herokuapp.com"
-    end
-  end
-  context "in production" do
-    before(:each) do
-      Conjur.stub(:env).and_return "production"
-    end
-    its "default_host" do
-      should == "https://#{service_name}-v3-conjur.herokuapp.com"
-    end
-  end
-  context "in named production version" do
-    before(:each) do
-      Conjur.stub(:env).and_return "production"
-      Conjur.stub(:stack).and_return "waffle"
-    end
-    its "default_host" do
-      should == "https://#{service_name}-waffle-conjur.herokuapp.com"
+    context "in ci" do
+      before(:each) do
+        Conjur.stub(:env).and_return "ci"
+      end
+      its "default_host" do
+        should == "https://#{service_name}-ci-conjur.herokuapp.com"
+      end
     end
   end
 end
@@ -58,7 +46,45 @@ describe Conjur::API do
     context "of authz service" do
       let(:port_offset) { 100 }
       let(:api) { Conjur::Authz::API }
-      it_should_behave_like "API endpoint"
+      subject { api }
+      context "'ci' account" do
+        before {
+          Conjur.stub(:account).and_return 'ci'
+        }
+        context "in stage" do
+          before(:each) do
+            Conjur.stub(:env).and_return "stage"
+          end
+          its "default_host" do
+            should == "https://authz-stage-conjur.herokuapp.com"
+          end
+        end
+        context "in ci" do
+          before(:each) do
+            Conjur.stub(:env).and_return "ci"
+          end
+          its "default_host" do
+            should == "https://authz-ci-conjur.herokuapp.com"
+          end
+        end
+      end
+      context "in production" do
+        before(:each) do
+          Conjur.stub(:env).and_return "production"
+        end
+        its "default_host" do
+          should == "https://authz-v3-conjur.herokuapp.com"
+        end
+      end
+      context "in named production version" do
+        before(:each) do
+          Conjur.stub(:env).and_return "production"
+          Conjur.stub(:stack).and_return "waffle"
+        end
+        its "default_host" do
+          should == "https://authz-waffle-conjur.herokuapp.com"
+        end
+      end
     end
     context "of core service" do
       let(:port_offset) { 200 }
