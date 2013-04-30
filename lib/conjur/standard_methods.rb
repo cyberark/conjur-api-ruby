@@ -26,7 +26,7 @@ module Conjur
     end
     
     def standard_show(host, type, id)
-      "Conjur::#{type.to_s.classify}".constantize.new(host, credentials)[ [type.to_s.pluralize, path_escape(id)].join('/') ]
+      "Conjur::#{type.to_s.classify}".constantize.new(host, credentials)[ [type.to_s.pluralize, fully_escape(id)].join('/') ]
     end
   end
 end
