@@ -25,7 +25,9 @@ module Conjur
           [ id['account'], 'roles', tokens[0], tokens[1..-1].join(':') ]
         elsif id.is_a?(String)
           paths = path_escape(id).split(':')
-          raise "Expecting account:kind:id in role #{id}" unless paths.size >= 3
+          if paths.size == 2
+            paths.unshift Conjur.account
+          end
           [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
         else
           raise "Unexpected class #{id.class} for #{id}"
