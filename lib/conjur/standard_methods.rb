@@ -6,7 +6,8 @@ module Conjur
     
     def standard_create(host, type, id = nil, options = nil)
       log do |logger|
-        logger << "Creating #{type} #{id}"
+        logger << "Creating #{type}"
+        logger << " #{id}" if id
         unless options.blank?
           logger << " with options #{options.inspect}"
         end

@@ -30,7 +30,7 @@ module Conjur
 
     def delete(options = {})
       log do |logger|
-        logger << "Deleting resource #{kind} : #{identifier}"
+        logger << "Deleting resource #{kind}:#{identifier}"
         unless options.empty?
           logger << " with options #{options.to_json}"
         end
@@ -41,7 +41,7 @@ module Conjur
     def permit(privilege, role, options = {})
       eachable(privilege).each do |p|
         log do |logger|
-          logger << "Permitting #{p} on resource #{kind} : #{identifier} by #{role}"
+          logger << "Permitting #{p} on resource #{kind}:#{identifier} by #{role}"
           unless options.empty?
             logger << " with options #{options.to_json}"
           end
@@ -54,7 +54,7 @@ module Conjur
     def deny(privilege, role, options = {})
       eachable(privilege).each do |p|
         log do |logger|
-          logger << "Denying #{p} on resource #{kind} : #{identifier} by #{role}"
+          logger << "Denying #{p} on resource #{kind}:#{identifier} by #{role}"
           unless options.empty?
             logger << " with options #{options.to_json}"
           end
