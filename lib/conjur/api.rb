@@ -17,6 +17,10 @@ class RestClient::Resource
   include Conjur::Escape
   include Conjur::LogSource
   extend  Conjur::BuildFromResponse
+
+  def core_conjur_account
+    Conjur::Core::API.conjur_account
+  end
   
   def to_json(options = {})
     {}

@@ -37,6 +37,22 @@ shared_examples_for "API endpoint" do
 end
 
 describe Conjur::API do
+  context "parse_role_id" do
+    subject { Conjur::API }
+    specify {
+      Conjur::Core::API.should_receive(:conjur_account).and_return 'ci'      
+      subject.parse_role_id('foo:bar').should == [ 'ci', 'roles', 'foo', 'bar' ]
+    }
+    specify {
+      subject.parse_role_id('biz:foo:bar').should == [ 'biz', 'roles', 'foo', 'bar' ]
+    }
+    specify {
+      subject.parse_role_id('biz:foo:bar/12').should == [ 'biz', 'roles', 'foo', 'bar/12' ]
+    }
+    specify {
+      subject.parse_role_id('biz:foo:bar:12').should == [ 'biz', 'roles', 'foo', 'bar:12' ]
+    }
+  end
   context "host construction" do
     context "of authn service" do
       let(:port_offset) { 0 }

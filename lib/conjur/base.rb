@@ -26,7 +26,7 @@ module Conjur
         elsif id.is_a?(String)
           paths = path_escape(id).split(':')
           if paths.size == 2
-            paths.unshift Conjur.account
+            paths.unshift Conjur::Core::API.conjur_account
           end
           [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
         else

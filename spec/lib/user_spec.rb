@@ -19,20 +19,17 @@ describe Conjur::User do
         lambda { user.roleid }.should raise_error
       }
     end
-    before {
-      Conjur.stub(:account).and_return 'ci'
-    }
     it "connects to a Resource" do
       require 'conjur/resource'
+      Conjur::Core::API.should_receive(:conjur_account).and_return 'ci'
       Conjur::Resource.should_receive(:new).with(Conjur::Authz::API.host, credentials).and_return resource = double(:resource)
       resource.should_receive(:[]).with("ci/resources/user/the-login")
       
       user.resource
     end
     it "connects to a Role" do
-      user.stub(:roleid).and_return "ci:user:the-login"
-      
       require 'conjur/role'
+      Conjur::Core::API.should_receive(:conjur_account).and_return 'ci'
       Conjur::Role.should_receive(:new).with(Conjur::Authz::API.host, credentials).and_return role = double(:role)
       role.should_receive(:[]).with("ci/roles/user/the-login")
       
