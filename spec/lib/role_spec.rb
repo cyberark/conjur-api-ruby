@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'conjur/api'
-
 shared_examples_for "properties" do
   subject { role }
   its(:kind) { should == kind }

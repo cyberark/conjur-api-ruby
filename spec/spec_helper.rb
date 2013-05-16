@@ -74,3 +74,5 @@ shared_examples_for "http response" do
     http_response.stub(:body).and_return http_json.to_json
   end
 end
+
+require 'conjur/api'

@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'conjur/api'
-
 describe Conjur::User do
   context "#new" do
     let(:login) { 'the-login' }

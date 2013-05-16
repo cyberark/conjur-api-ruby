@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'conjur/api'
-
 shared_examples_for "API endpoint" do
   subject { api }
   let(:service_name) { api.name.split('::')[-2].downcase }
