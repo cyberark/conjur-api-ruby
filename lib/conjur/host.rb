@@ -5,6 +5,7 @@ module Conjur
     include HasIdentifier
     include HasAttributes
     include ActsAsUser
+    include ActsAsResource
     
     def login
       [ 'host', id ].join('/')
