@@ -25,7 +25,9 @@ module Conjur
           [ id['account'], 'roles', tokens[0], tokens[1..-1].join(':') ]
         elsif id.is_a?(String)
           paths = path_escape(id).split(':')
-          if paths.size == 2
+          if paths.size < 2
+            raise "Expecting at least two tokens in role id #{id}"
+          elsif paths.size == 2
             paths.unshift Conjur::Core::API.conjur_account
           end
           [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
