@@ -20,17 +20,26 @@ module Conjur
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
+        parse_id id, 'roles'
+      end
+
+      # Parse a resource id into [ account, 'resources', kind, id ]
+      def parse_resource_id(id)
+        parse_id id, 'resources'
+      end
+      
+      def parse_id(id, kind)
         if id.is_a?(Hash)
           tokens = id['id'].split(':')
-          [ id['account'], 'roles', tokens[0], tokens[1..-1].join(':') ]
+          [ id['account'], kind, tokens[0], tokens[1..-1].join(':') ]
         elsif id.is_a?(String)
           paths = path_escape(id).split(':')
           if paths.size < 2
-            raise "Expecting at least two tokens in role id #{id}"
+            raise "Expecting at least two tokens in #{id}"
           elsif paths.size == 2
             paths.unshift Conjur::Core::API.conjur_account
           end
-          [ paths[0], 'roles', paths[1], paths[2..-1].join(':') ]
+          [ paths[0], kind, paths[1], paths[2..-1].join(':') ]
         else
           raise "Unexpected class #{id.class} for #{id}"
         end
