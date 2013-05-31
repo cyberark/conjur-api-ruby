@@ -9,7 +9,6 @@ require 'conjur/escape'
 require 'conjur/log'
 require 'conjur/log_source'
 require 'conjur/standard_methods'
-require 'conjur/token_cache'
 
 module Conjur
   class API
@@ -58,7 +57,6 @@ module Conjur
       @username = username
       @api_key = api_key
       @token = token
-      TokenCache.store(@token) if token
 
       raise "Expecting ( username and api_key ) or token" unless ( username && api_key ) || token
     end
@@ -74,7 +72,7 @@ module Conjur
     end
     
     def token
-      TokenCache.fetch(username, api_key)
+      @token ||= Conjur::API.authenticate(@username, @api_key)
     end
     
     # Authenticate the username and api_key to obtain a request token.

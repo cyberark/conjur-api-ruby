@@ -110,33 +110,22 @@ describe Conjur::API do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => (Time.now + elapsed ).to_s } }
     let(:elapsed) { 0 }
-    before {
-      Conjur::TokenCache.class_variable_set("@@tokens", Hash.new)
-    }
     subject { api }
     context "from token" do
       let(:api) { Conjur::API.new_from_token(token) }
-      context "expired" do
-        before {
-          Conjur::TokenCache.stub(:expired?).and_return true
-        }
-        it "should raise an error" do
-          $stderr.should_receive(:puts).with("Token will soon expire and no api_key is available to renew it")
-          
-          api.credentials
-        end
-      end
-      context "not expired" do
-        its(:credentials) { should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login } }
-      end
+      subject { api }
+      its(:token) { should == token }
+      its(:credentials) { should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login } }
     end
     context "from api key" do
       let(:api_key) { "theapikey" }
       let(:api) { Conjur::API.new_from_key(login, api_key) }
+      subject { api }
       it("should authenticate to get a token") do
         Conjur::API.should_receive(:authenticate).with(login, api_key).and_return token
         
         api.instance_variable_get("@token").should == nil
+        api.token.should == token
         api.credentials.should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }
       end
     end
