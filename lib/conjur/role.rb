@@ -51,7 +51,7 @@ module Conjur
       log do |logger|
         logger << warning if warning
         logger << "Granting role #{identifier} to #{member}"
-        unless options.empty?
+        unless options.blank?
           logger << " with options #{options.to_json}"
         end
       end
