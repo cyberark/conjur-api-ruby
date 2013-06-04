@@ -106,18 +106,23 @@ describe Conjur::API do
       it_should_behave_like "API endpoint"
     end    
   end
-  context "credential handling" do
+
+  shared_context logged_in: true do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => (Time.now + elapsed ).to_s } }
     let(:elapsed) { 0 }
     subject { api }
+    let(:api) { Conjur::API.new_from_token(token) }
+    let(:account) { 'some-account' }
+    before { Conjur::Core::API.stub conjur_account: account }
+  end
+
+  context "credential handling", logged_in: true do
     context "from token" do
-      let(:api) { Conjur::API.new_from_token(token) }
-      subject { api }
       its(:token) { should == token }
       its(:credentials) { should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login } }
     end
-    context "from api key" do
+    context "from api key", logged_in: true do
       let(:api_key) { "theapikey" }
       let(:api) { Conjur::API.new_from_key(login, api_key) }
       subject { api }
@@ -127,6 +132,33 @@ describe Conjur::API do
         api.instance_variable_get("@token").should == nil
         api.token.should == token
         api.credentials.should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }
+      end
+    end
+  end
+
+  describe "#role_from_username", logged_in: true do
+    it "returns a user role when username is plain" do
+      api.role_from_username("plain-username").roleid.should == "#{account}:user:plain-username"
+    end
+
+    it "returns an appropriate role kind when username is qualified" do
+      api.role_from_username("host/foobar").roleid.should == "#{account}:host:foobar"
+    end
+  end
+
+  describe "#current_role", logged_in: true do
+    context "when logged in as user" do
+      let(:login) { 'joerandom' }
+      it "returns a user role" do
+        api.current_role.roleid.should == "#{account}:user:joerandom"
+      end
+    end
+
+    context "when logged in as host" do
+      let(:host) { "somehost" }
+      let(:login) { "host/#{host}" }
+      it "returns a host role" do
+        api.current_role.roleid.should == "#{account}:host:somehost"
       end
     end
   end
