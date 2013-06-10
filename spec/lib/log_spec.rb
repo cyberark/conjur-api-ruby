@@ -4,13 +4,14 @@ require 'tempfile'
 
 describe Conjur do
   describe '::log=' do
+    before { @old_log = Conjur.log }
     let(:log) { double 'log' }
     it "creates the log with given type and makes it available" do
       Conjur.stub(:create_log).with(:param).and_return log
       Conjur::log = :param
       Conjur::log.should == log
     end
-    after { Conjur.class_variable_set :@@log, nil }
+    after { Conjur.class_variable_set :@@log, @old_log }
   end
 
   describe '::create_log' do

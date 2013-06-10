@@ -81,3 +81,5 @@ shared_examples_for "http response" do
 end
 
 require 'conjur/api'
+
+Conjur.log = '/dev/null'
