@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'rubygems'
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 $:.unshift File.join(File.dirname(__FILE__), "lib")
