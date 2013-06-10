@@ -82,4 +82,14 @@ end
 
 require 'conjur/api'
 
+shared_context api: :dummy do
+  let(:api){ Conjur::API.new_from_key 'user', 'key' }
+  let(:authz_host) { 'http://authz.example.com' }
+  let(:credentials) { double "fake credentials" }
+  before do
+    Conjur::Authz::API.stub host: authz_host
+    api.stub credentials: credentials
+  end
+end
+
 Conjur.log = '/dev/null'

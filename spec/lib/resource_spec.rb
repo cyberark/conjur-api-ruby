@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Conjur::Resource do
+describe Conjur::Resource, api: :dummy do
   let(:account) { "the-account" }
   let(:uuid) { "ddd1f59a-494d-48fb-b045-0374c4a6eef9" }
 
@@ -33,9 +33,6 @@ describe Conjur::Resource do
       end
     end
   end
-
-  let(:authz_host) { "http://authz.example.com" }
-  before { Conjur::Authz::API.stub host: authz_host }
 
   let(:uri) { "#{authz_host}/some-account/resources/the-kind/resource-id" }
   subject { Conjur::Resource.new uri }

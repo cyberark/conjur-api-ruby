@@ -1,6 +1,8 @@
 require 'spec_helper'
 
-describe Conjur::API do
+describe Conjur::API, api: :dummy do
+  subject { api }
+
   describe '::enroll_host' do
     it "uses Net::HTTP to get something" do
       response = double "response",
@@ -16,8 +18,6 @@ describe Conjur::API do
 
   let(:core_host) { 'http://core.example.com' }
   before { Conjur::Core::API.stub host: core_host }
-
-  subject { Conjur::API.new_from_key 'user', 'key' }
 
   describe '#create_host' do
     it "passes along to standard_create" do
