@@ -1,40 +1,20 @@
-# Logging mechanism borrowed from rest-client
+require 'logger'
+
 module Conjur
   # You can also configure logging by the environment variable CONJURAPI_LOG.
   def self.log= log
     @@log = create_log log
   end
 
-  # Create a log that respond to << like a logger
-  # param can be 'stdout', 'stderr', a string (then we will log to that file) or a logger (then we return it)
   def self.create_log param
     if param
       if param.is_a? String
         if param == 'stdout'
-          stdout_logger = Class.new do
-            def << obj
-              STDOUT.write obj
-            end
-          end
-          stdout_logger.new
+          Logger.new $stdout
         elsif param == 'stderr'
-          stderr_logger = Class.new do
-            def << obj
-              STDERR.write obj
-            end
-          end
-          stderr_logger.new
+          Logger.new $stderr
         else
-          file_logger = Class.new do
-            attr_writer :target_file
-
-            def << obj
-              File.open(@target_file, 'a') { |f| f.write obj }
-            end
-          end
-          logger = file_logger.new
-          logger.target_file = param
-          logger
+          Logger.new param
         end
       else
         param
