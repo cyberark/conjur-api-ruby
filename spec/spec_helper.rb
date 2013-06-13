@@ -83,7 +83,8 @@ end
 require 'conjur/api'
 
 shared_context api: :dummy do
-  let(:api){ Conjur::API.new_from_key 'user', 'key' }
+  let(:username) { "user" }
+  let(:api){ Conjur::API.new_from_key username, 'key' }
   let(:authz_host) { 'http://authz.example.com' }
   let(:credentials) { double "fake credentials" }
   before do
@@ -92,4 +93,7 @@ shared_context api: :dummy do
   end
 end
 
-Conjur.log = '/dev/null'
+shared_context logging: :temp do
+  let(:logfile) { Tempfile.new("log") }
+  before { Conjur.log = logfile.path }
+end
