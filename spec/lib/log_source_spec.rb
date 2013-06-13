@@ -7,7 +7,7 @@ describe Conjur::LogSource, logging: :temp, api: :dummy do
         log << 'foo'
       end
 
-      logfile.read.should == "[#{username}] foo\n"
+      log.should == "[#{username}] foo\n"
     end
   end
 end

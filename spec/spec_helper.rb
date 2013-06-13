@@ -96,4 +96,5 @@ end
 shared_context logging: :temp do
   let(:logfile) { Tempfile.new("log") }
   before { Conjur.log = logfile.path }
+  let(:log) { logfile.read }
 end
