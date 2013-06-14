@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Conjur::Resource, api: :dummy do
+describe Conjur::Resource, api: :dummy, logging: :temp do
   let(:account) { "the-account" }
   let(:uuid) { "ddd1f59a-494d-48fb-b045-0374c4a6eef9" }
 
