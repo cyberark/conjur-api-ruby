@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'standard_methods_helper'
 
 describe Conjur::API, api: :dummy do
   subject { api }
@@ -20,20 +21,14 @@ describe Conjur::API, api: :dummy do
   before { Conjur::Core::API.stub host: core_host }
 
   describe '#create_host' do
-    it "passes along to standard_create" do
-      subject.should_receive(:standard_create).with(
-        core_host, :host, nil, :options
-      ).and_return :response
-      subject.create_host(:options).should == :response
+    it_should_behave_like "standard_create with", :host, nil, :options do
+      let(:invoke) { subject.create_host :options }
     end
   end
 
   describe '#host' do
-    it "passes to standard_show" do
-      subject.should_receive(:standard_show).with(
-        core_host, :host, :id
-      ).and_return :response
-      subject.host(:id).should == :response
+    it_should_behave_like "standard_show with", :host, :id do
+      let(:invoke) { subject.host :id }
     end
   end
 end
