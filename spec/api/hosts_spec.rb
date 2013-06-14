@@ -2,8 +2,6 @@ require 'spec_helper'
 require 'standard_methods_helper'
 
 describe Conjur::API, api: :dummy do
-  subject { api }
-
   describe '::enroll_host' do
     it "uses Net::HTTP to get something" do
       response = double "response",

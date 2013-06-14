@@ -1,3 +1,7 @@
+shared_context api: :dummy do
+  subject { api }
+end
+
 shared_examples_for 'standard_create with' do |type, id, options|
   it "calls through to standard_create" do
     subject.should_receive(:standard_create).with(
@@ -8,7 +12,7 @@ shared_examples_for 'standard_create with' do |type, id, options|
 end
 
 shared_examples_for 'standard_list with' do |type, options|
-  it "calls through to standard_lest" do
+  it "calls through to standard_list" do
     subject.should_receive(:standard_list).with(
       core_host, type, options
     ).and_return :response
