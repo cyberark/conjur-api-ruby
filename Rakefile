@@ -3,7 +3,9 @@ require "bundler/gem_tasks"
 
 begin
   require 'rspec/core/rake_task'
-  RSpec::Core::RakeTask.new(:spec)
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.rspec_opts = '--order rand'
+  end
 rescue LoadError
   $stderr.puts "RSpec Rake tasks not available in environment #{ENV['RACK_ENV']}"
 end

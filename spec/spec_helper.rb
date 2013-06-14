@@ -1,3 +1,8 @@
+require 'simplecov'
+SimpleCov.start do
+  add_filter "/spec/"
+end
+
 require 'rubygems'
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 $:.unshift File.join(File.dirname(__FILE__), "lib")
@@ -76,3 +81,25 @@ shared_examples_for "http response" do
 end
 
 require 'conjur/api'
+
+shared_context api: :dummy do
+  let(:username) { "user" }
+  let(:api){ Conjur::API.new_from_key username, 'key' }
+  let(:authz_host) { 'http://authz.example.com' }
+  let(:credentials) { double "fake credentials" }
+  let(:core_host) { 'http://core.example.com' }
+  let(:account) { 'the-account' }
+
+  before do
+    Conjur::Authz::API.stub host: authz_host
+    Conjur::Core::API.stub host: core_host
+    Conjur::Core::API.stub conjur_account: account
+    api.stub credentials: credentials
+  end
+end
+
+shared_context logging: :temp do
+  let(:logfile) { Tempfile.new("log") }
+  before { Conjur.log = logfile.path }
+  let(:log) { logfile.read }
+end

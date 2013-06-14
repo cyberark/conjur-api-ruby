@@ -1,14 +1,18 @@
 require 'spec_helper'
 
-describe Conjur::Host do
-  let(:login) { 'the-login' }
-  let(:api_key) { 'the-api-key' }
-  let(:credentials) { { user: login, password: api_key } }
-  let(:account) { 'test-account' }
-
-  before { Conjur::Core::API.stub conjur_account: account }
-
-  subject { Conjur::Host.new 'hostname', credentials }
+describe Conjur::Host, api: :dummy do
+  subject { Conjur::Host.new 'http://example.com/the-account/hosts/hostname', nil }
 
   its(:resource) { should be }
+  its(:login) { should == 'host/hostname' }
+
+  let(:api_key) { 'theapikey' }
+  before { subject.attributes = { 'api_key' => api_key } }
+  its(:api_key) { should == api_key }
+
+  it "fetches enrollment_url" do
+    stub_request(:head, "http://example.com/the-account/hosts/hostname/enrollment_url").
+         to_return(:status => 200, :headers => {location: 'foo'})
+    subject.enrollment_url.should == 'foo'
+  end
 end
