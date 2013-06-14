@@ -88,10 +88,12 @@ shared_context api: :dummy do
   let(:authz_host) { 'http://authz.example.com' }
   let(:credentials) { double "fake credentials" }
   let(:core_host) { 'http://core.example.com' }
+  let(:account) { 'the-account' }
 
   before do
     Conjur::Authz::API.stub host: authz_host
     Conjur::Core::API.stub host: core_host
+    Conjur::Core::API.stub conjur_account: account
     api.stub credentials: credentials
   end
 end
