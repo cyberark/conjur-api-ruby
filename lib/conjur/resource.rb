@@ -35,7 +35,7 @@ module Conjur
           logger << " with options #{options.to_json}"
         end
       end
-      super.delete(options)
+      super options
     end
 
     def permit(privilege, role, options = {})
