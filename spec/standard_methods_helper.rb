@@ -8,7 +8,7 @@ shared_examples_for 'standard_create with' do |type, id, options|
 end
 
 shared_examples_for 'standard_list with' do |type, options|
-  it "calls through to standard_create" do
+  it "calls through to standard_lest" do
     subject.should_receive(:standard_list).with(
       core_host, type, options
     ).and_return :response
@@ -17,7 +17,7 @@ shared_examples_for 'standard_list with' do |type, options|
 end
 
 shared_examples_for 'standard_show with' do |type, id|
-  it "calls through to standard_create" do
+  it "calls through to standard_show" do
     subject.should_receive(:standard_show).with(
       core_host, type, id
     ).and_return :response

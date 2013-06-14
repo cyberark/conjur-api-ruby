@@ -17,9 +17,6 @@ describe Conjur::API, api: :dummy do
     end
   end
 
-  let(:core_host) { 'http://core.example.com' }
-  before { Conjur::Core::API.stub host: core_host }
-
   describe '#create_host' do
     it_should_behave_like "standard_create with", :host, nil, :options do
       let(:invoke) { subject.create_host :options }
