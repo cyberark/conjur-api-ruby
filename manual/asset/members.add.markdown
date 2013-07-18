@@ -14,7 +14,7 @@ Environment[e1]
     - Variable[v3]
 ```
 
-The Environment may define a role "use_variable" and permit "read" and "execute" on each variable to the "use_variable" role. 
+The Environment may define a role "use_variable" and permit "read" and "execute" on each variable by the "use_variable" role. 
 Therefore, granting the "use_variable" role to another role "r1" will permit r1 to read and execute each variable.
 
 Examples
