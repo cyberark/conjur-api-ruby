@@ -115,4 +115,15 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
       subject.deny privileges, "james-bond"
     end
   end
+
+  describe '#permitted?' do
+    it 'gets the ?permitted? action' do
+      RestClient::Request.should_receive(:execute).with(
+        method: :get,
+        url: uri + "/?check&privilege=fry",
+        headers: {}
+      )
+      subject.permitted? 'fry'
+    end
+  end
 end
