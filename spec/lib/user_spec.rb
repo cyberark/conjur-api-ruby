@@ -3,9 +3,10 @@ require 'spec_helper'
 describe Conjur::User do
   context "#new" do
     let(:login) { 'the-login' }
+    let(:url) { "https://example.com/users/#{login}" }
     let(:api_key) { 'the-api-key' }
     let(:credentials) { { user: login, password: api_key } }
-    let(:user) { Conjur::User.new(login, credentials)}
+    let(:user) { Conjur::User.new(url, credentials)}
     describe "attributes" do
       subject { user }
       its(:id) { should == login }

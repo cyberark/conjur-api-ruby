@@ -5,7 +5,7 @@ module Conjur
     end
   
     def id
-      path_components[-1]
+      path_components[2..-1].join('/')
     end    
   end
 end
