@@ -20,7 +20,21 @@ module Conjur
 
     # Lists roles that have a specified permission on the resource.
     def permitted_roles(permission, options = {})
-      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}"].get(options)
+
+      suburl=[account, 'roles', 'allowed_to', permission, 
+              path_escape(kind), path_escape(identifier)
+             ].join("/")
+
+      roles_list= JSON.parse( 
+                    RestClient::Resource.new(Conjur::Authz::API.host, 
+                                             self.options)[suburl]
+                                        .get(options)
+                  )
+
+      roles_list.map { |r| 
+        r['id']['account']+':'+r['id']['id']
+      }
+      
     end
     
     # Changes the owner of a resource
