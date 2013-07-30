@@ -11,7 +11,7 @@ Example
 ### Command Line
 
 ```bash
-$ conjur resource:create food bacon
+$ conjur resource:create food:bacon
 {
   "id": {
     "account": "sandbox",

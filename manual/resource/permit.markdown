@@ -11,13 +11,13 @@ Example
 ```bash
 $ conjur host:create
 <snip>
-$ conjur resource:permit food bacon host:a4yta8 fry
+$ conjur resource:permit food:bacon host:a4yta8 fry
 Permission granted
-$ conjur resource:check food bacon host:a4yta8 fry
+$ conjur resource:check food:bacon host:a4yta8 fry
 true
-$ conjur resource:check food bacon host:a4yta8 bake
+$ conjur resource:check food:bacon host:a4yta8 bake
 false
-$ conjur resource:permitted_roles food bacon fry
+$ conjur resource:permitted_roles food:bacon fry
 [
   {
     "id": {

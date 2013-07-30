@@ -23,7 +23,7 @@ Examples
 ### Command Line
 
 ```bash
-$ conjur asset:create environment `conjur id:create`
+$ conjur asset:create environment:`conjur id:create`
 {
   "id": "9yxa80",
   <snip>
@@ -35,7 +35,7 @@ $ conjur host:create
 }
 $ conjur environment:variables:create 9yxa80 test-var test text/plain "the-value"
 Variable created
-$ conjur asset:show environment 9yxa80
+$ conjur asset:show environment:9yxa80
 {
   "id": "9yxa80",
   "variables": {
@@ -43,10 +43,10 @@ $ conjur asset:show environment 9yxa80
   },
   <snip>
 }
-$ conjur resource:check variable he2e00 host:9bfqx5 execute
+$ conjur resource:check variable:he2e00 host:9bfqx5 execute
 false
 $ conjur asset:members:add environment 9yxa80 use_variable host:9bfqx5
 Membership granted
-$ conjur resource:check variable he2e00 host:9bfqx5 execute
+$ conjur resource:check variable:he2e00 host:9bfqx5 execute
 true
 ```

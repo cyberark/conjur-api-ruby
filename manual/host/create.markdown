@@ -22,7 +22,7 @@ $ conjur host:create
   "resource_identifier": "sandbox:host:8y2p5w",
   "api_key": "vj98ne10ar6vvmwrjt02ryfj6924a4vkch6yqcw292v9p12sv1rd"
 }
-$ conjur asset:show host 8y2p5w
+$ conjur asset:show host:8y2p5w
 {
   "id": "8y2p5w",
   "userid": "kgilpin",

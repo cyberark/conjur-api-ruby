@@ -14,8 +14,8 @@ Examples
 
 ```bash
 $ id=`conjur id:create`
-$ e=`conjur asset:create environment $id`
-$ conjur asset:show environment id
+$ e=`conjur asset:create environment:$id`
+$ conjur asset:show environment:id
 {
   "id": "0y3s00",
   "variables": {
@@ -29,7 +29,7 @@ $ conjur asset:show environment id
 
 ```bash
 $ hostid=`conjur host:create | jsonfield id`
-$ conjur asset:show host $hostid
+$ conjur asset:show host:$hostid
 {
   "id": "g7hytz",
   "userid": "kgilpin",
@@ -43,7 +43,7 @@ $ conjur asset:show host $hostid
 #### Attempt to show a non-existant asset.
 
 ```bash
-$ conjur asset:show host foo
+$ conjur asset:show host:foo
 error: 404 Resource Not Found
 $ echo $?
 1
