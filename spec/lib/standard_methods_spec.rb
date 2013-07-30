@@ -37,7 +37,15 @@ describe Conjur::StandardMethods do
   end
 
   describe '#standard_list' do
-    let(:attrs) {[{id: 'one', foo: 'bar'}, {id: 'two', foo: 'pub'}]}
+    let(:attrs) {
+        [
+          { id: 'one', 
+            resource_id: 'account1:kind1:one',
+            foo: 'bar'}, 
+          { id: 'two', 
+            resource_id: 'account2:kind2:two',
+            foo: 'bar'}
+        ]}
     let(:options) {{ foo: 'bar', baz: 'xyzzy' }}
     let(:json) { attrs.to_json }
 
@@ -46,12 +54,8 @@ describe Conjur::StandardMethods do
     end
 
     it "gets the list, then builds objects from json response" do
-      subject.should_receive(:widget).with('one').and_return(one = double)
-      one.should_receive(:attributes=).with(attrs[0].stringify_keys)
-      subject.should_receive(:widget).with('two').and_return(two = double)
-      two.should_receive(:attributes=).with(attrs[1].stringify_keys)
-
-      subject.send(:standard_list, host, type, options).should == [one, two]
+      subject.send(:standard_list, host, type, options).should == 
+        [attrs[0][:resource_id], attrs[1][:resource_id]]
     end
   end
 
