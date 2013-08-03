@@ -50,35 +50,14 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
   end
 
   describe '#permitted_roles' do
-
-    let(:sample_roles) {
-      [
-        {
-          id: {
-            account: "account1",
-            id: "group:some/group/id"
-          }
-        },
-        {
-          id: {
-            account: "account2",
-            id: "@:web_service/some/web/service"
-          }
-        }
-      ]
-
-    }
-
     it 'gets the list from /roles/allowed_to' do
       RestClient::Request.should_receive(:execute).with(
         method: :get,
         url: "http://authz.example.com/some-account/roles/allowed_to/nuke/the-kind/resource-id",
         headers: {}
-      ).and_return JSON.dump(sample_roles)
+      ).and_return '["foo", "bar"]'
 
-      subject.permitted_roles("nuke").should == 
-        [ 'account1:group:some/group/id', 
-          'account2:@:web_service/some/web/service']
+      subject.permitted_roles("nuke").should == ['foo', 'bar']
     end
   end
 

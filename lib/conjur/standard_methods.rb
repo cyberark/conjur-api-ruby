@@ -19,11 +19,10 @@ module Conjur
     end
     
     def standard_list(host, type, options)
-      JSON.parse(
-        RestClient::Resource.new(host, credentials)[type.to_s.pluralize]
-                            .get(options)
-      ).collect do |json|
-        json['resource_id']
+      JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |json|
+        send(type, json['id']).tap do |obj|
+          obj.attributes = json
+        end
       end
     end
     
