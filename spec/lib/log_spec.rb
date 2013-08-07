@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'io_helper'
+require 'io/grab'
 require 'tempfile'
 
 describe Conjur do
@@ -19,14 +19,14 @@ describe Conjur do
     context "with 'stdout'" do
       let(:param) { 'stdout' }
       it "creates something which writes to STDOUT" do
-        STDOUT.grab { log << "foo" }.should == 'foo'
+        $stdout.grab { log << "foo" }.should == 'foo'
       end
     end
 
     context "with 'stderr'" do
       let(:param) { 'stderr' }
       it "creates something which writes to STDERR" do
-        STDERR.grab { log << "foo" }.should == 'foo'
+        $stderr.grab { log << "foo" }.should == 'foo'
       end
     end
 
