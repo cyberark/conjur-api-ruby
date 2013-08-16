@@ -26,22 +26,22 @@ module Conjur
       def parse_resource_id(id)
         parse_id id, 'resources'
       end
-      
+    
+      # Converts flat id into path components, with mixed-in "super-kind" 
+      #                                     (not that kind which is part of id)
+      # NOTE: name is a bit confusing, as result of 'parse' is just recombined
+      #       representation of parts, not an object of higher abstraction level
       def parse_id(id, kind)
-        if id.is_a?(Hash)
-          tokens = id['id'].split(':')
-          [ id['account'], kind, tokens[0], tokens[1..-1].join(':') ]
-        elsif id.is_a?(String)
-          paths = path_escape(id).split(':')
-          if paths.size < 2
-            raise "Expecting at least two tokens in #{id}"
-          elsif paths.size == 2
-            paths.unshift Conjur::Core::API.conjur_account
-          end
-          [ paths[0], kind, paths[1], paths[2..-1].join(':') ]
-        else
-          raise "Unexpected class #{id.class} for #{id}"
+        # Structured IDs (hashes) are no more supported
+        raise "Unexpected class #{id.class} for #{id}" unless id.is_a?(String)
+        paths = path_escape(id).split(':')
+        if paths.size < 2
+          raise "Expecting at least two tokens in #{id}"
+        elsif paths.size == 2
+          paths.unshift Conjur::Core::API.conjur_account
         end
+        # I would strongly recommend to encapsulate this into object 
+        [ paths[0], kind, paths[1], paths[2..-1].join(':') ]
       end
 
       def new_from_key(username, api_key)

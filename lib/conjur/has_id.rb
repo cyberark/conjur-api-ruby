@@ -1,5 +1,6 @@
 module Conjur
   module HasId
+    # NOTE: affected by migration to flat ids?
     def to_json(options = {})
       { id: id }
     end

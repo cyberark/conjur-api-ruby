@@ -70,7 +70,7 @@ describe Conjur::Role, api: :dummy do
 
   describe '#all' do
     it 'returns roles for ids got from ?all' do
-      roles = [{'account' => 'foo', 'id' => 'k:bar'}, {'account' => 'baz', 'id' => 'k:xyzzy'}]
+      roles = ['foo:k:bar', 'baz:k:xyzzy'] 
       RestClient::Request.should_receive(:execute).with(
         method: :get,
         url: role.url + "/?all",
@@ -99,7 +99,7 @@ describe Conjur::Role, api: :dummy do
     before do
       RestClient::Request.stub(:execute).with(
         method: :get,
-        url: role.url + "/?check&resource_kind=chunky&resource_id=bacon&privilege=fry",
+        url: role.url + "/?check&resource_id=chunky:bacon&privilege=fry",
         headers: {}
       ) { result }
     end
