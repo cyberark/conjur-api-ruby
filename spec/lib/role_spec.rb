@@ -107,14 +107,14 @@ describe Conjur::Role, api: :dummy do
     context "when get ?check is successful" do
       let(:result) { :ok }
       it "returns true" do
-        role.permitted?('chunky', 'bacon', 'fry').should be_true
+        role.permitted?('chunky:bacon', 'fry').should be_true
       end
     end
 
     context "when get ?check not found" do
       let(:result) { raise RestClient::ResourceNotFound, 'foo' }
       it "returns false" do
-        role.permitted?('chunky', 'bacon', 'fry').should be_false
+        role.permitted?('chunky:bacon', 'fry').should be_false
       end
     end
   end

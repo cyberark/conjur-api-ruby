@@ -67,9 +67,9 @@ module Conjur
       self["?members&member=#{query_escape member}"].delete(options)
     end
 
-    def permitted?(resource_kind, resource_id, privilege, options = {})
-      flat_id=[resource_kind, resource_id].join(":")
-      self["?check&resource_id=#{query_escape flat_id}&privilege=#{query_escape privilege}"].get(options)
+    def permitted?(resource_id, privilege, options = {})
+      # NOTE: in previous versions there was 'kind' passed separately. Now it is part of id
+      self["?check&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
       true
     rescue RestClient::ResourceNotFound
       false
