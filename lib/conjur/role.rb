@@ -24,10 +24,9 @@ module Conjur
       end
       self.put(options)
     end
-    
+   
     def all(options = {})
       JSON.parse(self["?all"].get(options)).collect do |id|
-        id = [ id['account'], id['id'] ].join(':')
         Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
       end
     end
@@ -69,7 +68,8 @@ module Conjur
     end
 
     def permitted?(resource_kind, resource_id, privilege, options = {})
-      self["?check&resource_kind=#{query_escape resource_kind}&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
+      flat_id=[resource_kind, resource_id].join(":")
+      self["?check&resource_id=#{query_escape flat_id}&privilege=#{query_escape privilege}"].get(options)
       true
     rescue RestClient::ResourceNotFound
       false
