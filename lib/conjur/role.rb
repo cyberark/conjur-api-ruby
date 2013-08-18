@@ -31,24 +31,8 @@ module Conjur
       end
     end
     
-    def grant_to(member, *args)
-      if Conjur::API::VERSION < "3.0.0"
-        options = args[-1]
-        if args.length > 1
-          warning = "WARNING: Deprecated arguments to grant_to. Please put admin_option in the options hash."
-          options[:admin_option] = args[0]
-        end
-
-        unless options.nil? || options.is_a?(Hash)
-          warning = "WARNING: Deprecated arguments to grant_to. Please put admin_option in the options hash."
-          options = { admin_option: options }
-        end
-      else
-        raise "Please remove the deprecated API in 3.0 and change the method signature to grant_to(member, options)"
-      end
-
+    def grant_to(member, options={})
       log do |logger|
-        logger << warning if warning
         logger << "Granting role #{identifier} to #{member}"
         unless options.blank?
           logger << " with options #{options.to_json}"
