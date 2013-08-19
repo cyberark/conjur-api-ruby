@@ -35,22 +35,81 @@ shared_examples_for "API endpoint" do
 end
 
 describe Conjur::API do
-  context "parse_role_id" do
-    subject { Conjur::API }
-    specify {
-      Conjur::Core::API.should_receive(:conjur_account).and_return 'ci'      
-      subject.parse_role_id('foo:bar').should == [ 'ci', 'roles', 'foo', 'bar' ]
-    }
-    specify {
-      subject.parse_role_id('biz:foo:bar').should == [ 'biz', 'roles', 'foo', 'bar' ]
-    }
-    specify {
-      subject.parse_role_id('biz:foo:bar/12').should == [ 'biz', 'roles', 'foo', 'bar/12' ]
-    }
-    specify {
-      subject.parse_role_id('biz:foo:bar:12').should == [ 'biz', 'roles', 'foo', 'bar:12' ]
-    }
+  describe "provides functions for id parsing" do
+    describe "#parse_id(id, kind)" do
+      subject { Conjur::API } 
+      let (:kind) { "sample-kind" }
+
+      it "fails  on non-string ids" do
+        expect { subject.parse_id({}, kind) }.to raise_error
+      end
+      
+      it "fails on malformed ids (<2 tokens)" do
+        expect { subject.parse_id("foo", kind) }.to raise_error
+        expect { subject.parse_id("", kind) }.to raise_error
+        expect { subject.parse_id(nil, kind) }.to raise_error
+      end
+     
+      describe "returns array of [account, kind, subkind, id]" do
+        subject { Conjur::API.parse_id(id, kind) }
+        def escaped smth ; Conjur::API.path_escape(smth) ; end
+        
+        context "for short id (2 tokens)" do
+          let(:id) { "token#1:token#2" }
+          let(:current_account) { "current_account" }
+          before(:each) { Conjur::Core::API.stub(:conjur_account).and_return current_account }
+
+          it "account: current account" do
+            subject[0].should == current_account
+          end
+
+          it "kind: passed kind" do
+            subject[1].should == kind
+          end
+
+          it "subkind: token #1 (escaped)" do
+            subject[2].should == escaped("token#1")
+          end
+
+          it "id: token #2 (escaped)" do
+            subject[3].should == escaped("token#2")
+          end
+        end
+
+        context "for long ids (3+ tokens)" do
+          let(:id) { "token#1:token#2:token#3:token#4" }
+          it "account: token #1 (escaped)" do
+            subject[0].should == escaped("token#1")
+          end
+
+          it "kind: passed kind" do
+            subject[1].should  == kind
+          end
+          it "subkind: token #2 (escaped)" do
+            subject[2].should == escaped("token#2")
+          end
+          it "id: tail of id starting from token#3" do
+            subject[3].should == escaped("token#3:token#4")
+          end
+        end
+
+      end
+    end 
+    describe "wrapper functions" do
+      let(:result) { [:account,:kind,:id] }
+      let(:id)     { :input_id }
+
+      it "#parse_role_id(id): calls parse_id(id, 'roles') and returns result" do
+        Conjur::API.should_receive(:parse_id).with(id, 'roles').and_return(result)
+        Conjur::API.parse_role_id(id).should == result
+      end
+      it "#parse_resource_id(id): calls parse_id(id, 'resources') and returns result" do
+        Conjur::API.should_receive(:parse_id).with(id, 'resources').and_return(result)
+        Conjur::API.parse_resource_id(id).should == result
+      end
+    end
   end
+
   context "host construction" do
     context "of authn service" do
       let(:port_offset) { 0 }
