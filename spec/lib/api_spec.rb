@@ -146,7 +146,7 @@ describe Conjur::API do
           Conjur.stub(:env).and_return "production"
         end
         its "default_host" do
-          should == "https://authz-v3-conjur.herokuapp.com"
+          should == "https://authz-v4-conjur.herokuapp.com"
         end
       end
       context "in named production version" do
