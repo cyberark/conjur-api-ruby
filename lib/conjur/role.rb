@@ -24,32 +24,15 @@ module Conjur
       end
       self.put(options)
     end
-    
+   
     def all(options = {})
       JSON.parse(self["?all"].get(options)).collect do |id|
-        id = [ id['account'], id['id'] ].join(':')
         Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
       end
     end
     
-    def grant_to(member, *args)
-      if Conjur::API::VERSION < "3.0.0"
-        options = args[-1]
-        if args.length > 1
-          warning = "WARNING: Deprecated arguments to grant_to. Please put admin_option in the options hash."
-          options[:admin_option] = args[0]
-        end
-
-        unless options.nil? || options.is_a?(Hash)
-          warning = "WARNING: Deprecated arguments to grant_to. Please put admin_option in the options hash."
-          options = { admin_option: options }
-        end
-      else
-        raise "Please remove the deprecated API in 3.0 and change the method signature to grant_to(member, options)"
-      end
-
+    def grant_to(member, options={})
       log do |logger|
-        logger << warning if warning
         logger << "Granting role #{identifier} to #{member}"
         unless options.blank?
           logger << " with options #{options.to_json}"
@@ -68,8 +51,9 @@ module Conjur
       self["?members&member=#{query_escape member}"].delete(options)
     end
 
-    def permitted?(resource_kind, resource_id, privilege, options = {})
-      self["?check&resource_kind=#{query_escape resource_kind}&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
+    def permitted?(resource_id, privilege, options = {})
+      # NOTE: in previous versions there was 'kind' passed separately. Now it is part of id
+      self["?check&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
       true
     rescue RestClient::ResourceNotFound
       false
