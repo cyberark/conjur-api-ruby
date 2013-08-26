@@ -12,6 +12,7 @@ require 'conjur/acts_as_asset'
 require 'conjur/authn-api'
 require 'conjur/authz-api'
 require 'conjur/core-api'
+require 'conjur/asset/api'
 require 'conjur-api/version'
 
 class RestClient::Resource
