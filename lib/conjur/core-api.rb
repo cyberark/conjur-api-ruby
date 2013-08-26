@@ -1,4 +1,12 @@
 module Conjur
+  class API
+    class << self
+      def core_asset_host
+        ::Conjur::Core::API.host
+      end
+    end
+  end
+  
   module Core
     class API < Conjur::API
       class << self
