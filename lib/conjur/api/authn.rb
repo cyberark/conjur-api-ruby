@@ -27,6 +27,13 @@ module Conjur
         end
         JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
       end
+      
+      def update_password username, password, new_password
+        if Conjur.log
+          Conjur.log << "Updating password for #{username}\n"
+        end
+        RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/password'].put new_password
+      end
     end
 
     # Options:
