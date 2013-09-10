@@ -13,8 +13,10 @@ describe Conjur::API do
   describe "::login" do
     it "gets /users/login" do
       RestClient::Request.should_receive(:execute).with(
-        method: :get, url: "http://authn.example.com/users/login", user: user,
-        password: password, headers: {}
+        method: :get, url: "http://authn.example.com/users/login", 
+        user: user,
+        password: password, 
+        headers: {}
       ).and_return(response = double)
       Conjur::API::login(user, password).should == response
     end
@@ -44,6 +46,20 @@ describe Conjur::API do
         payload: password, headers: { content_type: 'text/plain' }
       ).and_return '{ "response": "foo"}'
       Conjur::API.authenticate(user, password).should == { 'response' => 'foo' }
+    end
+  end
+  
+  describe "::update_password" do
+    it "logs in and puts the new password" do
+      RestClient::Request.should_receive(:execute).with(
+        method: :put, 
+        url: "http://authn.example.com/users/password",
+        user: user,
+        password: password,
+        payload: 'new-password', 
+        headers: {  }
+      ).and_return :response
+      Conjur::API.update_password(user, password, 'new-password').should == :response
     end
   end
 end
