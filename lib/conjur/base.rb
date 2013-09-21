@@ -1,5 +1,6 @@
 require 'rest-client'
 require 'json'
+require 'base64'
 
 require 'conjur/exists'
 require 'conjur/has_attributes'
