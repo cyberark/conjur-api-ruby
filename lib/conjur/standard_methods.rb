@@ -20,7 +20,7 @@ module Conjur
     
     def standard_list(host, type, options)
       JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |json|
-        send(type, json['id']).tap do |obj|
+        send(type, fully_escape(json['id'])).tap do |obj|
           obj.attributes = json
         end
       end
