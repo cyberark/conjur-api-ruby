@@ -35,25 +35,10 @@ describe Conjur::Role, api: :dummy do
     it "works without arguments" do
       members = double "members request"
       subject.should_receive(:[]).with('?members&member=other').and_return(members)
-      members.should_receive(:put).with nil
+      members.should_receive(:put).with({})
       subject.grant_to "other"
     end
 
-    context deprecated: 'v3' do # remove in 3.0
-      it "should also accept the deprecated argument format with extra options" do
-        members = double "members request"
-        subject.should_receive(:[]).with('?members&member=other').and_return(members)
-        members.should_receive(:put).with admin_option: true, foo: 'bar'
-        subject.grant_to "other", true, foo: 'bar'
-      end
-
-      it "should also accept the deprecated argument format without extra options" do
-        members = double "members request"
-        subject.should_receive(:[]).with('?members&member=other').and_return(members)
-        members.should_receive(:put).with admin_option: true, foo: 'bar'
-        subject.grant_to "other", true, foo: 'bar'
-      end
-    end
   end
 
   describe '#create' do
@@ -70,7 +55,7 @@ describe Conjur::Role, api: :dummy do
 
   describe '#all' do
     it 'returns roles for ids got from ?all' do
-      roles = [{'account' => 'foo', 'id' => 'k:bar'}, {'account' => 'baz', 'id' => 'k:xyzzy'}]
+      roles = ['foo:k:bar', 'baz:k:xyzzy'] 
       RestClient::Request.should_receive(:execute).with(
         method: :get,
         url: role.url + "/?all",
@@ -99,7 +84,7 @@ describe Conjur::Role, api: :dummy do
     before do
       RestClient::Request.stub(:execute).with(
         method: :get,
-        url: role.url + "/?check&resource_kind=chunky&resource_id=bacon&privilege=fry",
+        url: role.url + "/?check&resource_id=chunky:bacon&privilege=fry",
         headers: {}
       ) { result }
     end
@@ -107,14 +92,14 @@ describe Conjur::Role, api: :dummy do
     context "when get ?check is successful" do
       let(:result) { :ok }
       it "returns true" do
-        role.permitted?('chunky', 'bacon', 'fry').should be_true
+        role.permitted?('chunky:bacon', 'fry').should be_true
       end
     end
 
     context "when get ?check not found" do
       let(:result) { raise RestClient::ResourceNotFound, 'foo' }
       it "returns false" do
-        role.permitted?('chunky', 'bacon', 'fry').should be_false
+        role.permitted?('chunky:bacon', 'fry').should be_false
       end
     end
   end

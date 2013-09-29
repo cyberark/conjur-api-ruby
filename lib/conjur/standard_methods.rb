@@ -19,9 +19,11 @@ module Conjur
     end
     
     def standard_list(host, type, options)
-      JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |json|
-        send(type, fully_escape(json['id'])).tap do |obj|
-          obj.attributes = json
+      JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |item|
+        if item.is_a? String  # lists w/o details are just list of ids 
+          send(type, fully_escape(item)) 
+        else                  # list w/ details consists of hashes
+          send(type, fully_escape(item['id'])).tap { |obj| obj.attributes=item }
         end
       end
     end
