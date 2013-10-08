@@ -46,9 +46,19 @@ module Conjur
     end
    
     def all(options = {})
-      JSON.parse(self["?all"].get(options)).collect do |id|
+      query_string = "?all"
+      
+      if filter = options.delete(:filter)
+        filter = [filter] unless filter.is_a?(Array)
+        (query_string << "&" << filter.to_query("filter")) unless filter.empty?
+      end
+      JSON.parse(self[query_string].get(options)).collect do |id|
         Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
       end
+    end
+    
+    def member_of?(other_role)
+      not all(filter: (other_role.roleid rescue other_role)).empty?
     end
     
     def grant_to(member, options={})
