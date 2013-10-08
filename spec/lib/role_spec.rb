@@ -67,6 +67,45 @@ describe Conjur::Role, api: :dummy do
       all[1].account.should == 'baz'
       all[1].id.should == 'xyzzy'
     end
+    
+    
+    describe "filter param" do
+      def self.it_passes_the_filter_as(query_string)
+        it "calls ?all&#{query_string}" do
+          RestClient::Request.should_receive(:execute).with(
+            method: :get,
+            url: role.url + "/?all&#{query_string}",
+            headers:{}
+          ).and_return([].to_json)
+          role.all filter: filter
+        end
+      end
+      context "when a string" do
+        let(:filter){ 'string' }
+        it_passes_the_filter_as ['string'].to_query('filter')
+      end
+
+      context "when an array" do
+        let(:filter){ ['foo', 'bar'] }
+        it_passes_the_filter_as ['foo', 'bar'].to_query('filter')
+      end
+    end
+
+  end
+  
+  describe '#member_of?' do
+    it 'calls #all with :filter=>id and returns true if the result is non-empty' do
+      role.should_receive(:all).with(filter: 'the filter').and_return ['an id']
+      role.member_of?('the filter').should be_true
+      role.should_receive(:all).with(filter: 'the filter').and_return []
+      role.member_of?('the filter').should be_false
+    end
+    
+    it "accepts a Role" do
+      other = double('Role', roleid: 'foo')
+      role.should_receive(:all).with(filter: other.roleid).and_return []
+      role.member_of?(other)
+    end
   end
 
   describe '#revoke_from' do
