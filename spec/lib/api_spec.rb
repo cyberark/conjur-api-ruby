@@ -126,6 +126,8 @@ describe Conjur::API do
         }
         context "in stage" do
           before(:each) do
+            # Looks at "ENV['CONJUR_STACK']" first, stub this out
+            ENV.stub(:[]).with('CONJUR_STACK').and_return nil
             Conjur.stub(:env).and_return "stage"
           end
           its "default_host" do
@@ -134,11 +136,20 @@ describe Conjur::API do
         end
         context "in ci" do
           before(:each) do
+            # Looks at "ENV['CONJUR_STACK']" first, stub this out
+            ENV.stub(:[]).with('CONJUR_STACK').and_return nil
             Conjur.stub(:env).and_return "ci"
           end
           its "default_host" do
             should == "https://authz-ci-conjur.herokuapp.com"
           end
+        end
+        context "when ENV['CONJUR_STACK'] is set to 'v12'" do
+          before do
+            ENV.stub(:[]).and_call_original
+            ENV.stub(:[]).with('CONJUR_STACK').and_return 'v12'
+          end
+          its(:default_host){ should == "https://authz-v12-conjur.herokuapp.com"}
         end
       end
       context "in production" do
