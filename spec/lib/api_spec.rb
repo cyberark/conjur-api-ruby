@@ -148,6 +148,8 @@ describe Conjur::API do
           before do
             ENV.stub(:[]).and_call_original
             ENV.stub(:[]).with('CONJUR_STACK').and_return 'v12'
+            # If the "real" env is used ('test') then the URL is always localhost:<someport>
+            Conjur.stub(:env).and_return "ci"
           end
           its(:default_host){ should == "https://authz-v12-conjur.herokuapp.com"}
         end
