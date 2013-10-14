@@ -28,6 +28,13 @@ module Conjur
       match_path(3..-1)
     end
     
+    # Name convention according to Role#roleid.  
+    def resourceid 
+      [account, kind, identifier].join ':'
+    end
+    
+    alias :resource_id :resourceid
+    
     def create(options = {})
       log do |logger|
         logger << "Creating resource #{kind}:#{identifier}"
