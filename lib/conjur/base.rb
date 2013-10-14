@@ -40,12 +40,20 @@ module Conjur
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
-        parse_id id, 'roles'
+        if id.is_a?(Role)
+          [ id.account, 'roles', id.kind, id.identifier ]
+        else
+          parse_id id, 'roles'
+        end
       end
 
       # Parse a resource id into [ account, 'resources', kind, id ]
       def parse_resource_id(id)
-        parse_id id, 'resources'
+        if id.is_a?(Resource)
+          [ id.account, 'resources', id.kind, id.identifier ]
+        else
+          parse_id id, 'resources'
+        end
       end
     
       # Converts flat id into path components, with mixed-in "super-kind" 
