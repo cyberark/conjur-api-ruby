@@ -39,3 +39,4 @@ module Conjur
     end
   end
 end
+require 'conjur/api/audit'
