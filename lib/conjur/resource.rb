@@ -67,7 +67,12 @@ module Conjur
           end
         end
         
-        self["?permit&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
+        begin
+          self["?permit&privilege=#{query_escape p}&role=#{query_escape role}"].post(options)
+        rescue RestClient::Forbidden
+          # TODO: Remove once permit is idempotent
+          raise $! unless $!.http_body == "Privilege already granted."
+        end
       end
     end
     

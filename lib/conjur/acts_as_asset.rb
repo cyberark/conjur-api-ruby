@@ -28,6 +28,23 @@ module Conjur
         include ActsAsResource
         include HasAttributes
       end
+      
+      def add_member(role_name, member, options = {})
+        owned_role(role_name).grant_to member, options
+      end
+      
+      def remove_member(role_name, member)
+        owned_role(role_name).revoke_from member
+      end
+      
+      protected
+      
+      def owned_role(role_name)
+        tokens = [ resource_kind, resource_id, role_name ]
+        grant_role = [ core_conjur_account, '@', tokens.join('/') ].join(':')
+        require 'conjur/role'
+        Conjur::Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(grant_role).join('/')]
+      end
     end
   end
 end
