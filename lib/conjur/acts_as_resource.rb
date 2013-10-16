@@ -39,5 +39,13 @@ module Conjur
       resource.delete
       super
     end
+    
+    def permit(privilege, role, options = {})
+      resource.permit privilege, role, options
+    end
+    
+    def deny(privilege, role)
+      resource.deny privilege, role
+    end
   end
 end
