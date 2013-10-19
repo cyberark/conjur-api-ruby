@@ -93,8 +93,36 @@ module Conjur
     end
     
     def token
-      @token ||= Conjur::API.authenticate(@username, @api_key)
+      if @token.nil? or refresh_token?(@token)
+        Conjur.log << "refreshing aging token" if @token && Conjur.log
+        @token = Conjur::API.authenticate @username, @api_key
+      end
+      @token
     end
+    
+    def token_time_field token, field
+      case t = token[field]
+        when nil then nil
+        when Time then t
+        else Time.parse t
+      end
+    end
+    private :token_time_field
+    
+    def refresh_token? token
+      return true if token.nil?
+      
+      if token.kind_of?(String)
+        token = JSON.parse token
+      end
+      
+      timestamp, expiration = %w(timestamp expiration).map{|k| token_time_field(token, k)}
+      expiration ||= timestamp + 8 * 60
+      
+      Time.now.utc - expiration < 60
+    end
+    private :refresh_token?
+    
     
     # Authenticate the username and api_key to obtain a request token.
     # Tokens are cached by username for a short period of time.
