@@ -17,7 +17,6 @@ describe Conjur::API do
     Time.stub(:now).and_return now
   end
   
-  
   def self.it_should_refresh
     it "should refresh the token" do
       Conjur::API.should_receive(:authenticate).and_return fresh_token
@@ -26,7 +25,7 @@ describe Conjur::API do
   end
   def self.it_should_not_refresh
     it "should refresh the token" do
-      Conjur::API.should_not_receive(:authenticate).and_return fresh_token
+      Conjur::API.should_not_receive(:authenticate)
       subject.token
     end
   end
