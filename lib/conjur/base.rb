@@ -40,6 +40,7 @@ module Conjur
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
+        id = id.role if id.respond_to?(:role)
         if id.is_a?(Role)
           [ id.account, 'roles', id.kind, id.identifier ]
         elsif id.respond_to?(:role_kind)
@@ -51,6 +52,7 @@ module Conjur
 
       # Parse a resource id into [ account, 'resources', kind, id ]
       def parse_resource_id(id)
+        id = id.resource if id.respond_to?(:resource)
         if id.is_a?(Resource)
           [ id.account, 'resources', id.kind, id.identifier ]
         elsif id.respond_to?(:resource_kind)
