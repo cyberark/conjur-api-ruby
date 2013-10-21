@@ -119,7 +119,7 @@ module Conjur
       timestamp, expiration = %w(timestamp expiration).map{|k| token_time_field(token, k)}
       expiration ||= timestamp + 8 * 60
       
-      Time.now.utc - expiration < 60
+      expiration - Time.now.utc < 60
     end
     private :refresh_token?
     
