@@ -22,6 +22,9 @@ module Conjur
   class Variable < RestClient::Resource
     include ActsAsAsset
     
+    def kind; attributes['kind']; end
+    def mime_type; attributes['mime_type']; end
+    
     def add_value value
       log do |logger|
         logger << "Adding a value to variable #{id}"
