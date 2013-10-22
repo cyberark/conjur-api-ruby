@@ -17,7 +17,16 @@ module Conjur
     end
 
     def role_from_username username
-      role(username.split('/').unshift('user')[-2..-1].join(':'))
+      role(role_name_from_username username)
+    end
+    
+    def role_name_from_username username = self.username
+      tokens = username.split('/')
+      if tokens.size == 1
+        [ 'user', username ].join(':')
+      else
+        [ tokens[0], tokens[1..-1].join('/') ].join(':')
+      end
     end
   end
 end
