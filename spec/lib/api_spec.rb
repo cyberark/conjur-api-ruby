@@ -214,7 +214,7 @@ describe Conjur::API do
     end
 
     it "returns an appropriate role kind when username is qualified" do
-      api.role_from_username("host/foobar").roleid.should == "#{account}:host:foobar"
+      api.role_from_username("host/foo/bar").roleid.should == "#{account}:host:foo/bar"
     end
   end
 
