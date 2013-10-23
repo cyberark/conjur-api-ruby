@@ -21,7 +21,9 @@
 require 'conjur/user'
 
 module Conjur
+  class AuthenticationError < Error; end
   class API
+
     class << self
       # Perform login by Basic authentication.
       def login username, password
@@ -46,6 +48,8 @@ module Conjur
           Conjur.log << "Authenticating #{username}\n"
         end
         JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
+      rescue RestClient::Unauthorized
+        raise AuthenticationError
       end
       
       def update_password username, password, new_password
