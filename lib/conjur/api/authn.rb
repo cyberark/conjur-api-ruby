@@ -31,6 +31,8 @@ module Conjur
           Conjur.log << "Logging in #{username} via Basic authentication\n"
         end
         RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/login'].get
+      rescue RestClient::Unauthorized
+        raise AuthenticationError
       end
 
       # Perform login by CAS authentication.
@@ -41,6 +43,8 @@ module Conjur
         require 'cas_rest_client'
         client = CasRestClient.new(:username => username, :password => password, :uri => [ cas_api_url, 'v1', 'tickets' ].join('/'), :use_cookies => false)
         client.get("#{Conjur::Authn::API.host}/users/login").body
+      rescue RestClient::Unauthorized
+        raise AuthenticationError
       end
 
       def authenticate username, password
@@ -57,6 +61,8 @@ module Conjur
           Conjur.log << "Updating password for #{username}\n"
         end
         RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/password'].put new_password
+      rescue RestClient::Unauthorized
+        raise AuthenticationError
       end
     end
 
