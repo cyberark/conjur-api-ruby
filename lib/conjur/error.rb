@@ -19,5 +19,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  class Error < RuntimeError; end
+  class Error < RuntimeError
+    def initialize msg = self.class.name.demodulize.underscore.humanize.downcase
+      super
+    end
+  end
 end
