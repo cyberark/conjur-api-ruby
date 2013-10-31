@@ -26,6 +26,10 @@ module Conjur
       Conjur::Resource.new(Conjur::Authz::API.host, self.options)[[ core_conjur_account, 'resources', path_escape(resource_kind), path_escape(resource_id) ].join('/')]
     end
     
+    def resourceid
+      [ core_conjur_account, resource_kind, resource_id ].join(':')
+    end
+    
     def resource_kind
       require 'active_support/core_ext'
       self.class.name.split("::")[-1].underscore.split('/').join('-')
