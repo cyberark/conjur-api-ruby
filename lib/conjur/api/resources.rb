@@ -30,7 +30,7 @@ module Conjur
     
     def resource identifier
       paths = path_escape(identifier).split(':')
-      raise ArgumentError, "Expected at least two tokens in resource identifier '#{identifier}'" if paths.length < 2
+      raise ArgumentError, "Expected at least 3 tokens in resource identifier '#{identifier}'" if paths.length < 3
       path = [ paths[0], 'resources', paths[1], paths[2..-1].join(':') ].flatten.join('/')
       Resource.new(Conjur::Authz::API.host, credentials)[path]
     end
