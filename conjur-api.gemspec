@@ -30,4 +30,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov'
   gem.add_development_dependency 'io-grab'
   gem.add_development_dependency 'yard'
+  gem.add_development_dependency 'redcarpet'
 end
