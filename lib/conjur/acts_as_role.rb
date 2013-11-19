@@ -34,5 +34,17 @@ module Conjur
       require 'conjur/role'
       Conjur::Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(self.roleid).join('/')]
     end
+    
+    # Permit this role to perform a privileged action.
+    def can(privilege, resource, options = {})
+      require 'conjur/resource'
+      Conjur::Resource.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_resource_id(resource).join('/')].permit privilege, self.roleid, options
+    end
+
+    # Deny this role from performing perform a privileged action.
+    def cannot(privilege, resource, options = {})
+      require 'conjur/resource'
+      Conjur::Resource.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_resource_id(resource).join('/')].deny privilege, self.roleid
+    end
   end
 end

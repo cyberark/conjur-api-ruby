@@ -40,12 +40,26 @@ module Conjur
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
-        parse_id id, 'roles'
+        id = id.role if id.respond_to?(:role)
+        if id.is_a?(Role)
+          [ id.account, 'roles', id.kind, id.identifier ]
+        elsif id.respond_to?(:role_kind)
+          [ Conjur::Core::API.conjur_account, 'roles', id.role_kind, id.identifier ]
+        else
+          parse_id id, 'roles'
+        end
       end
 
       # Parse a resource id into [ account, 'resources', kind, id ]
       def parse_resource_id(id)
-        parse_id id, 'resources'
+        id = id.resource if id.respond_to?(:resource)
+        if id.is_a?(Resource)
+          [ id.account, 'resources', id.kind, id.identifier ]
+        elsif id.respond_to?(:resource_kind)
+          [ Conjur::Core::API.conjur_account, 'resources', id.resource_kind, id.resource_id ]
+        else
+          parse_id id, 'resources'
+        end
       end
     
       # Converts flat id into path components, with mixed-in "super-kind" 

@@ -25,5 +25,13 @@ module Conjur
         include ActsAsRole
       end
     end
+    
+    def api_key
+      attributes['api_key'] or raise "api_key is only available on a newly created #{self.class.name.downcase}"
+    end
+    
+    def api
+      Conjur::API.new_from_key login, api_key
+    end
   end
 end

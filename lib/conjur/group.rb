@@ -22,5 +22,13 @@ module Conjur
   class Group < RestClient::Resource
     include ActsAsAsset
     include ActsAsRole
+    
+    def add_member(member, options = {})
+      role.grant_to member, options
+    end
+    
+    def remove_member(member)
+      role.revoke_from member
+    end
   end
 end

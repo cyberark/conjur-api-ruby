@@ -82,6 +82,15 @@ end
 
 require 'conjur/api'
 
+KIND="asset_kind"
+ID="unique_id" 
+ROLE='<role>'
+MEMBER='<member>'
+PRIVILEGE='<privilege>'
+OWNER='<owner/userid>'
+ACCOUNT='<core_account>'
+OPTIONS={}
+
 shared_context api: :dummy do
   let(:username) { "user" }
   let(:api){ Conjur::API.new_from_key username, 'key' }
