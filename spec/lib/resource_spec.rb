@@ -126,4 +126,27 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
       subject.permitted? 'fry'
     end
   end
+
+  describe '.all' do
+    it "calls /account/resources" do
+      RestClient::Request.should_receive(:execute).with(
+        method: :get,
+        url: "http://authz.example.com/the-account/resources",
+        headers: {}
+      ).and_return '["foo", "bar"]'
+
+      expect(Conjur::Resource.all host: authz_host, account: account).to eql(%w(foo bar))
+    end
+
+    it "can filter by kind" do
+      RestClient::Request.should_receive(:execute).with(
+        method: :get,
+        url: "http://authz.example.com/the-account/resources/chunky",
+        headers: {}
+      ).and_return '["foo", "bar"]'
+
+      expect(Conjur::Resource.all host: authz_host, account: account, kind: :chunky)
+        .to eql(%w(foo bar))
+    end
+  end
 end

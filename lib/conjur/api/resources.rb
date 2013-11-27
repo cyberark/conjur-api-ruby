@@ -34,5 +34,12 @@ module Conjur
       path = [ paths[0], 'resources', paths[1], paths[2..-1].join(':') ].flatten.join('/')
       Resource.new(Conjur::Authz::API.host, credentials)[path]
     end
+
+    # Return all visible resources.
+    # In opts you should pass an account to filter by, and optionally a kind.
+    def resources opts = {}
+      Resource.all({ host: Conjur::Authz::API.host, credentials: credentials }.merge opts)
+        .map { |r| resource r }
+    end
   end
 end

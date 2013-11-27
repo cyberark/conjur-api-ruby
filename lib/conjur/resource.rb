@@ -103,7 +103,26 @@ module Conjur
     rescue RestClient::ResourceNotFound
       false
     end
-    
+
+    # Returns all resources (optionally qualified by kind)
+    # visible to the user with given credentials.
+    # Options are:
+    # - host,
+    # - credentials,
+    # - account,
+    # - kind (optional).
+    def self.all opts = {}
+      host, credentials, account, kind = opts.values_at(*[:host, :credentials, :account, :kind])
+      fail ArgumentError, "host and account are required" unless [host, account].all?
+
+      credentials ||= {}
+
+      path = "#{account}/resources"
+      path += "/#{kind}" if kind
+      resource = RestClient::Resource.new(Conjur::Authz::API.host, credentials)[path]
+      JSON.parse resource.get
+    end
+
     protected
     
     def eachable(item)
