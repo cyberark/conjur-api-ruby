@@ -107,7 +107,7 @@ module Conjur
     # Returns all resources (optionally qualified by kind)
     # visible to the user with given credentials.
     # Options are:
-    # - host,
+    # - host - authz url,
     # - credentials,
     # - account,
     # - kind (optional).
@@ -119,7 +119,7 @@ module Conjur
 
       path = "#{account}/resources"
       path += "/#{kind}" if kind
-      resource = RestClient::Resource.new(Conjur::Authz::API.host, credentials)[path]
+      resource = RestClient::Resource.new(host, credentials)[path]
       JSON.parse resource.get
     end
 

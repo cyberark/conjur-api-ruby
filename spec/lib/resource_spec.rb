@@ -148,5 +148,15 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
       expect(Conjur::Resource.all host: authz_host, account: account, kind: :chunky)
         .to eql(%w(foo bar))
     end
+
+    it "uses the given authz url" do
+      RestClient::Request.should_receive(:execute).with(
+        method: :get,
+        url: "http://otherhost.example.com/the-account/resources",
+        headers: {}
+      ).and_return '["foo", "bar"]'
+
+      Conjur::Resource.all host: 'http://otherhost.example.com', account: account
+    end
   end
 end
