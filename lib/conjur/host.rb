@@ -19,22 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  class Host < RestClient::Resource
-    include Exists
-    include HasId
-    include HasIdentifier
-    include HasAttributes
-    include ActsAsUser
-    include ActsAsResource
-    
-    def login
-      [ 'host', id ].join('/')
-    end
-    
-    def api_key
-      self.attributes['api_key']
-    end
-    
+  class Host < Deputy
     def enrollment_url
       log do |logger|
         logger << "Fetching enrollment_url for #{id}"

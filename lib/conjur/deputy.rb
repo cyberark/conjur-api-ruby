@@ -19,45 +19,20 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  class API
-    class << self
-      def core_asset_host
-        ::Conjur::Core::API.host
-      end
+  class Deputy < RestClient::Resource
+    include Exists
+    include HasId
+    include HasIdentifier
+    include HasAttributes
+    include ActsAsUser
+    include ActsAsResource
+    
+    def login
+      [ self.class.name.split('::')[-1].downcase, id ].join('/')
     end
-  end
-  
-  module Core
-    class API < Conjur::API
-      class << self
-        def conjur_account
-          info['account'] or raise "No account field in #{info.inspect}"
-        end
-        
-        def info
-          @info ||= JSON.parse RestClient::Resource.new(Conjur::Core::API.host)['info'].get
-        end
-        
-        def host
-          ENV['CONJUR_CORE_URL'] || default_host
-        end
-        
-        def default_host
-          case Conjur.env
-          when 'test', 'development'
-            "http://localhost:#{Conjur.service_base_port + 200}"
-          else
-            "https://core-#{Conjur.account}-conjur.herokuapp.com"
-          end
-        end
-      end
+    
+    def api_key
+      self.attributes['api_key']
     end
   end
 end
-
-require 'conjur/api/deputies'
-require 'conjur/api/hosts'
-require 'conjur/api/secrets'
-require 'conjur/api/users'
-require 'conjur/api/groups'
-require 'conjur/api/variables'
