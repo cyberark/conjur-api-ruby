@@ -1,33 +1,34 @@
 require 'spec_helper'
 
 shared_examples_for "API endpoint" do
+  before { Conjur.configuration = Conjur::Configuration.new }
   subject { api }
   let(:service_name) { api.name.split('::')[-2].downcase }
   context "in development" do
     before(:each) do
-      Conjur.stub(:env).and_return "development"
+      Conjur::Configuration.any_instance.stub(:env).and_return "development"
     end
-    its "default_host" do
-      should == "http://localhost:#{Conjur.service_base_port + port_offset}"
+    its "host" do
+      should == "http://localhost:#{Conjur.configuration.service_base_port + port_offset}"
     end
   end
   context "'ci' account" do
     before {
-      Conjur.stub(:account).and_return 'ci'
+      Conjur::Configuration.any_instance.stub(:account).and_return 'ci'
     }
     context "in stage" do
       before(:each) do
-        Conjur.stub(:env).and_return "stage"
+        Conjur::Configuration.any_instance.stub(:env).and_return "stage"
       end
-      its "default_host" do
+      its "host" do
         should == "https://#{service_name}-ci-conjur.herokuapp.com"
       end
     end
     context "in ci" do
       before(:each) do
-        Conjur.stub(:env).and_return "ci"
+        Conjur::Configuration.any_instance.stub(:env).and_return "ci"
       end
-      its "default_host" do
+      its "host" do
         should == "https://#{service_name}-ci-conjur.herokuapp.com"
       end
     end
@@ -111,6 +112,7 @@ describe Conjur::API do
   end
 
   context "host construction" do
+    before { Conjur.configuration = Conjur::Configuration.new }
     context "of authn service" do
       let(:port_offset) { 0 }
       let(:api) { Conjur::Authn::API }
@@ -122,15 +124,15 @@ describe Conjur::API do
       subject { api }
       context "'ci' account" do
         before {
-          Conjur.stub(:account).and_return 'ci'
+          Conjur::Configuration.any_instance.stub(:account).and_return 'ci'
         }
         context "in stage" do
           before(:each) do
             # Looks at "ENV['CONJUR_STACK']" first, stub this out
             ENV.stub(:[]).with('CONJUR_STACK').and_return nil
-            Conjur.stub(:env).and_return "stage"
+            Conjur::Configuration.any_instance.stub(:env).and_return "stage"
           end
-          its "default_host" do
+          its "host" do
             should == "https://authz-stage-conjur.herokuapp.com"
           end
         end
@@ -138,36 +140,34 @@ describe Conjur::API do
           before(:each) do
             # Looks at "ENV['CONJUR_STACK']" first, stub this out
             ENV.stub(:[]).with('CONJUR_STACK').and_return nil
-            Conjur.stub(:env).and_return "ci"
+            Conjur::Configuration.any_instance.stub(:env).and_return "ci"
           end
-          its "default_host" do
+          its "host" do
             should == "https://authz-ci-conjur.herokuapp.com"
           end
         end
         context "when ENV['CONJUR_STACK'] is set to 'v12'" do
           before do
-            ENV.stub(:[]).and_call_original
-            ENV.stub(:[]).with('CONJUR_STACK').and_return 'v12'
-            # If the "real" env is used ('test') then the URL is always localhost:<someport>
-            Conjur.stub(:env).and_return "ci"
+            Conjur::Configuration.any_instance.stub(:stack).and_return "v12"
+            Conjur::Configuration.any_instance.stub(:env).and_return "ci"
           end
-          its(:default_host){ should == "https://authz-v12-conjur.herokuapp.com"}
+          its(:host){ should == "https://authz-v12-conjur.herokuapp.com"}
         end
       end
       context "in production" do
         before(:each) do
-          Conjur.stub(:env).and_return "production"
+          Conjur::Configuration.any_instance.stub(:env).and_return "production"
         end
-        its "default_host" do
+        its "host" do
           should == "https://authz-v4-conjur.herokuapp.com"
         end
       end
       context "in named production version" do
         before(:each) do
-          Conjur.stub(:env).and_return "production"
-          Conjur.stub(:stack).and_return "waffle"
+          Conjur::Configuration.any_instance.stub(:env).and_return "production"
+          Conjur::Configuration.any_instance.stub(:stack).and_return "waffle"
         end
-        its "default_host" do
+        its "host" do
           should == "https://authz-waffle-conjur.herokuapp.com"
         end
       end

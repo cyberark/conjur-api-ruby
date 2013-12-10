@@ -24,16 +24,7 @@ module Conjur
     class API < Conjur::API
       class << self
         def host
-          ENV['CONJUR_AUDIT_URL'] || default_host
-        end
-        
-        def default_host
-          case Conjur.env
-            when 'test', 'development'
-              "http://localhost:#{Conjur.service_base_port + 300}"
-            else 
-              "https://audit-#{Conjur.stack}-conjur.herokuapp.com"
-          end
+          Conjur.configuration.audit_url
         end
       end
     end
