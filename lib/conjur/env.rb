@@ -22,18 +22,18 @@ module Conjur
   extend self
 
   def service_base_port
-    Configuration.service_base_port
+    Conjur.configuration.service_base_port
   end
   
   def account
-    Configuration.account
+    Conjur.configuration.account
   end
   
   def env
-    Configuration.env
+    Conjur.configuration.env
   end
   
   def stack
-    Configuration.stack
+    Conjur.configuration.stack
   end
 end
