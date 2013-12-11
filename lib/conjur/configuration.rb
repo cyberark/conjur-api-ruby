@@ -70,6 +70,10 @@ module Conjur
         convert = options[:convert] || ->(x){ x }
         # Allow a Symbol, for example
         convert = convert.to_proc if convert.respond_to?(:to_proc) 
+
+        define_method("#{name}=") do |value|
+          set name, value
+        end
         
         define_method(name) do
           if supplied.member?(name)
@@ -83,6 +87,12 @@ module Conjur
           end
         end
         alias_method("#{name}?", name) if options[:boolean]
+      end
+    end
+
+    def set(key, value)
+      if self.class.accepted_options.include?(key.to_sym)
+        supplied[key.to_sym] = value
       end
     end
     
@@ -102,7 +112,7 @@ module Conjur
       global_service_url  'audit', 300
     end    
     
-    add_option :base_host
+    add_option :service_url
     
     add_option :service_base_port, default: 5000
 
@@ -124,8 +134,8 @@ module Conjur
     private
 
     def global_service_url(service_name, service_port_offset)
-      if base_host
-        URI.join(base_host, service_name).to_s
+      if service_url
+        URI.join(service_url, service_name).to_s
       else
         case env
         when 'test', 'development'
@@ -137,8 +147,8 @@ module Conjur
     end
     
     def account_service_url(service_name, service_port_offset)
-      if base_host
-        URI.join(base_host, "/#{service_name}/", account).to_s
+      if service_url
+        URI.join(service_url, "/#{service_name}/", account).to_s
       else
         case env
         when 'test', 'development'

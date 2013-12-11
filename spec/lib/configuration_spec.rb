@@ -22,13 +22,13 @@ describe Conjur::Configuration do
       before {
         Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
       }
-      context "with base_host" do
+      context "with service_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:base_host).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
         }
         its(:authn_url) { should == "http://example.com/authn/the-account" }
       end
-      context "without base_host" do
+      context "without service_url" do
         its(:authn_url) { should == "https://authn-the-account-conjur.herokuapp.com" }
       end
     end
@@ -36,13 +36,13 @@ describe Conjur::Configuration do
       before {
         Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
       }
-      context "with base_host" do
+      context "with service_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:base_host).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
         }
         its(:authz_url) { should == "http://example.com/authz" }
       end
-      context "without base_host" do
+      context "without service_url" do
         its(:authz_url) { should == "https://authz-v4-conjur.herokuapp.com" }
         context "with specific stack" do
           before { Conjur::Configuration.any_instance.stub(:stack).and_return "the-stack" }
@@ -57,13 +57,13 @@ describe Conjur::Configuration do
       before {
         Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
       }
-      context "with base_host" do
+      context "with service_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:base_host).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
         }
         its(:authn_url) { should == "http://example.com/authn/the-account" }
       end
-      context "without base_host" do
+      context "without service_url" do
         its(:authn_url) { should == "http://localhost:5000" }
       end
     end
@@ -71,13 +71,13 @@ describe Conjur::Configuration do
       before {
         Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
       }
-      context "with base_host" do
+      context "with service_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:base_host).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
         }
         its(:authz_url) { should == "http://example.com/authz" }
       end
-      context "without base_host" do
+      context "without service_url" do
         its(:authz_url) { should == "http://localhost:5100" }
       end
     end
