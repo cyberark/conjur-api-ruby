@@ -22,23 +22,18 @@ module Conjur
   extend self
 
   def service_base_port
-    (ENV['CONJUR_SERVICE_BASE_PORT'] || 5000 ).to_i
+    Conjur.configuration.service_base_port
   end
   
   def account
-    ENV['CONJUR_ACCOUNT'] or raise "No CONJUR_ACCOUNT defined"
+    Conjur.configuration.account
   end
   
   def env
-    ENV['CONJUR_ENV'] || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || "development"
+    Conjur.configuration.env
   end
   
   def stack
-    ENV['CONJUR_STACK'] || case env
-    when "production"
-      "v4"
-    else
-      env
-    end
+    Conjur.configuration.stack
   end
 end
