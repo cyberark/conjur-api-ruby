@@ -18,37 +18,16 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'conjur/deputy'
+
 module Conjur
   class API
-    class << self
-      def core_asset_host
-        ::Conjur::Core::API.host
-      end
+    def create_deputy options
+      standard_create Conjur::Core::API.host, :deputy, nil, options
     end
-  end
-  
-  module Core
-    class API < Conjur::API
-      class << self
-        def host
-          Conjur.configuration.core_url
-        end
-        
-        def conjur_account
-          info['account'] or raise "No account field in #{info.inspect}"
-        end
-        
-        def info
-          @info ||= JSON.parse RestClient::Resource.new(Conjur::Core::API.host)['info'].get
-        end
-      end
+    
+    def deputy id
+      standard_show Conjur::Core::API.host, :deputy, id
     end
   end
 end
-
-require 'conjur/api/deputies'
-require 'conjur/api/hosts'
-require 'conjur/api/secrets'
-require 'conjur/api/users'
-require 'conjur/api/groups'
-require 'conjur/api/variables'
