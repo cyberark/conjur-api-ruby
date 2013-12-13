@@ -38,8 +38,11 @@ module Conjur
     # Return all visible resources.
     # In opts you should pass an account to filter by, and optionally a kind.
     def resources opts = {}
-      Resource.all({ host: Conjur::Authz::API.host, credentials: credentials }.merge opts)
-        .map { |r| resource r }
+      Resource.all({ host: Conjur::Authz::API.host, credentials: credentials }.merge opts).map do |result|
+        resource(result['id']).tap do |r|
+          r.attributes = result
+        end
+      end
     end
   end
 end
