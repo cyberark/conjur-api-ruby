@@ -18,18 +18,21 @@ describe Conjur::API, api: :dummy do
   end
 
   describe '.resources' do
+    let(:ids) { %w(acc:kind:foo acc:chunky:bar) }
+    let(:resources) {
+      ids.map do |id|
+        { 'id' => id }
+      end
+    }
     it "lists all resources" do
-      ids = %w(acc:kind:foo acc:chunky:bar)
       expect(Conjur::Resource).to receive(:all)
-        .with(host: authz_host, credentials: api.credentials).and_return(ids)
+        .with(host: authz_host, credentials: api.credentials).and_return(resources)
 
       expect(api.resources.map(&:url)).to eql(ids.map { |id| api.resource(id).url })
     end
-
     it "can filter by kind" do
-      ids = %w(acc:chunky:foo acc:chunky:bar)
       expect(Conjur::Resource).to receive(:all)
-        .with(host: authz_host, credentials: api.credentials, kind: :chunky).and_return(ids)
+        .with(host: authz_host, credentials: api.credentials, kind: :chunky).and_return(resources)
 
       expect(api.resources(kind: :chunky).map(&:url)).to eql(ids.map { |id| api.resource(id).url })
     end
