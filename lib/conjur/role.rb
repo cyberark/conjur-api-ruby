@@ -58,10 +58,12 @@ module Conjur
     end
     
     def member_of?(other_role)
-      not all(filter: (other_role.roleid rescue other_role)).empty?
+      other_role = cast(other_role, :roleid)
+      not all(filter: other_role).empty?
     end
     
     def grant_to(member, options={})
+      member = cast(member, :roleid)
       log do |logger|
         logger << "Granting role #{identifier} to #{member}"
         unless options.blank?
@@ -72,6 +74,7 @@ module Conjur
     end
 
     def revoke_from(member, options = {})
+      member = cast(member, :roleid)
       log do |logger|
         logger << "Revoking role #{identifier} from #{member}"
         unless options.empty?
@@ -81,9 +84,10 @@ module Conjur
       self["?members&member=#{query_escape member}"].delete(options)
     end
 
-    def permitted?(resource_id, privilege, options = {})
+    def permitted?(resource, privilege, options = {})
+      resource = cast(resource, :resourceid)
       # NOTE: in previous versions there was 'kind' passed separately. Now it is part of id
-      self["?check&resource_id=#{query_escape resource_id}&privilege=#{query_escape privilege}"].get(options)
+      self["?check&resource_id=#{query_escape resource}&privilege=#{query_escape privilege}"].get(options)
       true
     rescue RestClient::ResourceNotFound
       false

@@ -39,6 +39,21 @@ describe Conjur::Role, api: :dummy do
       subject.grant_to "other"
     end
 
+    it "converts an object to roleid" do
+      members = double "members request"
+      subject.should_receive(:[]).with('?members&member=other').and_return(members)
+      members.should_receive(:put).with({})
+      require 'ostruct'
+      subject.grant_to OpenStruct.new(roleid: "other")
+    end
+
+    it "converts an Array to roleid" do
+      members = double "members request"
+      subject.should_receive(:[]).with('?members&member=other').and_return(members)
+      members.should_receive(:put).with({})
+      require 'ostruct'
+      subject.grant_to %w(other)
+    end
   end
 
   describe '#create' do
