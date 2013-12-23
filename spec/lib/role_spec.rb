@@ -51,7 +51,6 @@ describe Conjur::Role, api: :dummy do
       members = double "members request"
       subject.should_receive(:[]).with('?members&member=other').and_return(members)
       members.should_receive(:put).with({})
-      require 'ostruct'
       subject.grant_to %w(other)
     end
   end
