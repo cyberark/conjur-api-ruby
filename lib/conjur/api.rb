@@ -50,8 +50,7 @@ class RestClient::Resource
   end
   
   def path_components
-    require 'uri'
-    URI.parse(self.url).path.split('/').map{|e| URI.unescape e}
+    self.url[RestClient::Resource.new(Conjur::Core::API.host)[''].url.length..-1].split('/').map{|e| URI.unescape e}
   end
   
   def username

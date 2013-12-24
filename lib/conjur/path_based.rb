@@ -35,13 +35,7 @@ module Conjur
     end
     
     def tokens
-      require 'uri'
-      path = URI.parse(self.url).path.split('/')
-      if Conjur.configuration.appliance_url
-        path[3..-1]
-      else
-        path[1..-1]
-      end
+      self.url[RestClient::Resource.new(Conjur::Authz::API.host)[''].url.length..-1].split('/')
     end
   end
 end
