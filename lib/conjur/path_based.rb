@@ -31,9 +31,17 @@ module Conjur
     protected
     
     def match_path(range)
+      tokens[range].map{|t| URI.unescape(t)}.join('/')
+    end
+    
+    def tokens
       require 'uri'
-      tokens = URI.parse(self.url).path[1..-1].split('/')[range]
-      tokens.map{|t| URI.unescape(t)}.join('/')
+      path = URI.parse(self.url).path.split('/')
+      if Conjur.configuration.appliance_url
+        path[3..-1]
+      else
+        path[1..-1]
+      end
     end
   end
 end
