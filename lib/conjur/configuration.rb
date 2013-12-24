@@ -34,6 +34,7 @@ module Conjur
     class << self
       # @api private
       def accepted_options
+        require 'set'
         @options ||= Set.new
       end
       
