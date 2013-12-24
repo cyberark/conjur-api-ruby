@@ -40,17 +40,13 @@ class RestClient::Resource
   include Conjur::Escape
   include Conjur::LogSource
   extend  Conjur::BuildFromResponse
-
+  
   def core_conjur_account
     Conjur::Core::API.conjur_account
   end
   
   def to_json(options = {})
     {}
-  end
-  
-  def path_components
-    self.url[RestClient::Resource.new(Conjur::Core::API.host)[''].url.length..-1].split('/').map{|e| URI.unescape e}
   end
   
   def username
