@@ -50,6 +50,7 @@ module Conjur
       
       if filter = options.delete(:filter)
         filter = [filter] unless filter.is_a?(Array)
+        filter.map!{ |obj| cast(obj, :roleid) }
         (query_string << "&" << filter.to_query("filter")) unless filter.empty?
       end
       JSON.parse(self[query_string].get(options)).collect do |id|

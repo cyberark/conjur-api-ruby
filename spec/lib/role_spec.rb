@@ -82,8 +82,14 @@ describe Conjur::Role, api: :dummy do
       all[1].id.should == 'xyzzy'
     end
     
-    
     describe "filter param" do
+      it "applies #cast to the filter" do
+        filter = %w(foo bar)
+        filter.each{ |e| subject.should_receive(:cast).with(e, :roleid).and_return e }
+        RestClient::Request.stub execute: [].to_json
+        role.all filter: filter
+      end
+      
       def self.it_passes_the_filter_as(query_string)
         it "calls ?all&#{query_string}" do
           RestClient::Request.should_receive(:execute).with(
@@ -94,6 +100,7 @@ describe Conjur::Role, api: :dummy do
           role.all filter: filter
         end
       end
+      
       context "when a string" do
         let(:filter){ 'string' }
         it_passes_the_filter_as ['string'].to_query('filter')
