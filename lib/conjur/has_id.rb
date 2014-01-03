@@ -25,7 +25,7 @@ module Conjur
     end
   
     def id
-      path_components[2..-1].join('/')
+      URI.unescape self.url.split('/')[-1]
     end    
   end
 end

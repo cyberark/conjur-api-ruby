@@ -31,9 +31,11 @@ module Conjur
     protected
     
     def match_path(range)
-      require 'uri'
-      tokens = URI.parse(self.url).path[1..-1].split('/')[range]
-      tokens.map{|t| URI.unescape(t)}.join('/')
+      tokens[range].map{|t| URI.unescape(t)}.join('/')
+    end
+    
+    def tokens
+      self.url[RestClient::Resource.new(Conjur::Authz::API.host)[''].url.length..-1].split('/')
     end
   end
 end

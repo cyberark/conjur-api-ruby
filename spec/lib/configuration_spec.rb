@@ -22,13 +22,13 @@ describe Conjur::Configuration do
       before {
         Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
       }
-      context "with service_url" do
+      context "with appliance_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com"
         }
-        its(:authn_url) { should == "http://example.com/authn/the-account" }
+        its(:authn_url) { should == "http://example.com/authn" }
       end
-      context "without service_url" do
+      context "without appliance_url" do
         its(:authn_url) { should == "https://authn-the-account-conjur.herokuapp.com" }
       end
     end
@@ -36,13 +36,13 @@ describe Conjur::Configuration do
       before {
         Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
       }
-      context "with service_url" do
+      context "with appliance_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com"
         }
         its(:authz_url) { should == "http://example.com/authz" }
       end
-      context "without service_url" do
+      context "without appliance_url" do
         its(:authz_url) { should == "https://authz-v4-conjur.herokuapp.com" }
         context "with specific stack" do
           before { Conjur::Configuration.any_instance.stub(:stack).and_return "the-stack" }
@@ -53,32 +53,46 @@ describe Conjur::Configuration do
   end
   context "CONJUR_ENV = 'test'" do
     its(:env) { should == "test" }
+    before {
+      Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
+    }
     describe 'authn_url' do
-      before {
-        Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
-      }
-      context "with service_url" do
+      context "with appliance_url hostname" do
         before {
-          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com"
         }
-        its(:authn_url) { should == "http://example.com/authn/the-account" }
+        its(:authn_url) { should == "http://example.com/authn" }
       end
-      context "without service_url" do
+      context "with appliance_url hostname and non-trailing-slash path" do
+        before {
+          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com/api"
+        }
+        its(:authn_url) { should == "http://example.com/api/authn" }
+      end
+      context "without appliance_url" do
         its(:authn_url) { should == "http://localhost:5000" }
       end
     end
     describe 'authz_url' do
-      before {
-        Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
-      }
-      context "with service_url" do
+      context "with appliance_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:service_url).and_return "http://example.com"
+          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com/api/"
         }
-        its(:authz_url) { should == "http://example.com/authz" }
+        its(:authz_url) { should == "http://example.com/api/authz" }
       end
-      context "without service_url" do
+      context "without appliance_url" do
         its(:authz_url) { should == "http://localhost:5100" }
+      end
+    end
+    describe 'core_url' do
+      context "with appliance_url" do
+        before {
+          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com/api"
+        }
+        its(:core_url) { should == "http://example.com/api" }
+      end
+      context "without appliance_url" do
+        its(:core_url) { should == "http://localhost:5200" }
       end
     end
   end

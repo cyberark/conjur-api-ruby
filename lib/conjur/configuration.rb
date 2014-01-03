@@ -106,14 +106,14 @@ module Conjur
     end
 
     add_option :core_url do
-      account_service_url 'core', 200
+      default_service_url 'core', 200
     end    
     
     add_option :audit_url do
       global_service_url  'audit', 300
     end    
     
-    add_option :service_url
+    add_option :appliance_url
     
     add_option :service_base_port, default: 5000
 
@@ -135,8 +135,8 @@ module Conjur
     private
 
     def global_service_url(service_name, service_port_offset)
-      if service_url
-        URI.join(service_url, service_name).to_s
+      if appliance_url
+        URI.join(appliance_url + '/', service_name).to_s
       else
         case env
         when 'test', 'development'
@@ -148,8 +148,8 @@ module Conjur
     end
     
     def account_service_url(service_name, service_port_offset)
-      if service_url
-        URI.join(service_url, "/#{service_name}/", account).to_s
+      if appliance_url
+        URI.join(appliance_url + '/', service_name).to_s
       else
         case env
         when 'test', 'development'
@@ -157,6 +157,14 @@ module Conjur
         else
           "https://#{service_name}-#{account}-conjur.herokuapp.com"
         end
+      end
+    end
+    
+    def default_service_url(service_name, service_port_offset)
+      if appliance_url
+        appliance_url
+      else
+        account_service_url(service_name, service_port_offset)
       end
     end
     

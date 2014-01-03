@@ -11,7 +11,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     context "Object with an #id" do
       let(:kind) { "host" }
       let(:identifier) do
-        Conjur::Host.new("#{Conjur::Core::API.host}/hosts/foobar", {})
+        "foobar"
       end
       it "identifier should obtained from the id" do
         resource.identifier.should == "foobar"
