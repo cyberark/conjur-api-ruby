@@ -21,7 +21,7 @@ module Conjur
   class API
     # Return audit events related to the given role_id.  Identitical to audit_events
     # except that a String may be given instead of a Role object.
-    # @param role_id [String] the role for which events should be returned.
+    # @param role [String] the role for which events should be returned.
     def audit_role role, options={}
       audit_event_feed 'role', (role.roleid rescue role), options
     end

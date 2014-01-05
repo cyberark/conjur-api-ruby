@@ -22,7 +22,7 @@ require 'conjur/deputy'
 
 module Conjur
   class API
-    def create_deputy options
+    def create_deputy options = {}
       standard_create Conjur::Core::API.host, :deputy, nil, options
     end
     

@@ -37,7 +37,7 @@ module Conjur
       end
     end
     
-    def create_host options
+    def create_host options = {}
       standard_create Conjur::Core::API.host, :host, nil, options
     end
     
