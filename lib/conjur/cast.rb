@@ -18,40 +18,25 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'conjur/cast'
-require 'conjur/configuration'
-require 'conjur/env'
-require 'conjur/base'
-require 'conjur/build_from_response'
-require 'conjur/acts_as_resource'
-require 'conjur/acts_as_role'
-require 'conjur/acts_as_user'
-require 'conjur/log_source'
-require 'conjur/has_attributes'
-require 'conjur/has_identifier'
-require 'conjur/has_id'
-require 'conjur/acts_as_asset'
-require 'conjur/authn-api'
-require 'conjur/authz-api'
-require 'conjur/audit-api'
-require 'conjur/core-api'
-require 'conjur-api/version'
-
-class RestClient::Resource
-  include Conjur::Escape
-  include Conjur::LogSource
-  include Conjur::Cast
-  extend  Conjur::BuildFromResponse
-  
-  def core_conjur_account
-    Conjur::Core::API.conjur_account
-  end
-  
-  def to_json(options = {})
-    {}
-  end
-  
-  def username
-    options[:user] || options[:username]
+module Conjur
+  module Cast
+    protected
+    
+    def cast(obj, kind)
+      case kind
+      when :roleid, :resourceid
+        if obj.is_a?(String)
+          obj
+        elsif obj.is_a?(Array)
+          obj.join(':')
+        elsif obj.respond_to?(kind)
+          obj.send(kind)
+        else
+          raise "I don't know how to cast a #{obj.class} to a #{kind}"
+        end
+      else
+        raise "I don't know how to convert things to a #{kind}"
+      end
+    end
   end
 end

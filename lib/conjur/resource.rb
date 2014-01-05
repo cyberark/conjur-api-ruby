@@ -52,6 +52,7 @@ module Conjur
     
     # Changes the owner of a resource
     def give_to(owner, options = {})
+      owner = cast(owner, :roleid)
       self.put(options.merge(owner: owner))
     end
 
@@ -66,6 +67,7 @@ module Conjur
     end
 
     def permit(privilege, role, options = {})
+      role = cast(role, :roleid)
       eachable(privilege).each do |p|
         log do |logger|
           logger << "Permitting #{p} on resource #{kind}:#{identifier} by #{role}"
@@ -84,6 +86,7 @@ module Conjur
     end
     
     def deny(privilege, role, options = {})
+      role = cast(role, :roleid)
       eachable(privilege).each do |p|
         log do |logger|
           logger << "Denying #{p} on resource #{kind}:#{identifier} by #{role}"
