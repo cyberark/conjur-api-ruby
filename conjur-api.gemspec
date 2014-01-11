@@ -3,10 +3,10 @@ require File.expand_path('../lib/conjur-api/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Rafa\305\202 Rzepecki","Kevin Gilpin"]
-  gem.email         = ["divided.mind@gmail.com","kgilpin@conjur.net"]
+  gem.email         = ["rafal@conjur.net","kgilpin@conjur.net"]
   gem.description   = %q{Conjur API}
   gem.summary       = %q{Conjur API}
-  gem.homepage      = ""
+  gem.homepage      = "https://github.com/conjurinc/api-ruby/"
   gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($\) + Dir['build_number']
