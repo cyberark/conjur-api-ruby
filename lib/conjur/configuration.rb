@@ -139,7 +139,7 @@ module Conjur
         URI.join(appliance_url + '/', service_name).to_s
       else
         case env
-        when 'test', 'development'
+        when 'test', 'development', 'appliance'
           "http://localhost:#{service_base_port + service_port_offset}"
         else
           "https://#{service_name}-#{stack}-conjur.herokuapp.com"
@@ -152,7 +152,7 @@ module Conjur
         URI.join(appliance_url + '/', service_name).to_s
       else
         case env
-        when 'test', 'development'
+        when 'test', 'development', 'appliance'
           "http://localhost:#{service_base_port + service_port_offset}"
         else
           "https://#{service_name}-#{account}-conjur.herokuapp.com"
