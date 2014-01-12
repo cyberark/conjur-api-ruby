@@ -162,6 +162,14 @@ describe Conjur::API do
           should == "https://authz-v4-conjur.herokuapp.com"
         end
       end
+      context "in appliance" do
+        before(:each) do
+          Conjur::Configuration.any_instance.stub(:env).and_return "appliance"
+        end
+        its "host" do
+          should == "http://localhost:5100"
+        end
+      end
       context "in named production version" do
         before(:each) do
           Conjur::Configuration.any_instance.stub(:env).and_return "production"
