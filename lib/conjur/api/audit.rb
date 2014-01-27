@@ -17,33 +17,66 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+require 'sse'
 module Conjur
   class API
     # Return audit events related to the given role_id.  Identitical to audit_events
     # except that a String may be given instead of a Role object.
     # @param role_id [String] the role for which events should be returned.
-    def audit_role role, options={}
-      audit_event_feed 'role', (role.roleid rescue role), options
+    def audit_role role, options={}, &block
+      roleid = role.kind_of?(String) ? role : role.roleid
+      audit_feed_or_stream 'role', roleid, options, &block
     end
     
     
     # Return audit events related to the current authenticated role.
-    def audit_current_role options={}
-      audit_event_feed 'role', nil, options
+    def audit_current_role options={}, &block
+      audit_feed_or_stream 'role', nil, options, &block
     end
     
     # Return audit events related to the given resource
-    def audit_resource resource, options={}
-      audit_event_feed 'resource', (resource.resourceid rescue resource), options
+    def audit_resource resource, options={}, &block
+      resourceid = resource.kind_of?(String) ? resource : resource.resourceid
+      audit_feed_or_stream 'resource', resourceid, options, &block
     end
     
     private
+    def audit_feed_or_stream kind, id, options, &block
+      stream = options.delete(:stream)
+      if stream
+        audit_event_stream kind, id, &block
+      else
+        audit_event_feed kind, id, options
+      end
+    end
+    
     def audit_event_feed kind, identifier=nil, options={}
       path = "feeds/#{kind}"
       path << "/#{CGI.escape identifier}" if identifier
       query = options.slice(:limit, :offset)
       path << "?#{query.to_param}" unless query.empty?
       parse_response RestClient::Resource.new(Conjur::Audit::API.host, credentials)[path].get
+    end
+    
+    def audit_event_stream kind, identifier=nil, &block
+      path = "stream/#{kind}"
+      path << "/#{CGI.escape identifier}" if identifier
+      sse = SSE::EventSource.new
+      
+      sse.message do |event|
+        block.call event.data  
+      end
+      
+      block_response = proc do |resp|
+        binding.pry
+        resp.read_body do |chunk|
+          sse.feed chunk   
+        end
+      end
+      
+      options = credentials.merge block_response: block_response
+       
+      RestClient::Resource.new(Conjur::Audit::API.host, options)[path].get # won't return until the stream closes
     end
     
     def parse_response response
