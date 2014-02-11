@@ -18,6 +18,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'conjur/annotations'
+
 module Conjur
   class Resource < RestClient::Resource
     include Exists
@@ -106,6 +108,12 @@ module Conjur
     rescue RestClient::ResourceNotFound
       false
     end
+    
+    # Return a Conjur::Annotations instance to read and manipulate our annotations.
+    def annotations
+      @annotations ||= Conjur::Annotations.new(self)
+    end
+    alias tags annotations
 
     # Returns all resources (optionally qualified by kind)
     # visible to the user with given credentials.
