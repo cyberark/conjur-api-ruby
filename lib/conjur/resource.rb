@@ -121,7 +121,10 @@ module Conjur
     # - host - authz url,
     # - credentials,
     # - account,
-    # - kind (optional).
+    # - kind (optional),
+    # - search (optional),
+    # - limit (optional),
+    # - offset (optional).
     def self.all opts = {}
       host, credentials, account, kind = opts.values_at(*[:host, :credentials, :account, :kind])
       fail ArgumentError, "host and account are required" unless [host, account].all?
@@ -130,6 +133,8 @@ module Conjur
 
       path = "#{account}/resources"
       path += "/#{kind}" if kind
+      query = opts.slice(:limit, :offset, :search)
+      path += "?#{query.to_query}" unless query.empty?
       resource = RestClient::Resource.new(host, credentials)[path]
       JSON.parse resource.get
     end
