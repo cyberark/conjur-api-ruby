@@ -3,6 +3,8 @@ module Conjur
   # with '[]' and update with '[]=', 'each' it, and 'merge!' to do bulk updates
   # (although merge! is not more efficient than setting each pair with '[]=').
   class Annotations
+    include Enumerable
+    
     # @api private
     def initialize resource
       @resource = resource
