@@ -68,7 +68,7 @@ module Conjur
     def fetch_annotations
       {}.tap do |hash|
         JSON.parse(@resource.get)['annotations'].each do |annotation|
-          hash[annotation['kind'].to_sym] = annotation['value']
+          hash[annotation['name'].to_sym] = annotation['value']
         end
       end
     end
