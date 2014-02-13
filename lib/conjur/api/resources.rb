@@ -38,7 +38,12 @@ module Conjur
     # Return all visible resources.
     # In opts you should pass an account to filter by, and optionally a kind.
     def resources opts = {}
-      Resource.all({ host: Conjur::Authz::API.host, credentials: credentials }.merge opts).map do |result|
+      opts = { host: Conjur::Authz::API.host, credentials: credentials }.merge opts
+      opts[:account] ||= Conjur.account
+      # Sometimes there's a bogus resource returned with no id, I have no idea
+      # why this happens, but selecting only resources with ids fixes the subsequent 
+      # catastrophe for now - jjm
+      Resource.all(opts).select{|r| r['id']}.map do |result|
         resource(result['id']).tap do |r|
           r.attributes = result
         end

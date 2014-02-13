@@ -121,8 +121,10 @@ module Conjur
       credentials ||= {}
 
       path = "#{account}/resources"
-      path += "/#{kind}" if kind
-      resource = RestClient::Resource.new(host, credentials)[path]
+      path += "/#{kind}" if kind 
+      query = opts.slice(:limit, :offset, :search)
+      path += "?#{query.to_query}" unless query.empty?
+      resource = RestClient::Resource.new(host, credentials)[path] 
       JSON.parse resource.get
     end
 
