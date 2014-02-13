@@ -18,6 +18,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'conjur/annotations'
+
 module Conjur
   class Resource < RestClient::Resource
     include Exists
@@ -106,6 +108,12 @@ module Conjur
     rescue RestClient::ResourceNotFound
       false
     end
+    
+    # Return a Conjur::Annotations instance to read and manipulate our annotations.
+    def annotations
+      @annotations ||= Conjur::Annotations.new(self)
+    end
+    alias tags annotations
 
     # Returns all resources (optionally qualified by kind)
     # visible to the user with given credentials.
@@ -113,18 +121,21 @@ module Conjur
     # - host - authz url,
     # - credentials,
     # - account,
-    # - kind (optional).
+    # - kind (optional),
+    # - search (optional),
+    # - limit (optional),
+    # - offset (optional).
     def self.all opts = {}
       host, credentials, account, kind = opts.values_at(*[:host, :credentials, :account, :kind])
       fail ArgumentError, "host and account are required" unless [host, account].all?
 
       credentials ||= {}
 
-      path = "#{account}/resources"
-      path += "/#{kind}" if kind 
+      path = "#{account}/resources" 
+      path += "/#{kind}" if kind
       query = opts.slice(:limit, :offset, :search)
       path += "?#{query.to_query}" unless query.empty?
-      resource = RestClient::Resource.new(host, credentials)[path] 
+      resource = RestClient::Resource.new(host, credentials)[path]
       JSON.parse resource.get
     end
 

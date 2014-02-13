@@ -148,6 +148,16 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
       expect(Conjur::Resource.all host: authz_host, account: account, kind: :chunky)
         .to eql(%w(foo bar))
     end
+    
+    it "passes search, limit, and offset params" do
+      RestClient::Request.should_receive(:execute).with(
+        method: :get,
+        # Note that to_query sorts the keys
+        url: "http://authz.example.com/the-account/resources?limit=5&offset=6&search=something",
+        headers: {}
+      ).and_return '["foo", "bar"]'
+      Conjur::Resource.all(host: authz_host, account: account, search: 'something', limit:5, offset:6).should == %w(foo bar)
+    end
 
     it "uses the given authz url" do
       RestClient::Request.should_receive(:execute).with(
