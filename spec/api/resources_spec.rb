@@ -15,6 +15,13 @@ describe Conjur::API, api: :dummy do
       res = api.resource "some-account:a-kind:the-id"
       res.url.should == "#{authz_host}/some-account/resources/a-kind/the-id"
     end
+    it "accepts an account-less resource" do
+      res = api.resource "a-kind:the-id"
+      res.url.should == "#{authz_host}/#{account}/resources/a-kind/the-id"
+    end
+    it "rejects an underspecified resource" do
+      expect { api.resource "the-id" }.to raise_error(/at least two tokens in the-id/)
+    end
   end
 
   describe '.resources' do
