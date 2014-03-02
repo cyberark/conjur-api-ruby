@@ -33,13 +33,13 @@ describe Conjur::API, api: :dummy do
     }
     it "lists all resources" do
       expect(Conjur::Resource).to receive(:all)
-        .with(host: authz_host, credentials: api.credentials).and_return(resources)
+        .with(host: authz_host, account: account, credentials: api.credentials).and_return(resources)
 
       expect(api.resources.map(&:url)).to eql(ids.map { |id| api.resource(id).url })
     end
     it "can filter by kind" do
       expect(Conjur::Resource).to receive(:all)
-        .with(host: authz_host, credentials: api.credentials, kind: :chunky).and_return(resources)
+        .with(host: authz_host, account: account, credentials: api.credentials, kind: :chunky).and_return(resources)
 
       expect(api.resources(kind: :chunky).map(&:url)).to eql(ids.map { |id| api.resource(id).url })
     end

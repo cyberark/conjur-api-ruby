@@ -105,6 +105,7 @@ shared_context api: :dummy do
     Conjur::Core::API.stub host: core_host
     Conjur::Core::API.stub conjur_account: account
     Conjur::Audit::API.stub host:audit_host
+    Conjur.configuration.set :account, account
     api.stub credentials: credentials
   end
 end
