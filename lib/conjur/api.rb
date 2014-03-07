@@ -51,6 +51,19 @@ class RestClient::Resource
     {}
   end
   
+  def conjur_api
+    Conjur::API.new_from_token token
+  end
+  
+  def token
+    authorization = options[:headers][:authorization]
+    if authorization && authorization.to_s[/^Token token="(.*)"/]
+      JSON.parse(Base64.decode64($1))
+    else
+      raise AuthorizationError.new("Authorization missing")
+    end
+  end
+
   def username
     options[:user] || options[:username]
   end

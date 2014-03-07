@@ -214,6 +214,15 @@ describe Conjur::API do
         api.credentials.should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }
       end
     end
+    context "from logged-in RestClient::Resource" do
+      let(:token_encoded) { Base64.strict_encode64(token.to_json) }
+      let(:resource) { RestClient::Resource.new("http://example.com", { headers: { authorization: "Token token=\"#{token_encoded}\"" } })}
+      it "can construct a new API instance" do
+        api = resource.conjur_api
+        api.credentials[:headers][:authorization].should == "Token token=\"#{token_encoded}\""
+        api.credentials[:username].should == "bob"
+      end
+    end
   end
 
   describe "#role_from_username", logged_in: true do
