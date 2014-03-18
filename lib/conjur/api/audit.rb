@@ -17,30 +17,57 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+require 'conjur/event_source'
 module Conjur
   class API
     # Return all events visible to the current authorized role
-    def audit options={}
-      audit_event_feed "", options
+    def audit options={}, &block
+      audit_event_feed "", options, &block
     end
     
     # Return audit events related to the given role_id.  Identitical to audit_events
     # except that a String may be given instead of a Role object.
     # @param role [String] the role for which events should be returned.
-    def audit_role role, options={} 
-      audit_event_feed "roles/#{CGI.escape cast(role, :roleid)}", options
+    def audit_role role, options={}, &block
+      audit_event_feed "roles/#{CGI.escape cast(role, :roleid)}", options, &block
     end
     
     # Return audit events related to the given resource
-    def audit_resource resource, options={}
-      audit_event_feed "resources/#{CGI.escape cast(resource, :resourceid)}", options
+    def audit_resource resource, options={}, &block
+      audit_event_feed "resources/#{CGI.escape cast(resource, :resourceid)}", options, &block
     end
     
     private
-    def audit_event_feed path, options={}
+    def audit_event_feed path, options={}, &block
       query = options.slice(:since, :till)
-      path << "?#{query.to_param}" unless query.empty?
-      parse_response RestClient::Resource.new(Conjur::Audit::API.host, credentials)[path].get
+      path << "?#{query.to_param}" unless query.empty? 
+      if options[:follow]
+        follow_events path, &block
+      else
+        parse_response(RestClient::Resource.new(Conjur::Audit::API.host, credentials)[path].get).tap do |events|
+          block.call(events) if block
+        end
+      end
+    end
+    
+    def follow_events path, &block
+      opts = credentials.dup.tap{|h| h[:headers][:accept] = "text/event-stream"}
+      block_response = lambda do |response|
+        response.error! unless response.code == "200"
+        es = EventSource.new
+        es.message{ |e| block[e.data] }
+        response.read_body do |chunk|
+          es.feed chunk
+        end
+      end
+      url = "#{Conjur::Audit::API.host}/#{path}"
+      RestClient::Request.execute(
+        url: url,
+        headers: opts[:headers],
+        method: :get,
+        block_response: block_response
+      )
     end
     
     def parse_response response
