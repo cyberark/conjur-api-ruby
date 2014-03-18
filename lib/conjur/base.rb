@@ -30,12 +30,14 @@ require 'conjur/escape'
 require 'conjur/log'
 require 'conjur/log_source'
 require 'conjur/standard_methods'
+require 'conjur/cast'
 
 module Conjur
   class API
     include Escape
     include LogSource
     include StandardMethods
+    include Cast
     
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
