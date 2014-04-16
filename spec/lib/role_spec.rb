@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'active_support/core_ext/object/to_query'
 
 describe Conjur::Role, api: :dummy do
   let(:account) { "the-account" }

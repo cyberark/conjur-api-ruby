@@ -18,6 +18,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'active_support/core_ext/object/to_query'
 
 module Conjur
   class Role < RestClient::Resource
@@ -27,7 +28,7 @@ module Conjur
     def identifier
       match_path(3..-1)
     end
-    
+
     alias id identifier
     
     def roleid

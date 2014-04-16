@@ -1,5 +1,5 @@
 require 'spec_helper'
-
+require 'active_support/core_ext/object/to_query'
 describe Conjur::API, api: :dummy do 
   describe "audit API methods" do
     

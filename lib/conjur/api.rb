@@ -18,11 +18,12 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+require 'active_support'
+require 'active_support/deprecation'
 require 'active_support/core_ext/string/inflections'
 require 'conjur/env'
 require 'conjur-api/version'
 require 'conjur/log'
-puts "required conjur/api"
 module Conjur
   def self.const_missing name
     case name

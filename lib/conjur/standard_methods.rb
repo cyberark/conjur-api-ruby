@@ -24,7 +24,6 @@ module Conjur
     protected
     
     def standard_create(host, type, id = nil, options = nil)
-      require 'active_support/core_ext/string'
 
       log do |logger|
         logger << "Creating #{type}"
@@ -40,8 +39,6 @@ module Conjur
     end
     
     def standard_list(host, type, options)
-      require 'active_support/core_ext/string
-'
       JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |item|
         if item.is_a? String  # lists w/o details are just list of ids 
           send(type, fully_escape(item)) 
@@ -52,7 +49,6 @@ module Conjur
     end
     
     def standard_show(host, type, id)
-      require 'active_support/core_ext/string'
       "Conjur::#{type.to_s.classify}".constantize.new(host, credentials)[ [type.to_s.pluralize, fully_escape(id)].join('/') ]
     end
   end
