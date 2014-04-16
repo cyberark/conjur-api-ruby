@@ -20,7 +20,7 @@
 #
 module Conjur
   class Variable < RestClient::Resource
-    include ActsAsAsset
+    include Conjur::ActsAsAsset
     
     def kind; attributes['kind']; end
     def mime_type; attributes['mime_type']; end

@@ -23,8 +23,8 @@ module Conjur
   end
   
   class User < RestClient::Resource
-    include ActsAsAsset
-    include ActsAsUser
+    include Conjur::ActsAsAsset
+    include Conjur::ActsAsUser
     
     alias login id
   end

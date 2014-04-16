@@ -18,8 +18,6 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'conjur/user'
-
 module Conjur
   class API
     class << self
@@ -28,6 +26,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Logging in #{username} via Basic authentication\n"
         end
+        require 'rest-client'
         RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/login'].get
       end
 
@@ -45,6 +44,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
+        require 'rest-client'
         JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
       end
       
@@ -66,6 +66,7 @@ module Conjur
       log do |logger|
         logger << "Creating authn user #{login}"
       end
+      require 'rest-client'
       JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['users'].post(options.merge(login: login))
     end
   end

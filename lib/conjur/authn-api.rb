@@ -29,5 +29,4 @@ module Conjur
     end
   end
 end
-
 require 'conjur/api/authn'

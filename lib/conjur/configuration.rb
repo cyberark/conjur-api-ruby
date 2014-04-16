@@ -19,17 +19,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  
-  class << self
-    def configuration
-      @config ||= Configuration.new
-    end
-    
-    def configuration=(config)
-      @config = config
-    end
-  end
-  
   class Configuration
     class << self
       # @api private

@@ -20,7 +20,7 @@
 #
 module Conjur
   class Secret < RestClient::Resource
-    include ActsAsAsset
+    include Conjur::ActsAsAsset
     
     def value
       self['value'].get.body

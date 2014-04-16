@@ -22,22 +22,14 @@ require 'rest-client'
 require 'json'
 require 'base64'
 
-require 'conjur/exists'
-require 'conjur/has_attributes'
-require 'conjur/has_owner'
-require 'conjur/path_based'
-require 'conjur/escape'
-require 'conjur/log'
-require 'conjur/log_source'
-require 'conjur/standard_methods'
-require 'conjur/cast'
 
 module Conjur
+
   class API
-    include Escape
-    include LogSource
-    include StandardMethods
-    include Cast
+    include Conjur::Escape
+    include Conjur::LogSource
+    include Conjur::StandardMethods
+    include Conjur::Cast
     
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
@@ -117,5 +109,41 @@ module Conjur
     def credentials
       { headers: { authorization: "Token token=\"#{Base64.strict_encode64 token.to_json}\"" }, username: username }
     end
+  end
+end
+
+# Moved this here from conjur/api.rb because this file is only loaded when you access the Conjur::API constant,
+# and loading rest-client is fucking expensive! -- jjm
+require'rest-client'
+
+class RestClient::Resource
+  include Conjur::Escape
+  include Conjur::LogSource
+  include Conjur::Cast
+  extend  Conjur::BuildFromResponse
+
+  def core_conjur_account
+    Conjur::Core::API.conjur_account
+  end
+
+  def to_json(options = {})
+    {}
+  end
+
+  def conjur_api
+    Conjur::API.new_from_token token
+  end
+
+  def token
+    authorization = options[:headers][:authorization]
+    if authorization && authorization.to_s[/^Token token="(.*)"/]
+      JSON.parse(Base64.decode64($1))
+    else
+      raise AuthorizationError.new("Authorization missing")
+    end
+  end
+
+  def username
+    options[:user] || options[:username]
   end
 end

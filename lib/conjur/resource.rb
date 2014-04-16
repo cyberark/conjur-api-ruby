@@ -18,13 +18,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'conjur/annotations'
-
 module Conjur
   class Resource < RestClient::Resource
-    include Exists
-    include HasAttributes
-    include PathBased
+    include Conjur::Exists
+    include Conjur::HasAttributes
+    include Conjur::PathBased
     
     def identifier
       match_path(3..-1)

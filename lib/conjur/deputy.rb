@@ -20,12 +20,12 @@
 #
 module Conjur
   class Deputy < RestClient::Resource
-    include Exists
-    include HasId
-    include HasIdentifier
-    include HasAttributes
-    include ActsAsUser
-    include ActsAsResource
+    include Conjur::Exists
+    include Conjur::HasId
+    include Conjur::HasIdentifier
+    include Conjur::HasAttributes
+    include Conjur::ActsAsUser
+    include Conjur::ActsAsResource
     
     def login
       [ self.class.name.split('::')[-1].downcase, id ].join('/')

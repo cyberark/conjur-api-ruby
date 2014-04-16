@@ -22,7 +22,7 @@ module Conjur
   module HasOwner
     def self.included(base)
       base.instance_eval do
-        include HasAttributes
+        include Conjur::HasAttributes
       end
     end
     

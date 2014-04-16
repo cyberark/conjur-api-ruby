@@ -17,54 +17,49 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-require 'conjur/cast'
-require 'conjur/configuration'
-require 'conjur/env'
-require 'conjur/base'
-require 'conjur/build_from_response'
-require 'conjur/acts_as_resource'
-require 'conjur/acts_as_role'
-require 'conjur/acts_as_user'
-require 'conjur/log_source'
-require 'conjur/has_attributes'
-require 'conjur/has_identifier'
-require 'conjur/has_id'
-require 'conjur/acts_as_asset'
-require 'conjur/authn-api'
-require 'conjur/authz-api'
-require 'conjur/audit-api'
-require 'conjur/core-api'
-require 'conjur-api/version'
 
-class RestClient::Resource
-  include Conjur::Escape
-  include Conjur::LogSource
-  include Conjur::Cast
-  extend  Conjur::BuildFromResponse
-  
-  def core_conjur_account
-    Conjur::Core::API.conjur_account
+require 'active_support/core_ext/string/inflections'
+require 'conjur/env'
+require 'conjur-api/version'
+require 'conjur/log'
+puts "required conjur/api"
+module Conjur
+  def self.const_missing name
+    case name
+      when :API
+        %w(base audit-api authn-api authz-api core-api api/authn).each do |file|
+          require "conjur/#{file}"
+        end
+      when :Authn, :Authz, :Core, :Audit
+        require 'conjur/base'
+        require "conjur/#{name.to_s.downcase}-api"
+      when :RestClient
+        require 'conjur/base'
+      else
+        return super name
+    end
+    return const_get(name) if const_defined?(name)
+    super name
   end
-  
-  def to_json(options = {})
-    {}
+
+  %w(acts_as_asset acts_as_resource acts_as_role acts_as_user annotations
+     build_from_response cast configuration deputy escape event_source
+     exists group has_attributes has_id has_identifier has_owner host
+     log_source path_based resource role role_grant secret standard_methods
+     user variable
+  ).each do |file|
+    autoload file.camelize.to_sym,  "conjur/#{file}"
   end
-  
-  def conjur_api
-    Conjur::API.new_from_token token
-  end
-  
-  def token
-    authorization = options[:headers][:authorization]
-    if authorization && authorization.to_s[/^Token token="(.*)"/]
-      JSON.parse(Base64.decode64($1))
-    else
-      raise AuthorizationError.new("Authorization missing")
+
+
+  class << self
+    def configuration
+      @config ||= Configuration.new
+    end
+
+    def configuration=(config)
+      @config = config
     end
   end
 
-  def username
-    options[:user] || options[:username]
-  end
 end

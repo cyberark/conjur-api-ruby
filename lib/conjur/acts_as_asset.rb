@@ -22,11 +22,11 @@ module Conjur
   module ActsAsAsset
     def self.included(base)
       base.instance_eval do
-        include HasId
-        include Exists
-        include HasOwner
-        include ActsAsResource
-        include HasAttributes
+        include Conjur::HasId
+        include Conjur::Exists
+        include Conjur::HasOwner
+        include Conjur::ActsAsResource
+        include Conjur::HasAttributes
       end
     end
       

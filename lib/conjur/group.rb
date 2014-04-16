@@ -20,8 +20,8 @@
 #
 module Conjur
   class Group < RestClient::Resource
-    include ActsAsAsset
-    include ActsAsRole
+    include Conjur::ActsAsAsset
+    include Conjur::ActsAsRole
     
     def add_member(member, options = {})
       role.grant_to member, options

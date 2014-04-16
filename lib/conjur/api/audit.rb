@@ -18,7 +18,6 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require 'conjur/event_source'
 module Conjur
   class API
     # Return all events visible to the current authorized role
@@ -55,7 +54,7 @@ module Conjur
       opts = credentials.dup.tap{|h| h[:headers][:accept] = "text/event-stream"}
       block_response = lambda do |response|
         response.error! unless response.code == "200"
-        es = EventSource.new
+        es = Conjur::EventSource.new
         es.message{ |e| block[e.data] }
         response.read_body do |chunk|
           es.feed chunk

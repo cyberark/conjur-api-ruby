@@ -18,12 +18,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'conjur/role_grant'
 
 module Conjur
   class Role < RestClient::Resource
-    include Exists
-    include PathBased
+    include Conjur::Exists
+    include Conjur::PathBased
 
     def identifier
       match_path(3..-1)
@@ -54,7 +53,7 @@ module Conjur
         (query_string << "&" << filter.to_query("filter")) unless filter.empty?
       end
       JSON.parse(self[query_string].get(options)).collect do |id|
-        Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
+        Conjur::Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
       end
     end
     
@@ -96,7 +95,7 @@ module Conjur
     
     def members
       JSON.parse(self["?members"].get(options)).collect do |json|
-        RoleGrant.parse_from_json(json, self.options)
+        Conjur::RoleGrant.parse_from_json(json, self.options)
       end
     end
   end
