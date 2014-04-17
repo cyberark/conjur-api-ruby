@@ -6,3 +6,7 @@ gemspec
 group :test do
   gem 'fuubar'
 end
+
+group :test, :development do
+  gem 'pry'
+end
