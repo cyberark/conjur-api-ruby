@@ -22,26 +22,10 @@ require 'active_support'
 require 'active_support/deprecation'
 require 'active_support/core_ext/string/inflections'
 require 'conjur/env'
-require 'conjur-api/version'
 require 'conjur/log'
+
 module Conjur
-  def self.const_missing name
-    case name
-      when :API
-        %w(base audit-api authn-api authz-api core-api api/authn).each do |file|
-          require "conjur/#{file}"
-        end
-      when :Authn, :Authz, :Core, :Audit
-        require 'conjur/base'
-        require "conjur/#{name.to_s.downcase}-api"
-      when :RestClient
-        require 'conjur/base'
-      else
-        return super name
-    end
-    return const_get(name) if const_defined?(name)
-    super name
-  end
+
 
   %w(acts_as_asset acts_as_resource acts_as_role acts_as_user annotations
      build_from_response cast configuration deputy escape event_source
@@ -64,3 +48,10 @@ module Conjur
   end
 
 end
+
+require 'conjur/base'
+require 'conjur/authn-api'
+require 'conjur/authn-api'
+require 'conjur/authz-api'
+require 'conjur/core-api'
+require 'conjur/api/authn'

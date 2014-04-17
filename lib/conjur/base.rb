@@ -21,7 +21,7 @@
 require 'rest-client'
 require 'json'
 require 'base64'
-
+require 'conjur-api/version'
 
 module Conjur
 
