@@ -50,13 +50,27 @@ module Conjur
         end
       end
     end
-    
+
     def follow_events path, &block
-      opts = credentials.dup.tap{|h| h[:headers][:accept] = "text/event-stream"}
+      last_event_id = nil
+      loop do
+        follow_events_once path, last_event_id do |event, last_id|
+          last_event_id = last_id
+          block[event]
+        end
+      end
+    end
+
+    def follow_events_once path, last_id = nil, &block
+      opts = credentials.dup.tap do |h|
+        h[:headers][:accept] = "text/event-stream"
+        h[:headers]['Last-Event-ID'] = last_id unless last_id.nil?
+      end
+
       block_response = lambda do |response|
         response.error! unless response.code == "200"
         es = EventSource.new
-        es.message{ |e| block[e.data] }
+        es.message{ |e| block[e.data, es.last_event_id] }
         response.read_body do |chunk|
           es.feed chunk
         end
