@@ -36,6 +36,7 @@ require 'conjur/authz-api'
 require 'conjur/audit-api'
 require 'conjur/core-api'
 require 'conjur-api/version'
+require 'active_support'
 
 class RestClient::Resource
   include Conjur::Escape

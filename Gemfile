@@ -5,4 +5,6 @@ gemspec
 
 group :test do
   gem 'fuubar'
+  gem 'cucumber'
+  gem 'pry'
 end
