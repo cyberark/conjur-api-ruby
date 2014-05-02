@@ -50,6 +50,7 @@ module Conjur
 end
 
 require 'conjur/base'
+require 'conjur/audit-api'
 require 'conjur/authn-api'
 require 'conjur/authn-api'
 require 'conjur/authz-api'
