@@ -42,7 +42,7 @@ module Conjur
       # @param [Hash] options
       # @option options [Boolean] :boolean (false) whether this option should have a '?' accessor 
       # @option options [Boolean, String] :env Environment variable for this option.  Set to false
-      #   to disallow environment based configuration.  Default is VM2_OPTION_NAME.
+      #   to disallow environment based configuration.  Default is CONJUR_<OPTION_NAME>.
       # @option options [Proc, *] :default Default value or proc to provide it
       # @option options [Boolean] :required (false) when true, raise an exception if the option is
       #   not set
