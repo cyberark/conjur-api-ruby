@@ -39,6 +39,7 @@ require 'conjur/authz-api'
 require 'conjur/audit-api'
 require 'conjur/core-api'
 require 'conjur/layer-api'
+require 'conjur/pubkeys-api'
 require 'conjur-api/version'
 
 class RestClient::Resource
