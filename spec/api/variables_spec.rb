@@ -11,8 +11,8 @@ shared_examples_for "raises expected errors" do
 end
 
 shared_context "stubbed bundle REST API" do
-  let (:varlist) { ["var1","var2","var3" ] }
-  let (:base_url) { "#{core_host}/variables/bundle?vars=#{varlist.join(",")}"  }
+  let (:varlist) { ["var/1","var/2","var/3" ] }
+  let (:base_url) { "#{core_host}/variables/bundle?vars=#{varlist.map {|v| api.fully_escape(v) }.join(",")}"  }
   before {
     RestClient::Request.should_receive(:execute).with(
       method: :get,
@@ -51,10 +51,10 @@ describe Conjur::API, api: :dummy do
       let (:invoke) { api.variables_bundle(varlist) }
       let (:expected_url) { base_url }
       let (:return_code) { '200' }
-      let (:return_body) { '{"var1":"val1","var2":"val2","var3":"val3"}' }
+      let (:return_body) { '{"var/1":"val1","var/2":"val2","var/3":"val3"}' }
       it_behaves_like "raises expected errors"
       it 'returns Hash of values' do
-        invoke.should == { "var1"=>"val1", "var2"=>"val2", "var3"=>"val3" }
+        invoke.should == { "var/1"=>"val1", "var/2"=>"val2", "var/3"=>"val3" }
       end  
     end 
 

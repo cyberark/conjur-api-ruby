@@ -34,7 +34,7 @@ module Conjur
       check=options.delete(:check)  
       raise ArgumentError, "Variables list must be an array" unless varlist.kind_of? Array 
       raise ArgumentError, "Variables list is empty" if varlist.empty?
-      opts = "?vars=#{varlist.join(',')}"
+      opts = "?vars=#{varlist.map { |v| fully_escape(v) }.join(',')}"
       opts+="&check" if check
       resp = RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/bundle'+opts].get
       check or JSON.parse( resp.body ) # if 'check' flag is specified it is enough to return it unless we got an exception before
