@@ -15,16 +15,15 @@ describe Conjur::API, api: :dummy do
 
   describe "#variable_values" do
 
+    let (:varlist) { ["var/1","var/2","var/3" ] }
+
     it 'requires non-empty array of variables' do
       expect { api.variable_values("something") }.to raise_exception(ArgumentError)
       expect { api.variable_values([]) }.to raise_exception(ArgumentError)
     end 
 
-    describe "returns Hash consisting of variables values" do
-      let (:varlist) { ["var/1","var/2","var/3" ] }
+    shared_context "Stubbed API" do
       let (:expected_url) { "#{core_host}/variables/values?vars=#{varlist.map {|v| api.fully_escape(v) }.join(",")}"  }
-      let (:return_code) { '200' }
-      let (:return_body) { '{"var/1":"val1","var/2":"val2","var/3":"val3"}' }
       before {
         RestClient::Request.should_receive(:execute).with(
           method: :get,
@@ -38,17 +37,44 @@ describe Conjur::API, api: :dummy do
             end
           }
       }
-      let (:invoke) { api.variable_values(varlist) }
-      describe "raises expected errors" do
-        let (:return_error) { RestClient::ResourceNotFound }
-        it "does not suppress RestClient errors" do
-          expect { invoke }.to raise_error(return_error)
-        end
-      end
-      it 'returns Hash of values' do
-        invoke.should == { "var/1"=>"val1", "var/2"=>"val2", "var/3"=>"val3" }
-      end  
     end
+
+    let (:invoke) { api.variable_values(varlist) }
+
+    describe "if '/variables/values' method is responding with JSON" do
+      include_context "Stubbed API"
+      let (:return_code) { '200' }
+      let (:return_body) { '{"var/1":"val1","var/2":"val2","var/3":"val3"}' }
+      it "returns Hash of values built from the response" do  
+        api.should_not_receive(:variable)
+        invoke.should == { "var/1"=>"val1", "var/2"=>"val2", "var/3"=>"val3" }
+      end
+    end 
+
+    describe "if '/variables/values' method is returning 404 error" do
+      include_context "Stubbed API"
+      let (:return_error) { RestClient::ResourceNotFound }
+      before {  
+        api.should_receive(:variable).with("var/1").and_return(double(value:"val1_obtained_separately"))
+        api.should_receive(:variable).with("var/2").and_return(double(value:"val2_obtained_separately"))
+        api.should_receive(:variable).with("var/3").and_return(double(value:"val3_obtained_separately"))
+      }
+      it 'tries variables one by one and returns Hash of values' do
+        invoke.should == { "var/1"=>"val1_obtained_separately", 
+                           "var/2"=>"val2_obtained_separately", 
+                           "var/3"=>"val3_obtained_separately" 
+                          }
+      end
+    end 
+    
+    describe "if '/variables/values' method is returning any other error" do
+      include_context "Stubbed API"
+      let (:return_error) { RestClient::Forbidden }
+      it 're-raises error without checking particular variables' do 
+        api.should_not_receive(:variable)
+        expect { invoke }.to raise_error(return_error)
+      end
+    end 
 
   end
 

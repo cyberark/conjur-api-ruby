@@ -34,8 +34,12 @@ module Conjur
       raise ArgumentError, "Variables list must be an array" unless varlist.kind_of? Array 
       raise ArgumentError, "Variables list is empty" if varlist.empty?
       opts = "?vars=#{varlist.map { |v| fully_escape(v) }.join(',')}"
-      resp = RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/values'+opts].get
-      JSON.parse( resp.body ) 
+      begin 
+        resp = RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/values'+opts].get
+        return JSON.parse( resp.body ) 
+      rescue RestClient::ResourceNotFound 
+        return Hash[ *varlist.map { |v| [ v, variable(v).value ]  }.flatten ]  
+      end
     end
 
   end
