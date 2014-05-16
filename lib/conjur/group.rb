@@ -23,6 +23,8 @@ module Conjur
     include ActsAsAsset
     include ActsAsRole
     
+    # @param [Hash] options
+    #   * *admin_option* enables the +member+ to manage members of this group
     def add_member(member, options = {})
       role.grant_to member, options
     end
