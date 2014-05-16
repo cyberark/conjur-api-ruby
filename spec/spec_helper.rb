@@ -96,7 +96,7 @@ shared_context api: :dummy do
   let(:api){ Conjur::API.new_from_key username, 'key' }
   let(:authz_host) { 'http://authz.example.com' }
   let(:audit_host) { 'http://audit.example.com' }
-  let(:credentials) { double "fake credentials" }
+  let(:credentials) { { headers: { authorization: "Token token=\"stub\"" } } } #, username: username } }
   let(:core_host) { 'http://core.example.com' }
   let(:account) { 'the-account' }
 
