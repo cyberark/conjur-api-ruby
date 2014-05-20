@@ -8,17 +8,17 @@ describe Conjur::Annotations do
   let(:options){ { } }
   let(:raw_annotations){ [{'name' => 'name', 'value' => 'bar'}, 
                       {'name' => 'comment', 'value' => 'some comment'}] }
-  let(:resource_hash){ { 'annotations' => raw_annotations } }
-  let(:resource){ 
-    double('resource', account: account, 
-           kind: kind, identifier: identifier, 
-           options: options, resourceid: resourceid,
-           get: resource_hash.to_json) 
-  }
+  let(:attributes){ { 'annotations' => raw_annotations } }
+
+  let(:resource){
+    double('resource', attributes: attributes, account: account,
+           kind: kind, identifier: identifier, resourceid: resourceid,
+           options: options
+      ) }
+
   let(:annotations){ Conjur::Annotations.new(resource) }
   
   subject{ annotations }
-
 
   let(:url){ "#{Conjur::Authz::API.host}/#{account}/annotations/#{kind}/#{identifier}" }
 
@@ -39,7 +39,7 @@ describe Conjur::Annotations do
     end
     
     it "caches the get result" do
-      resource.should_receive(:get).exactly(1).times.and_return(resource_hash.to_json)
+      resource.should_receive(:attributes).exactly(1).times.and_return(attributes)
       subject[:name]
       subject[:name]
     end
@@ -76,6 +76,7 @@ describe Conjur::Annotations do
       hash.each do |k,v|
         expect_put_request(url, name: k, value: v)
       end
+      resource.should_receive(:invalidate).exactly(hash.count).times
       subject.merge! hash
     end
   end
@@ -84,12 +85,14 @@ describe Conjur::Annotations do
 
     it "makes a put request" do
       expect_put_request url, name: :blah, value: 'boo'
+      resource.should_receive :invalidate
       subject[:blah] = 'boo'
     end
     
     it "forces a fresh request for the annotations" do
       expect_put_request(url, name: :foo, value: 'bar')
-      resource.should_receive(:get).exactly(2).times.and_return(resource_hash.to_json)
+      resource.should_receive(:attributes).exactly(2).times.and_return(attributes)
+      resource.should_receive(:invalidate)
       # One get request
       subject[:name].should == 'bar'
       # Update
