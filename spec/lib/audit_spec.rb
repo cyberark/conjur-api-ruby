@@ -13,9 +13,7 @@ describe Conjur::API, api: :dummy do
     
     def expect_request
       RestClient::Request.should_receive(:execute).with(
-        user: credentials,
-        password: nil,
-        headers: {},
+        headers: credentials[:headers],
         url: expected_url,
         method: :get
       ).and_return response.to_json
