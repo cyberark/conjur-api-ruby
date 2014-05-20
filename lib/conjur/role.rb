@@ -63,6 +63,8 @@ module Conjur
       not all(filter: other_role).empty?
     end
     
+    # @param [Hash] options
+    #   * *admin_option* enables the +member+ to manage members of this role
     def grant_to(member, options={})
       member = cast(member, :roleid)
       log do |logger|
