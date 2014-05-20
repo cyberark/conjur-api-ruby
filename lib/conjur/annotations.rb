@@ -59,6 +59,7 @@ module Conjur
     
     def update_annotation name, value
       @annotations_hash = nil
+      @resource.invalidate
       path = [@resource.account,'annotations', @resource.kind, @resource.identifier].join '/'
       RestClient::Resource.new(Conjur::Authz::API.host, @resource.options)[path].put name: name, value: value
     end
@@ -69,7 +70,7 @@ module Conjur
     
     def fetch_annotations
       {}.tap do |hash|
-        JSON.parse(@resource.get)['annotations'].each do |annotation|
+        @resource.attributes['annotations'].each do |annotation|
           hash[annotation['name'].to_sym] = annotation['value']
         end
       end

@@ -39,14 +39,14 @@ module Conjur
     def refresh
       fetch
     end
-    
-    protected
-    
+
     def invalidate(&block)
       yield
     ensure
       @attributes = nil
     end
+
+    protected
     
     def fetch
       @attributes = JSON.parse(get.body)
