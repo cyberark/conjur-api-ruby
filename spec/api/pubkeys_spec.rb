@@ -35,9 +35,7 @@ describe Conjur::API, api: :dummy do
       RestClient::Request.should_receive(:execute).with(
         url: pubkeys_url_for("bob"),
         method: :get,
-        headers: {},
-        user: credentials,
-        password: nil
+        headers: credentials[:headers],
       ).and_return "key key key"
       expect(api.public_keys("bob")).to eq("key key key")
     end
@@ -48,10 +46,8 @@ describe Conjur::API, api: :dummy do
       RestClient::Request.should_receive(:execute).with(
         url: pubkeys_url_for("bob"),
         method: :post,
-        headers: {},
+        headers: credentials[:headers],
         payload: "key data",
-        user: credentials,
-        password: nil
       )
       api.add_public_key("bob", "key data")
     end
@@ -62,9 +58,7 @@ describe Conjur::API, api: :dummy do
       RestClient::Request.should_receive(:execute).with(
         url: pubkeys_url_for("bob", "bob-key"),
         method: :delete,
-        headers: {},
-        user: credentials,
-        password: nil
+        headers: credentials[:headers]
       )
       api.delete_public_key("bob", "bob-key")
     end
