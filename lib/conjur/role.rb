@@ -58,6 +58,8 @@ module Conjur
       end
     end
     
+    alias memberships all
+    
     def member_of?(other_role)
       other_role = cast(other_role, :roleid)
       not all(filter: other_role).empty?
