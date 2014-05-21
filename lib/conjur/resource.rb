@@ -103,7 +103,12 @@ module Conjur
     # True if the logged-in role, or a role specified using the acting-as option, has the
     # specified +privilege+ on this resource.
     def permitted?(privilege, options = {})
-      self["?check&privilege=#{query_escape privilege}"].get(options)
+      params = {
+        check: true,
+        privilege: query_escape(privilege)
+      }
+      params[:acting_as] = options[:acting_as] if options[:acting_as]
+      self["?#{params.to_query}"].get(options)
       true
     rescue RestClient::ResourceNotFound
       false

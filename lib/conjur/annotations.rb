@@ -78,10 +78,11 @@ module Conjur
     protected
     
     def update_annotation name, value
-      @annotations_hash = nil
-      @resource.invalidate
-      path = [@resource.account,'annotations', @resource.kind, @resource.identifier].join '/'
-      RestClient::Resource.new(Conjur::Authz::API.host, @resource.options)[path].put name: name, value: value
+      @resource.invalidate do
+        @annotations_hash = nil
+        path = [@resource.account,'annotations', @resource.kind, @resource.identifier].join '/'
+        RestClient::Resource.new(Conjur::Authz::API.host, @resource.options)[path].put name: name, value: value
+      end
     end
     
     def annotations_hash

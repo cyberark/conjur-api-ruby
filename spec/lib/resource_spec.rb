@@ -120,7 +120,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it 'gets the ?permitted? action' do
       RestClient::Request.should_receive(:execute).with(
         method: :get,
-        url: uri + "/?check&privilege=fry",
+        url: uri + "/?check=true&privilege=fry",
         headers: {}
       )
       subject.permitted? 'fry'

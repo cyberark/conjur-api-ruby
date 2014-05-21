@@ -18,7 +18,7 @@ describe Conjur::Annotations do
 
   let(:annotations){ Conjur::Annotations.new(resource) }
   
-  subject{ annotations }
+  subject { annotations }
 
   let(:url){ "#{Conjur::Authz::API.host}/#{account}/annotations/#{kind}/#{identifier}" }
 
@@ -76,7 +76,7 @@ describe Conjur::Annotations do
       hash.each do |k,v|
         expect_put_request(url, name: k, value: v)
       end
-      resource.should_receive(:invalidate).exactly(hash.count).times
+      resource.should_receive(:invalidate).exactly(hash.count).times.and_yield
       subject.merge! hash
     end
   end
@@ -85,14 +85,14 @@ describe Conjur::Annotations do
 
     it "makes a put request" do
       expect_put_request url, name: :blah, value: 'boo'
-      resource.should_receive :invalidate
+      resource.should_receive(:invalidate).and_yield
       subject[:blah] = 'boo'
     end
     
     it "forces a fresh request for the annotations" do
       expect_put_request(url, name: :foo, value: 'bar')
       resource.should_receive(:attributes).exactly(2).times.and_return(attributes)
-      resource.should_receive(:invalidate)
+      resource.should_receive(:invalidate).and_yield
       # One get request
       subject[:name].should == 'bar'
       # Update
