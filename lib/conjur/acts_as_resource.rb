@@ -18,6 +18,10 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
+require 'active_support/dependencies/autoload'
+require 'active_support/core_ext'
+
 module Conjur
   module ActsAsResource
     def resource
@@ -31,7 +35,6 @@ module Conjur
     end
     
     def resource_kind
-      require 'active_support/core_ext'
       self.class.name.split("::")[-1].underscore.split('/').join('-')
     end
 
