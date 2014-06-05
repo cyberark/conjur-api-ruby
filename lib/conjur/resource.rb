@@ -39,7 +39,7 @@ module Conjur
     
     def create(options = {})
       log do |logger|
-        logger << "Creating resource #{kind}:#{identifier}"
+        logger << "Creating resource #{resourceid}"
         unless options.empty?
           logger << " with options #{options.to_json}"
         end
@@ -60,7 +60,7 @@ module Conjur
 
     def delete(options = {})
       log do |logger|
-        logger << "Deleting resource #{kind}:#{identifier}"
+        logger << "Deleting resource #{resourceid}"
         unless options.empty?
           logger << " with options #{options.to_json}"
         end
@@ -72,7 +72,7 @@ module Conjur
       role = cast(role, :roleid)
       eachable(privilege).each do |p|
         log do |logger|
-          logger << "Permitting #{p} on resource #{kind}:#{identifier} by #{role}"
+          logger << "Permitting #{p} on resource #{resourceid} by #{role}"
           unless options.empty?
             logger << " with options #{options.to_json}"
           end
@@ -91,7 +91,7 @@ module Conjur
       role = cast(role, :roleid)
       eachable(privilege).each do |p|
         log do |logger|
-          logger << "Denying #{p} on resource #{kind}:#{identifier} by #{role}"
+          logger << "Denying #{p} on resource #{resourceid} by #{role}"
           unless options.empty?
             logger << " with options #{options.to_json}"
           end
