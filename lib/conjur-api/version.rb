@@ -20,6 +20,6 @@
 #
 module Conjur
   class API
-    VERSION = "4.9.0.dev"
+    VERSION = "4.9.0"
   end
 end
