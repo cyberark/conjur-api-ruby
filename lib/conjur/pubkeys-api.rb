@@ -18,19 +18,21 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-module Conjur
-  class Group < RestClient::Resource
-    include ActsAsAsset
-    include ActsAsRole
-    
-    # @param [Hash] options
-    #   * *admin_option* enables the +member+ to manage members of this group
-    def add_member(member, options = {})
-      role.grant_to member, options
-    end
-    
-    def remove_member(member)
-      role.revoke_from member
+require 'conjur/api'
+require 'conjur/configuration'
+
+class Conjur::Configuration
+  add_option :pubkeys_url do
+    account_service_url 'pubkeys', 400
+  end
+end
+
+class Conjur::API
+  class << self
+    def pubkeys_asset_host 
+      Conjur.configuration.pubkeys_url
     end
   end
 end
+
+require 'conjur/api/pubkeys'

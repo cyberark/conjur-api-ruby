@@ -18,6 +18,9 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'active_support'
+require 'active_support/deprecation'
+
 require 'conjur/cast'
 require 'conjur/configuration'
 require 'conjur/env'
@@ -35,6 +38,8 @@ require 'conjur/authn-api'
 require 'conjur/authz-api'
 require 'conjur/audit-api'
 require 'conjur/core-api'
+require 'conjur/layer-api'
+require 'conjur/pubkeys-api'
 require 'conjur-api/version'
 
 class RestClient::Resource
