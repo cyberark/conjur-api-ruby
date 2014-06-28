@@ -112,7 +112,7 @@ describe Conjur::API, api: :dummy do
           {
             headers: credentials[:headers].merge(content_type: "text/plain"),
             method: :post ,
-            url: "#{Conjur::Authz::API.host}/#{account}/audit/inject"
+            url: "#{Conjur::Authz::API.host}/#{account}/audit"
           } 
         }
 

@@ -48,7 +48,7 @@ module Conjur
              else
                 raise ArgumentError, "Parameter should be either String, Hash or Array"
              end
-      rest_path = Conjur::Core::API.conjur_account + "/audit/inject"
+      rest_path = Conjur::Core::API.conjur_account + "/audit"
       rest_api  = RestClient::Resource.new(Conjur::Authz::API.host, credentials)[rest_path]
       rest_api.post json, content_type: "text/plain"
     end
