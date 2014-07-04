@@ -30,6 +30,12 @@ module Conjur
       match_path(3..-1)
     end
     
+    def ownerid
+      attributes['owner']
+    end
+
+    alias owner ownerid
+    
     # Name convention according to Role#roleid.  
     def resourceid 
       [account, kind, identifier].join ':'
