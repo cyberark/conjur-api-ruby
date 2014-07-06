@@ -54,7 +54,7 @@ module Conjur
       # @api private
       def add_option name, options = {}, &def_proc
         accepted_options << name
-        allow_env = options[:env].nil? or options[:env]
+        allow_env = options[:env].nil? || options[:env]
         sticky = options.member?(:sticky) ? options[:sticky] : true
         env_var = options[:env] || "CONJUR_#{name.to_s.upcase}"
         def_val = options[:default]
