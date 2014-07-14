@@ -39,6 +39,7 @@ module Conjur
     end
     
     private
+    
     def audit_event_feed path, options={}, &block
       query = options.slice(:since, :till)
       path << "?#{query.to_param}" unless query.empty? 
@@ -73,5 +74,6 @@ module Conjur
     def parse_response response
       JSON.parse response
     end
+
   end
 end
