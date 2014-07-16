@@ -128,8 +128,6 @@ describe Conjur::API do
         }
         context "in stage" do
           before(:each) do
-            # Looks at "ENV['CONJUR_STACK']" first, stub this out
-            ENV.stub(:[]).with('CONJUR_STACK').and_return nil
             Conjur::Configuration.any_instance.stub(:env).and_return "stage"
           end
           its "host" do

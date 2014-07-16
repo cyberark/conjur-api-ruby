@@ -6,11 +6,8 @@ describe Conjur::Configuration do
   }
   subject { Conjur.configuration }
   context "CONJUR_ENV unspecified" do
-    before(:all) {
+    before {
       ENV.delete('CONJUR_ENV')
-    }
-    after(:all) {
-      ENV['CONJUR_ENV'] = 'test'
     }
     context "default env" do
       its(:env) { should == "production" }
