@@ -22,7 +22,6 @@ require 'conjur/annotations'
 
 module Conjur
   class Resource < RestClient::Resource
-    include Exists
     include HasAttributes
     include PathBased
     
@@ -51,6 +50,17 @@ module Conjur
         end
       end
       self.put(options)
+    end
+    
+    def exists?(options = {})
+      begin
+        self.head(options)
+        true
+      rescue RestClient::Forbidden
+        true
+      rescue RestClient::ResourceNotFound
+        false
+      end
     end
 
     # Lists roles that have a specified permission on the resource.
@@ -116,6 +126,8 @@ module Conjur
       params[:acting_as] = options[:acting_as] if options[:acting_as]
       self["?#{params.to_query}"].get(options)
       true
+    rescue RestClient::Forbidden
+      false
     rescue RestClient::ResourceNotFound
       false
     end

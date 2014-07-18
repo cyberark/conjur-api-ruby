@@ -10,7 +10,9 @@ describe Conjur::Exists do
 
   context "when forbidden" do
     before { subject.stub(:head) { raise RestClient::Forbidden }}
-    its(:exists?) { should be_true }
+    it "propagates the error" do
+      lambda { subject.exists? }.should raise_error(RestClient::Forbidden)
+    end
   end
 
   context "when not found" do
