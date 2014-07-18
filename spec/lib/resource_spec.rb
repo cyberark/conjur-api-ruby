@@ -75,38 +75,32 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
   end
 
   describe "#exists" do
-    describe "service version 4.3+" do
+    let(:uri) { "#{authz_host}/some-account/resources/the-kind/resource-id" }
+    it "sends HEAD /<resource>" do
+      RestClient::Request.should_receive(:execute).with(
+        method: :head,
+        url: uri,
+        headers: {}
+      )
+      subject.exists?
+    end
+    context "with status 204" do
       before {
-        RestClient::Request.should_receive(:execute).with(
-          method: :get,
-          url: "http://authz.example.com/info",
-          headers: {}
-        ).and_return({
-          id: "authz",
-          version: "4.3.0"
-        }.to_json)
+        subject.stub(:head)
       }
-      let(:uri) { "#{authz_host}/some-account/resources/the-kind/resource-id" }
-      it "sends HEAD /<resource>?exists" do
-        RestClient::Request.should_receive(:execute).with(
-          method: :head,
-          url: uri + "/?exists",
-          headers: {}
-        )
-        subject.exists?
-      end
-      context "with status 204" do
-        before {
-          subject.stub_chain(:[], :head)
-        }
-        its(:exists?) { should be_true }
-      end
-      context "with status 404" do
-        before {
-          subject.stub_chain(:[], :head) { raise RestClient::ResourceNotFound }
-        }
-        its(:exists?) { should be_false }
-      end
+      its(:exists?) { should be_true }
+    end
+    context "with status 404" do
+      before {
+        subject.stub(:head) { raise RestClient::ResourceNotFound }
+      }
+      its(:exists?) { should be_false }
+    end
+    context "with status 403" do
+      before {
+        subject.stub(:head) { raise RestClient::Forbidden }
+      }
+      its(:exists?) { should be_true }
     end
   end
 

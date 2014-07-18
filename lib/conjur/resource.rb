@@ -66,22 +66,13 @@ module Conjur
     end
 
     def exists?(options = {})
-      if ServiceVersion.greater_than_or_equal_to(service_version, 4, 3)
-        # New explicit exists method
-        begin
-          self["?exists"].head(options)
-          true
-        rescue RestClient::ResourceNotFound
-          false
-        end
-      else
-        # Previous behavior
-        begin
-          self.head(options)
-          true
-        rescue RestClient::ResourceNotFound
-          false
-        end
+      begin
+        self.head(options)
+        true
+      rescue RestClient::Forbidden
+        true
+      rescue RestClient::ResourceNotFound
+        false
       end
     end
 
