@@ -75,6 +75,10 @@ module Conjur
         define_method("#{name}=") do |value|
           set name, value
         end
+
+        define_method("#{name}_env_var") do
+          allow_env ? env_var : nil
+        end
         
         define_method(name) do
           if supplied.member?(name)
