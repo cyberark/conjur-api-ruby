@@ -22,7 +22,6 @@ require 'conjur/annotations'
 
 module Conjur
   class Resource < RestClient::Resource
-    include Exists
     include HasAttributes
     include PathBased
     
@@ -51,6 +50,39 @@ module Conjur
         end
       end
       self.put(options)
+    end
+    
+    def service_info
+      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["info"].get
+    rescue RestClient::ResourceNotFound
+      {
+        "id" => "authz",
+        "version" => "4.0"
+      }
+    end
+    
+    def service_version
+      service_info['version']
+    end
+
+    def exists?(options = {})
+      if ServiceVersion.greater_than_or_equal_to(service_version, 4, 3)
+        # New explicit exists method
+        begin
+          self["?exists"].head(options)
+          true
+        rescue RestClient::ResourceNotFound
+          false
+        end
+      else
+        # Previous behavior
+        begin
+          self.head(options)
+          true
+        rescue RestClient::ResourceNotFound
+          false
+        end
+      end
     end
 
     # Lists roles that have a specified permission on the resource.
@@ -116,6 +148,8 @@ module Conjur
       params[:acting_as] = options[:acting_as] if options[:acting_as]
       self["?#{params.to_query}"].get(options)
       true
+    rescue RestClient::Forbidden
+      false
     rescue RestClient::ResourceNotFound
       false
     end
