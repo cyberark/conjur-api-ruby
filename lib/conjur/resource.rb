@@ -35,6 +35,31 @@ module Conjur
     end
 
     alias owner ownerid
+
+
+    def service_info
+      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["info"].get
+    rescue RestClient::ResourceNotFound
+      {
+        "id" => "authz",
+        "version" => "4.0"
+      }
+    end
+
+    def service_version
+      service_info['version']
+    end
+
+    def exists?(options = {})
+      begin
+        self.head(options)
+        true
+      rescue RestClient::Forbidden
+        true
+      rescue RestClient::ResourceNotFound
+        false
+      end
+    end    
     
     # Name convention according to Role#roleid.  
     def resourceid 
