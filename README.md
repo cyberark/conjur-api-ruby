@@ -1,6 +1,6 @@
 # Conjur::API
 
-TODO: Write a gem description
+Programmatic Ruby access to the Conjur API.
 
 ## Installation
 
@@ -18,16 +18,17 @@ Or install it yourself as:
 
 ## Usage
 
-Default service ports:
- - authn: 5000,
- - authz: 5100.
+To instantiate the API, using configuration stored stored in `~/.conjurrc`:
 
 ```ruby
-ENV['CONJUR_ACCOUNT'] = 'account'
-conjur = Conjur::API.new_from_key 'admin', 'vJfQbiieBcv4SlxTZ7ULznc1zHZ4z+0sx5to3hLOic0='
-some_user = conjur.user 'foo'
-
+require 'conjur/cli'
+Conjur::Config.load
+conjur = Conjur::API.new_from_key username, api_key
 ```
+
+You can find the username and api_key in ~/.netrc after you've logged in.
+
+Fancier/different init scenarios are possible but this should be a good start!
 
 ## Contributing
 
