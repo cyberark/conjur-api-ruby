@@ -29,5 +29,9 @@ module Conjur
     def user login
       standard_show Conjur::Core::API.host, :user, login
     end
+
+    def find_users options
+      JSON.parse( RestClient::Resource.new(Conjur::Core::API.host, credentials)["users/search?#{options.to_query}"].get )
+    end
   end
 end
