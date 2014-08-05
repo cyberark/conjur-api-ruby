@@ -146,7 +146,7 @@ module Conjur
         when 'test', 'development', 'appliance'
           "http://localhost:#{service_base_port + service_port_offset}"
         else
-          "https://#{service_name}-#{stack}-conjur.herokuapp.com"
+          "https://#{herokuize service_name}-#{stack}-conjur.herokuapp.com"
         end
       end
     end
@@ -159,7 +159,7 @@ module Conjur
         when 'test', 'development', 'appliance'
           "http://localhost:#{service_base_port + service_port_offset}"
         else
-          "https://#{service_name}-#{account}-conjur.herokuapp.com"
+          "https://#{herokuize service_name}-#{account}-conjur.herokuapp.com"
         end
       end
     end
@@ -170,6 +170,11 @@ module Conjur
       else
         account_service_url(service_name, service_port_offset)
       end
+    end
+    
+    # Heroku: Name must start with a letter and can only contain lowercase letters, numbers, and dashes.
+    def herokuize name
+      name.downcase.gsub(/[^a-z0-9\-]/, '-')
     end
     
     def supplied
