@@ -25,9 +25,9 @@ describe Conjur::API, api: :dummy do
   describe "find_users" do
 
     let(:search_parameters) { {uidnumber: 12345} }
-    let(:search_result)     { {id: "someuser"}.to_json }
+    let(:search_result)     { ["someuser"].to_json }
     
-    it "GETs /users/search with appropriate options, and returns parsed JSON responsez" do
+    it "GETs /users/search with appropriate options, and returns parsed JSON response" do
       RestClient::Request.should_receive(:execute).with(
         method: :get,  
         url: "#{core_host}/users/search?uidnumber=12345",
