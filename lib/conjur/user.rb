@@ -27,5 +27,9 @@ module Conjur
     include ActsAsUser
     
     alias login id
+
+    def update options
+      self.put(options)
+    end
   end
 end
