@@ -21,16 +21,37 @@
 module Conjur
   
   class << self
-    def configuration
-      @config ||= Configuration.new
+    # Sets the Configuration for the current thread, yields the block, then resets the thread-local variable.
+    def with_configuration(config, &block)
+      Thread.current[:conjur_configuration] = config
+      yield
+    ensure
+      Thread.current[:conjur_configuration] = nil
     end
     
+    # Gets the current thread-local or global configuration.
+    def configuration
+      Thread.current[:conjur_configuration] || (@config ||= Configuration.new)
+    end
+    
+    # Sets the global configuration.
     def configuration=(config)
       @config = config
     end
   end
   
   class Configuration
+    # All explicit values.
+    attr_reader :explicit
+    
+    # All explicit and cached values.
+    attr_reader :supplied
+    
+    def initialize explicit = {}
+      @explicit = explicit.dup
+      @supplied = explicit.dup
+    end
+    
     class << self
       # @api private
       def accepted_options
@@ -94,9 +115,15 @@ module Conjur
         alias_method("#{name}?", name) if options[:boolean]
       end
     end
+    
+    # Copies the current configuration, except a set of overridden options.
+    def clone override_options
+      self.class.new self.explicit.dup.merge(override_options)
+    end
 
     def set(key, value)
       if self.class.accepted_options.include?(key.to_sym)
+        explicit[key.to_sym] = value
         supplied[key.to_sym] = value
       end
     end
@@ -175,10 +202,6 @@ module Conjur
     # Heroku: Name must start with a letter and can only contain lowercase letters, numbers, and dashes.
     def herokuize name
       name.downcase.gsub(/[^a-z0-9\-]/, '-')
-    end
-    
-    def supplied
-      @supplied ||= {}
     end
   end
 end
