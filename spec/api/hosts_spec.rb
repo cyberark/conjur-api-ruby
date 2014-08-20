@@ -20,18 +20,6 @@ describe Conjur::API, api: :dummy do
       let(:invoke) { subject.create_host :options }
     end
   end
-  describe '#create_host_remote' do
-    it "invokes the remote host" do
-      stub_request(:post, "https://foobar.com/api/hosts").
-        with(id: 'the-host-id').
-      to_return(:status => 201, headers: { "Location" => "https://foobar.com/api/hosts/the-host-id" },
-        body: { id: 'the-host-id' }.to_json)
-    
-      host = subject.create_host_remote("https://foobar.com/api", id: 'the-host-id')
-      host.should be_instance_of(Conjur::Host)
-      host.id.should == "the-host-id"
-    end
-  end
   describe '#host' do
     it_should_behave_like "standard_show with", :host, :id do
       let(:invoke) { subject.host :id }
