@@ -11,9 +11,11 @@ describe Conjur::Configuration do
       original = Conjur.configuration
       c = Conjur::Configuration.new
       Thread.new do
+        Thread.current[:conjur_configuration] = :foo
         Conjur.with_configuration c do
           Conjur.configuration.should == c
         end
+        Thread.current[:conjur_configuration].should == :foo
       end.join
       Conjur.configuration.should == original
     end

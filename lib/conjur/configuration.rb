@@ -23,10 +23,11 @@ module Conjur
   class << self
     # Sets the Configuration for the current thread, yields the block, then resets the thread-local variable.
     def with_configuration(config, &block)
+      oldvalue = Thread.current[:conjur_configuration]
       Thread.current[:conjur_configuration] = config
       yield
     ensure
-      Thread.current[:conjur_configuration] = nil
+      Thread.current[:conjur_configuration] = oldvalue
     end
     
     # Gets the current thread-local or global configuration.
