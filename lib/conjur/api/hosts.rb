@@ -41,10 +41,6 @@ module Conjur
       standard_create Conjur::Core::API.host, :host, nil, options
     end
     
-    def create_host_remote remote_url, options = {}
-      standard_create remote_url, :host, nil, options
-    end
-    
     def host id
       standard_show Conjur::Core::API.host, :host, id
     end
