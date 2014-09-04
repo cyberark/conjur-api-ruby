@@ -24,6 +24,8 @@ module Conjur
       begin
         self.head(options)
         true
+      rescue RestClient::Forbidden
+        true
       rescue RestClient::ResourceNotFound
         false
       end
