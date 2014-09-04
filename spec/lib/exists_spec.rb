@@ -10,8 +10,8 @@ describe Conjur::Exists do
 
   context "when forbidden" do
     before { subject.stub(:head) { raise RestClient::Forbidden }}
-    it "propagates the error" do
-      lambda { subject.exists? }.should raise_error(RestClient::Forbidden)
+    it "returns true" do
+      subject.exists?.should be_truthy
     end
   end
 
