@@ -74,36 +74,6 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
   end
 
-  describe "#exists" do
-    let(:uri) { "#{authz_host}/some-account/resources/the-kind/resource-id" }
-    it "sends HEAD /<resource>" do
-      RestClient::Request.should_receive(:execute).with(
-        method: :head,
-        url: uri,
-        headers: {}
-      )
-      subject.exists?
-    end
-    context "with status 204" do
-      before {
-        subject.stub(:head)
-      }
-      its(:exists?) { should be_true }
-    end
-    context "with status 404" do
-      before {
-        subject.stub(:head) { raise RestClient::ResourceNotFound }
-      }
-      its(:exists?) { should be_false }
-    end
-    context "with status 403" do
-      before {
-        subject.stub(:head) { raise RestClient::Forbidden }
-      }
-      its(:exists?) { should be_true }
-    end
-  end
-
   describe '#delete' do
     it 'simply deletes' do
       RestClient::Request.should_receive(:execute).with(
