@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2014 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,6 +21,7 @@
 require 'rest-client'
 require 'json'
 require 'base64'
+require 'wrong'
 
 require 'conjur/exists'
 require 'conjur/has_attributes'
@@ -38,7 +39,8 @@ module Conjur
     include LogSource
     include StandardMethods
     include Cast
-    
+    include Wrong
+
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
@@ -107,15 +109,29 @@ module Conjur
     def host
       self.class.host
     end
-    
+
     def token
+      @token = nil unless token_valid?
+
       @token ||= Conjur::API.authenticate(@username, @api_key)
+
+      assert { token_valid? }
+      return @token
     end
     
     # Authenticate the username and api_key to obtain a request token.
     # Tokens are cached by username for a short period of time.
     def credentials
       { headers: { authorization: "Token token=\"#{Base64.strict_encode64 token.to_json}\"" }, username: username }
+    end
+
+    private
+
+    def token_valid?
+      return false unless @token
+
+      expiration = 8.minutes
+      Time.now - Time.parse(@token['timestamp']) < expiration
     end
   end
 end
