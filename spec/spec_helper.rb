@@ -22,7 +22,6 @@ Spork.prefork do
   #require 'webrat/integrations/rspec-rails'
 
   RSpec.configure do |config|
-    config.treat_symbols_as_metadata_keys_with_true_values = true
     config.before do
       # test with a clean environment
       stub_const 'ENV', 'CONJUR_ENV' => 'test'
