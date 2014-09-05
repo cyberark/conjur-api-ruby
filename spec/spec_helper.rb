@@ -78,12 +78,12 @@ Spork.each_run do
 end
 
 shared_examples_for "http response" do
-  let(:http_response) { mock(:response) }
+  let(:http_response) { double(:response) }
 
   before(:each) do
-    http_response.stub(:code).and_return 200
-    http_response.stub(:message).and_return nil
-    http_response.stub(:body).and_return http_json.to_json
+    allow(http_response).to receive(:code).and_return 200
+    allow(http_response).to receive(:message).and_return nil
+    allow(http_response).to receive(:body).and_return http_json.to_json
   end
 end
 

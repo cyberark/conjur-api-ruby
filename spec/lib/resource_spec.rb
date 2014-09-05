@@ -14,7 +14,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
         "foobar"
       end
       it "identifier should obtained from the id" do
-        resource.identifier.should == "foobar"
+        expect(resource.identifier).to eq("foobar")
       end
     end
 
@@ -24,11 +24,11 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
         let(:identifier) { p[1] }
         context "resource_kind" do
           subject { resource.kind }
-          specify { should == p[0] }
+          specify { is_expected.to eq(p[0]) }
         end
         context "resource_id" do
           subject { resource.identifier }
-          specify { should == ( p[1] ) }
+          specify { is_expected.to eq( p[1] ) }
         end
       end
     end
@@ -39,31 +39,31 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#create' do
     it "simply puts" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :put,
         url: uri,
         payload: {},
         headers: {}
       ).and_return "new resource"
-      subject.create.should == "new resource"
+      expect(subject.create).to eq("new resource")
     end
   end
 
   describe '#permitted_roles' do
     it 'gets the list from /roles/allowed_to' do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: "http://authz.example.com/some-account/roles/allowed_to/nuke/the-kind/resource-id",
         headers: {}
       ).and_return '["foo", "bar"]'
 
-      subject.permitted_roles("nuke").should == ['foo', 'bar']
+      expect(subject.permitted_roles("nuke")).to eq(['foo', 'bar'])
     end
   end
 
   describe '#give_to' do
     it "puts the owner field" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :put,
         url: uri,
         payload: {owner: 'new-owner' },
@@ -76,7 +76,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#delete' do
     it 'simply deletes' do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :delete,
         url: uri,
         headers: {}
@@ -90,7 +90,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it 'posts permit for every privilege' do
       privileges = [:nuke, :fry]
       privileges.each do |p|
-        RestClient::Request.should_receive(:execute).with(
+        expect(RestClient::Request).to receive(:execute).with(
           method: :post,
           url: uri + "/?permit&privilege=#{p}&role=dr-strangelove",
           headers: {},
@@ -105,7 +105,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it 'posts deny for every privilege' do
       privileges = [:nuke, :fry]
       privileges.each do |p|
-        RestClient::Request.should_receive(:execute).with(
+        expect(RestClient::Request).to receive(:execute).with(
           method: :post,
           url: uri + "/?deny&privilege=#{p}&role=james-bond",
           headers: {},
@@ -118,7 +118,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#permitted?' do
     it 'gets the ?permitted? action' do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: uri + "/?check=true&privilege=fry",
         headers: {}
@@ -130,7 +130,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
         subject.stub_chain(:[], :get)
       }
       specify {
-        subject.permitted?('fry').should be_true
+        expect(subject.permitted?('fry')).to be_truthy
       }
     end
     context "with status 404" do
@@ -138,7 +138,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
         subject.stub_chain(:[], :get) { raise RestClient::ResourceNotFound }
       }
       specify {
-        subject.permitted?('fry').should be_false
+        expect(subject.permitted?('fry')).to be_falsey
       }
     end
     context "with status 403" do
@@ -146,14 +146,14 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
         subject.stub_chain(:[], :get) { raise RestClient::Forbidden }
       }
       specify {
-        subject.permitted?('fry').should be_false
+        expect(subject.permitted?('fry')).to be_falsey
       }
     end
   end
 
   describe '.all' do
     it "calls /account/resources" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: "http://authz.example.com/the-account/resources",
         headers: {}
@@ -163,7 +163,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
 
     it "can filter by kind" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: "http://authz.example.com/the-account/resources/chunky",
         headers: {}
@@ -174,17 +174,17 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
     
     it "passes search, limit, and offset params" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         # Note that to_query sorts the keys
         url: "http://authz.example.com/the-account/resources?limit=5&offset=6&search=something",
         headers: {}
       ).and_return '["foo", "bar"]'
-      Conjur::Resource.all(host: authz_host, account: account, search: 'something', limit:5, offset:6).should == %w(foo bar)
+      expect(Conjur::Resource.all(host: authz_host, account: account, search: 'something', limit:5, offset:6)).to eq(%w(foo bar))
     end
 
     it "uses the given authz url" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: "http://otherhost.example.com/the-account/resources",
         headers: {}

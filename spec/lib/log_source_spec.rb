@@ -7,7 +7,7 @@ describe Conjur::LogSource, logging: :temp, api: :dummy do
         log << 'foo'
       end
 
-      log.should == "[#{username}] foo\n"
+      expect(log).to eq("[#{username}] foo\n")
     end
   end
 end
