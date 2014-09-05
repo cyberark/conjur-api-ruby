@@ -7,7 +7,7 @@ describe Conjur::API do
   let(:password) { 'sikret' }
 
   before do
-    Conjur::Authn::API.stub host: host
+    allow(Conjur::Authn::API).to receive_messages host: host
   end
 
   describe "::login" do

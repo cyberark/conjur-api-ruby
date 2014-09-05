@@ -127,7 +127,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
     context "with status 204" do
       before {
-        subject.stub_chain(:[], :get)
+        allow(subject).to receive_message_chain(:[], :get)
       }
       specify {
         expect(subject.permitted?('fry')).to be_truthy
@@ -135,7 +135,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
     context "with status 404" do
       before {
-        subject.stub_chain(:[], :get) { raise RestClient::ResourceNotFound }
+        allow(subject).to receive_message_chain(:[], :get) { raise RestClient::ResourceNotFound }
       }
       specify {
         expect(subject.permitted?('fry')).to be_falsey
@@ -143,7 +143,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
     context "with status 403" do
       before {
-        subject.stub_chain(:[], :get) { raise RestClient::Forbidden }
+        allow(subject).to receive_message_chain(:[], :get) { raise RestClient::Forbidden }
       }
       specify {
         expect(subject.permitted?('fry')).to be_falsey

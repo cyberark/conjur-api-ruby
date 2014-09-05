@@ -228,7 +228,7 @@ describe Conjur::API do
     subject { api }
     let(:api) { Conjur::API.new_from_token(token) }
     let(:account) { 'some-account' }
-    before { Conjur::Core::API.stub conjur_account: account }
+    before { allow(Conjur::Core::API).to receive_messages conjur_account: account }
   end
 
   context "credential handling", logged_in: true do

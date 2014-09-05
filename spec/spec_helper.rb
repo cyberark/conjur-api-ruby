@@ -108,12 +108,12 @@ shared_context api: :dummy do
   let(:account) { 'the-account' }
 
   before do
-    Conjur::Authz::API.stub host: authz_host
-    Conjur::Core::API.stub host: core_host
-    Conjur::Core::API.stub conjur_account: account
-    Conjur::Audit::API.stub host:audit_host
+    allow(Conjur::Authz::API).to receive_messages host: authz_host
+    allow(Conjur::Core::API).to receive_messages host: core_host
+    allow(Conjur::Core::API).to receive_messages conjur_account: account
+    allow(Conjur::Audit::API).to receive_messages host:audit_host
     Conjur.configuration.set :account, account
-    api.stub credentials: credentials
+    allow(api).to receive_messages credentials: credentials
   end
 end
 

@@ -17,7 +17,7 @@ describe Conjur::BuildFromResponse do
       expect(constructed).to receive(:attributes=).with attrs
 
       constructed.extend Conjur::LogSource
-      constructed.stub username: 'whatever'
+      allow(constructed).to receive_messages username: 'whatever'
     end
 
     it "passes the location credentials and attributes" do
@@ -26,7 +26,7 @@ describe Conjur::BuildFromResponse do
 
     context "with a resource(-ish) class" do
       before do
-        constructed.stub resource_kind: 'chunky', resource_id: 'bacon'
+        allow(constructed).to receive_messages resource_kind: 'chunky', resource_id: 'bacon'
       end
 
       it "logs creation correctly" do
@@ -37,7 +37,7 @@ describe Conjur::BuildFromResponse do
 
     context "with a id(-ish) class" do
       before do
-        constructed.stub id: 'bacon'
+        allow(constructed).to receive_messages id: 'bacon'
       end
 
       it "logs creation correctly" do

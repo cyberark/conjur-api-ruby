@@ -106,7 +106,7 @@ describe Conjur::Role, api: :dummy do
       it "applies #cast to the filter" do
         filter = %w(foo bar)
         filter.each{ |e| expect(subject).to receive(:cast).with(e, :roleid).and_return e }
-        RestClient::Request.stub execute: [].to_json
+        allow(RestClient::Request).to receive_messages execute: [].to_json
         role.all filter: filter
       end
       
