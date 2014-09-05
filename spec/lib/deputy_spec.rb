@@ -1,23 +1,25 @@
 require 'spec_helper'
 
 describe Conjur::Deputy, api: :dummy do
-  subject { Conjur::Deputy.new 'http://example.com/deputies/my%2Fhostname', nil }
+  let(:api_key) { 'theapikey' }
+
+  subject(:deputy) { Conjur::Deputy.new 'http://example.com/deputies/my%2Fhostname', nil }
+  before { deputy.attributes = { 'api_key' => api_key } }
 
   describe '#resource' do
-    subject { super().resource }
+    subject { deputy.resource }
     it { is_expected.to be }
   end
 
   describe '#login' do
-    subject { super().login }
-    it { is_expected.to eq('deputy/my/hostname') }
+    it "is extracted from the uri" do
+      expect(deputy.login).to eq('deputy/my/hostname')
+    end
   end
 
-  let(:api_key) { 'theapikey' }
-  before { subject.attributes = { 'api_key' => api_key } }
-
   describe '#api_key' do
-    subject { super().api_key }
-    it { is_expected.to eq(api_key) }
+    it "is extracted from attributes" do
+      expect(deputy.api_key).to eq api_key
+    end
   end
 end

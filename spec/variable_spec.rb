@@ -2,13 +2,14 @@ require 'spec_helper'
 
 describe Conjur::Variable do
   let(:url) { "http://example.com/variable" }
-  subject { Conjur::Variable.new url }
+  subject(:variable) { Conjur::Variable.new url }
 
   before { subject.attributes = {'versions' => 42} }
 
   describe '#version_count' do
-    subject { super().version_count }
-    it { is_expected.to eq(42)}
+    it "is read from the attributes" do
+      expect(variable.version_count).to eq(42)
+    end
   end
 
   describe '#add_value' do
