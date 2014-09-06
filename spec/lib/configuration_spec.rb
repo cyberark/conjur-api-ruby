@@ -25,31 +25,23 @@ describe Conjur::Configuration do
       configuration.account = "the-account"
       configuration.appliance_url = "https://conjur/api"
     }
-    it "core_url is not pre-cached" do
-      configuration.supplied[:core_url].should_not be
-    end
-    it "core_url is cached after use" do
-      configuration.core_url
-      configuration.supplied[:core_url].should == configuration.core_url
-    end
+
     context "and core_url fetched" do
       before { 
         configuration.core_url 
       }
+
+      it "can still be changed by changing the appliance_url" do
+        configuration.appliance_url = "https://other/api"
+        expect(configuration.core_url).to eq "https://other/api"
+      end
+
       context "and duplicated" do 
         subject { configuration.clone override_options }
         let(:override_options) { Hash.new }
         its(:account) { should == configuration.account }
         its(:appliance_url) { should == configuration.appliance_url }
         its(:core_url) { should == configuration.appliance_url }
-        context "core_url fetched" do
-          it "is then cached in the original" do
-            configuration.supplied[:core_url].should be
-          end
-          it "is not cached in the copy" do
-            subject.supplied[:core_url].should_not be
-          end
-        end
         context "appliance_url overridden" do
           let(:override_options) {
             { :appliance_url => "https://example/api" }
