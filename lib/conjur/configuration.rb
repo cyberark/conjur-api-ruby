@@ -68,8 +68,6 @@ module Conjur
       # @option options [Proc, *] :default Default value or proc to provide it
       # @option options [Boolean] :required (false) when true, raise an exception if the option is
       #   not set
-      # @option options [Boolean] :sticky (true) when false, default proc will be called every time, 
-      #   otherwise the proc's result will be cached
       # @option options [Proc, #to_proc] :convert proc-ish to convert environment 
       #   values to appropriate types
       # @param [Proc] def_proc block to provide default values 
@@ -77,7 +75,6 @@ module Conjur
       def add_option name, options = {}, &def_proc
         accepted_options << name
         allow_env = options[:env].nil? || options[:env]
-        sticky = options.member?(:sticky) ? options[:sticky] : true
         env_var = options[:env] || "CONJUR_#{name.to_s.upcase}"
         def_val = options[:default]
         opt_name = name
@@ -108,9 +105,7 @@ module Conjur
           elsif allow_env && ENV.member?(env_var)
             instance_exec(ENV[env_var], &convert)
           else 
-            value = instance_eval(&def_proc)
-            supplied[name] = value if sticky
-            value
+            instance_eval(&def_proc)
           end
         end
         alias_method("#{name}?", name) if options[:boolean]
