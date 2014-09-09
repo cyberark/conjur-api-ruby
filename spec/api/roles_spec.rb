@@ -4,7 +4,7 @@ describe Conjur::API, api: :dummy do
   describe '#role_name_from_username' do
     subject { api }
     before {
-      api.stub(:username) { username }
+      allow(api).to receive(:username) { username }
     }
     context "username is" do
       [ 
@@ -15,7 +15,11 @@ describe Conjur::API, api: :dummy do
       ].each do |p|
         context "'#{p[0]}'" do
           let(:username) { p[0] }
-          its("role_name_from_username") { should == p[1] }
+
+          describe '#role_name_from_username' do
+            subject { super().role_name_from_username }
+            it { is_expected.to eq(p[1]) }
+          end
         end
       end
     end

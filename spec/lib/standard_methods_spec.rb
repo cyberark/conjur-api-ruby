@@ -13,9 +13,9 @@ describe Conjur::StandardMethods do
 
   before do
     subject.extend Conjur::StandardMethods
-    subject.stub(:fully_escape){|x|x}
-    RestClient::Resource.stub(:new).with(host, credentials).and_return rest_resource
-    rest_resource.stub(:[]).with('widgets').and_return subresource
+    allow(subject).to receive(:fully_escape){|x|x}
+    allow(RestClient::Resource).to receive(:new).with(host, credentials).and_return rest_resource
+    allow(rest_resource).to receive(:[]).with('widgets').and_return subresource
     stub_const 'Conjur::Widget', widget_class
   end
 
@@ -27,12 +27,12 @@ describe Conjur::StandardMethods do
     let(:widget) { double "widget" }
 
     before do
-      subresource.stub(:post).with(options.merge(id: id)).and_return response
-      widget_class.stub(:build_from_response).with(response, credentials).and_return widget
+      allow(subresource).to receive(:post).with(options.merge(id: id)).and_return response
+      allow(widget_class).to receive(:build_from_response).with(response, credentials).and_return widget
     end
 
     it "uses restclient to post data and creates an object of the response" do
-      subject.send(:standard_create, host, type, id, options).should == widget
+      expect(subject.send(:standard_create, host, type, id, options)).to eq(widget)
     end
   end
 
@@ -42,25 +42,25 @@ describe Conjur::StandardMethods do
     let(:json) { attrs.to_json }
 
     before do
-      subresource.stub(:get).with(options).and_return json
+      allow(subresource).to receive(:get).with(options).and_return json
     end
 
     it "gets the list, then builds objects from json response" do
-      subject.should_receive(:widget).with('one').and_return(one = double)
-      one.should_receive(:attributes=).with(attrs[0].stringify_keys)
-      subject.should_receive(:widget).with('two').and_return(two = double)
-      two.should_receive(:attributes=).with(attrs[1].stringify_keys)
+      expect(subject).to receive(:widget).with('one').and_return(one = double)
+      expect(one).to receive(:attributes=).with(attrs[0].stringify_keys)
+      expect(subject).to receive(:widget).with('two').and_return(two = double)
+      expect(two).to receive(:attributes=).with(attrs[1].stringify_keys)
 
-      subject.send(:standard_list, host, type, options).should == [one, two]
+      expect(subject.send(:standard_list, host, type, options)).to eq([one, two])
     end
   end
 
   describe "#standard_show" do
     let(:id) { "some-id" }
     it "builds a path and returns indexed object" do
-      widget_class.stub(:new).with(host, credentials).and_return(bound = double)
-      bound.stub(:[]) { |x| "path: #{x}" }
-      subject.send(:standard_show, host, type, id).should == "path: widgets/some-id"
+      allow(widget_class).to receive(:new).with(host, credentials).and_return(bound = double)
+      allow(bound).to receive(:[]) { |x| "path: #{x}" }
+      expect(subject.send(:standard_show, host, type, id)).to eq("path: widgets/some-id")
     end
   end
 end

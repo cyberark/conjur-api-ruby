@@ -1,22 +1,24 @@
 require 'spec_helper'
 
 describe Conjur::Exists do
-  subject { Object.new.tap {|o| o.send :extend, Conjur::Exists } }
+  subject(:resource) { Object.new.tap {|o| o.send :extend, Conjur::Exists } }
 
-  context "when head returns 200" do
-    before { subject.stub head: "" }
-    its(:exists?) { should be_true }
-  end
+  describe '#exists?' do
+    subject { resource.exists? }
 
-  context "when forbidden" do
-    before { subject.stub(:head) { raise RestClient::Forbidden }}
-    it "returns true" do
-      subject.exists?.should be_truthy
+    context "when head returns 200" do
+      before { allow(resource).to receive_messages head: "" }
+      it { is_expected.to be_truthy }
     end
-  end
 
-  context "when not found" do
-    before { subject.stub(:head) { raise RestClient::ResourceNotFound }}
-    its(:exists?) { should be_false }
+    context "when forbidden" do
+      before { allow(resource).to receive(:head) { raise RestClient::Forbidden }}
+      it { is_expected.to be_truthy }
+    end
+
+    context "when not found" do
+      before { allow(resource).to receive(:head) { raise RestClient::ResourceNotFound }}
+      it { is_expected.to be_falsey }
+    end
   end
 end

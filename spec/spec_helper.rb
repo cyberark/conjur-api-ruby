@@ -22,7 +22,6 @@ Spork.prefork do
   #require 'webrat/integrations/rspec-rails'
 
   RSpec.configure do |config|
-    config.treat_symbols_as_metadata_keys_with_true_values = true
     config.before do
       # test with a clean environment
       stub_const 'ENV', 'CONJUR_ENV' => 'test'
@@ -78,12 +77,12 @@ Spork.each_run do
 end
 
 shared_examples_for "http response" do
-  let(:http_response) { mock(:response) }
+  let(:http_response) { double(:response) }
 
   before(:each) do
-    http_response.stub(:code).and_return 200
-    http_response.stub(:message).and_return nil
-    http_response.stub(:body).and_return http_json.to_json
+    allow(http_response).to receive(:code).and_return 200
+    allow(http_response).to receive(:message).and_return nil
+    allow(http_response).to receive(:body).and_return http_json.to_json
   end
 end
 
@@ -108,12 +107,12 @@ shared_context api: :dummy do
   let(:account) { 'the-account' }
 
   before do
-    Conjur::Authz::API.stub host: authz_host
-    Conjur::Core::API.stub host: core_host
-    Conjur::Core::API.stub conjur_account: account
-    Conjur::Audit::API.stub host:audit_host
+    allow(Conjur::Authz::API).to receive_messages host: authz_host
+    allow(Conjur::Core::API).to receive_messages host: core_host
+    allow(Conjur::Core::API).to receive_messages conjur_account: account
+    allow(Conjur::Audit::API).to receive_messages host:audit_host
     Conjur.configuration.set :account, account
-    api.stub credentials: credentials
+    allow(api).to receive_messages credentials: credentials
   end
 end
 

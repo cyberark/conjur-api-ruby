@@ -7,7 +7,7 @@ describe Conjur::Layer do
   describe "#add_host" do
     it "casts Host to roleid" do
       host = double(:host)
-      host.should_receive(:roleid).and_return "the-hostid"
+      expect(host).to receive(:roleid).and_return "the-hostid"
       stub_request(:post, "http://example.com/layers/my%2Flayername/hosts").with(hostid: "the-hostid")
 
       subject.add_host host

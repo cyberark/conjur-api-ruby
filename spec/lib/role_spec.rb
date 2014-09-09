@@ -10,15 +10,35 @@ describe Conjur::Role, api: :dummy do
   describe ".new" do
     context "with plain id" do
       let(:id) { "foo" }
-      its(:options) {}
-      its(:kind) { should == kind }
-      its(:id) { should == id }
+
+      describe '#options' do
+        subject { super().options }
+        it {}
+      end
+
+      describe '#kind' do
+        subject { super().kind }
+        it { is_expected.to eq(kind) }
+      end
+
+      describe '#id' do
+        subject { super().id }
+        it { is_expected.to eq(id) }
+      end
     end
 
     context "with more complex id" do
       let(:id) { "foo/bar" }
-      its(:kind) { should == kind }
-      its(:id) { should == id }
+
+      describe '#kind' do
+        subject { super().kind }
+        it { is_expected.to eq(kind) }
+      end
+
+      describe '#id' do
+        subject { super().id }
+        it { is_expected.to eq(id) }
+      end
     end
   end
 
@@ -27,37 +47,37 @@ describe Conjur::Role, api: :dummy do
   describe "#grant_to" do
     it "should take hash as the second argument and put it" do
       members = double "members request"
-      subject.should_receive(:[]).with('?members&member=other').and_return(members)
-      members.should_receive(:put).with admin_option: true
+      expect(subject).to receive(:[]).with('?members&member=other').and_return(members)
+      expect(members).to receive(:put).with admin_option: true
       subject.grant_to "other", admin_option: true
     end
 
     it "works without arguments" do
       members = double "members request"
-      subject.should_receive(:[]).with('?members&member=other').and_return(members)
-      members.should_receive(:put).with({})
+      expect(subject).to receive(:[]).with('?members&member=other').and_return(members)
+      expect(members).to receive(:put).with({})
       subject.grant_to "other"
     end
 
     it "converts an object to roleid" do
       members = double "members request"
-      subject.should_receive(:[]).with('?members&member=other').and_return(members)
-      members.should_receive(:put).with({})
+      expect(subject).to receive(:[]).with('?members&member=other').and_return(members)
+      expect(members).to receive(:put).with({})
       require 'ostruct'
       subject.grant_to OpenStruct.new(roleid: "other")
     end
 
     it "converts an Array to roleid" do
       members = double "members request"
-      subject.should_receive(:[]).with('?members&member=other').and_return(members)
-      members.should_receive(:put).with({})
+      expect(subject).to receive(:[]).with('?members&member=other').and_return(members)
+      expect(members).to receive(:put).with({})
       subject.grant_to %w(other)
     end
   end
 
   describe '#create' do
     it 'simply puts' do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :put,
         url: url,
         payload: {},
@@ -70,29 +90,29 @@ describe Conjur::Role, api: :dummy do
   describe '#all' do
     it 'returns roles for ids got from ?all' do
       roles = ['foo:k:bar', 'baz:k:xyzzy'] 
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: role.url + "/?all",
         headers: {}
       ).and_return roles.to_json
       all = role.all
-      all[0].account.should == 'foo'
-      all[0].id.should == 'bar'
-      all[1].account.should == 'baz'
-      all[1].id.should == 'xyzzy'
+      expect(all[0].account).to eq('foo')
+      expect(all[0].id).to eq('bar')
+      expect(all[1].account).to eq('baz')
+      expect(all[1].id).to eq('xyzzy')
     end
     
     describe "filter param" do
       it "applies #cast to the filter" do
         filter = %w(foo bar)
-        filter.each{ |e| subject.should_receive(:cast).with(e, :roleid).and_return e }
-        RestClient::Request.stub execute: [].to_json
+        filter.each{ |e| expect(subject).to receive(:cast).with(e, :roleid).and_return e }
+        allow(RestClient::Request).to receive_messages execute: [].to_json
         role.all filter: filter
       end
       
       def self.it_passes_the_filter_as(query_string)
         it "calls ?all&#{query_string}" do
-          RestClient::Request.should_receive(:execute).with(
+          expect(RestClient::Request).to receive(:execute).with(
             method: :get,
             url: role.url + "/?all&#{query_string}",
             headers:{}
@@ -116,22 +136,22 @@ describe Conjur::Role, api: :dummy do
   
   describe '#member_of?' do
     it 'calls #all with :filter=>id and returns true if the result is non-empty' do
-      role.should_receive(:all).with(filter: 'the filter').and_return ['an id']
-      role.member_of?('the filter').should be_true
-      role.should_receive(:all).with(filter: 'the filter').and_return []
-      role.member_of?('the filter').should be_false
+      expect(role).to receive(:all).with(filter: 'the filter').and_return ['an id']
+      expect(role.member_of?('the filter')).to be_truthy
+      expect(role).to receive(:all).with(filter: 'the filter').and_return []
+      expect(role.member_of?('the filter')).to be_falsey
     end
     
     it "accepts a Role" do
       other = double('Role', roleid: 'foo')
-      role.should_receive(:all).with(filter: other.roleid).and_return []
+      expect(role).to receive(:all).with(filter: other.roleid).and_return []
       role.member_of?(other)
     end
   end
 
   describe '#revoke_from' do
     it 'deletes member' do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :delete,
         url: role.url + "/?members&member=the-member",
         headers: {}
@@ -142,7 +162,7 @@ describe Conjur::Role, api: :dummy do
 
   describe '#permitted?' do
     before do
-      RestClient::Request.stub(:execute).with(
+      allow(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: role.url + "/?check&resource_id=chunky:bacon&privilege=fry",
         headers: {}
@@ -152,14 +172,14 @@ describe Conjur::Role, api: :dummy do
     context "when get ?check is successful" do
       let(:result) { :ok }
       it "returns true" do
-        role.permitted?('chunky:bacon', 'fry').should be_true
+        expect(role.permitted?('chunky:bacon', 'fry')).to be_truthy
       end
     end
 
     context "when get ?check not found" do
       let(:result) { raise RestClient::ResourceNotFound, 'foo' }
       it "returns false" do
-        role.permitted?('chunky:bacon', 'fry').should be_false
+        expect(role.permitted?('chunky:bacon', 'fry')).to be_falsey
       end
     end
   end
@@ -167,16 +187,16 @@ describe Conjur::Role, api: :dummy do
   describe '#members' do
     it "gets ?members and turns each into RoleGrant" do
       grants = %w(foo bar)
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: role.url + "/?members",
         headers: {}
       ).and_return grants.to_json
       grants.each do |g|
-        Conjur::RoleGrant.should_receive(:parse_from_json).with(g, {}).and_return g
+        expect(Conjur::RoleGrant).to receive(:parse_from_json).with(g, {}).and_return g
       end
 
-      subject.members.should == grants
+      expect(subject.members).to eq(grants)
     end
   end
 end

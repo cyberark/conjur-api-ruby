@@ -21,14 +21,16 @@ Gem::Specification.new do |gem|
   
   gem.add_dependency 'rest-client', '= 1.6.7' # with newer versions adding certificates to OpenSSL does not work
   gem.add_dependency 'activesupport'
+  gem.add_dependency 'wrong'
   
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'spork'
-  gem.add_development_dependency 'rspec', '>= 2.14', '< 3.0'
+  gem.add_development_dependency 'rspec', '~> 3'
   gem.add_development_dependency 'webmock'
   gem.add_development_dependency 'ci_reporter_rspec'
   gem.add_development_dependency 'simplecov'
   gem.add_development_dependency 'io-grab'
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'redcarpet'
+  gem.add_development_dependency 'timecop'
 end

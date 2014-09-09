@@ -2,14 +2,19 @@ require 'spec_helper'
 
 describe Conjur::Variable do
   let(:url) { "http://example.com/variable" }
-  subject { Conjur::Variable.new url }
+  subject(:variable) { Conjur::Variable.new url }
 
   before { subject.attributes = {'versions' => 42} }
-  its(:version_count) { should == 42}
+
+  describe '#version_count' do
+    it "is read from the attributes" do
+      expect(variable.version_count).to eq(42)
+    end
+  end
 
   describe '#add_value' do
     it "posts the new value" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         method: :post,
         url: "#{url}/values",
         payload: { value: 'new-value' },
@@ -21,21 +26,21 @@ describe Conjur::Variable do
 
   describe '#value' do
     it "gets the value" do
-      RestClient::Request.stub(:execute).with(
+      allow(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: "#{url}/value",
         headers: {}
       ).and_return(double "response", body: "the-value")
-      subject.value.should == "the-value"
+      expect(subject.value).to eq("the-value")
     end
 
     it "parametrizes the request with a version" do
-      RestClient::Request.stub(:execute).with(
+      allow(RestClient::Request).to receive(:execute).with(
         method: :get,
         url: "#{url}/value?version=42",
         headers: {}
       ).and_return(double "response", body: "the-value")
-      subject.value(42).should == "the-value"
+      expect(subject.value(42)).to eq("the-value")
     end
   end
 end
