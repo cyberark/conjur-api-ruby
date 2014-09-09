@@ -13,11 +13,11 @@ describe Conjur::Configuration do
       Thread.new do
         Thread.current[:conjur_configuration] = :foo
         Conjur.with_configuration c do
-          Conjur.configuration.should == c
+          expect(Conjur.configuration).to eq(c)
         end
-        Thread.current[:conjur_configuration].should == :foo
+        expect(Thread.current[:conjur_configuration]).to eq(:foo)
       end.join
-      Conjur.configuration.should == original
+      expect(Conjur.configuration).to eq(original)
     end
   end
   context "with various options" do
@@ -26,11 +26,11 @@ describe Conjur::Configuration do
       configuration.appliance_url = "https://conjur/api"
     }
     it "core_url is not pre-cached" do
-      configuration.supplied[:core_url].should_not be
+      expect(configuration.supplied[:core_url]).not_to be
     end
     it "core_url is cached after use" do
       configuration.core_url
-      configuration.supplied[:core_url].should == configuration.core_url
+      expect(configuration.supplied[:core_url]).to eq(configuration.core_url)
     end
     context "and core_url fetched" do
       before { 
@@ -39,15 +39,27 @@ describe Conjur::Configuration do
       context "and duplicated" do 
         subject { configuration.clone override_options }
         let(:override_options) { Hash.new }
-        its(:account) { should == configuration.account }
-        its(:appliance_url) { should == configuration.appliance_url }
-        its(:core_url) { should == configuration.appliance_url }
+
+        describe '#account' do
+          subject { super().account }
+          it { is_expected.to eq(configuration.account) }
+        end
+
+        describe '#appliance_url' do
+          subject { super().appliance_url }
+          it { is_expected.to eq(configuration.appliance_url) }
+        end
+
+        describe '#core_url' do
+          subject { super().core_url }
+          it { is_expected.to eq(configuration.appliance_url) }
+        end
         context "core_url fetched" do
           it "is then cached in the original" do
-            configuration.supplied[:core_url].should be
+            expect(configuration.supplied[:core_url]).to be
           end
           it "is not cached in the copy" do
-            subject.supplied[:core_url].should_not be
+            expect(subject.supplied[:core_url]).not_to be
           end
         end
         context "appliance_url overridden" do
@@ -55,10 +67,10 @@ describe Conjur::Configuration do
             { :appliance_url => "https://example/api" }
           }
           it "is ignored by the configuration core_url" do
-            configuration.core_url.should == "https://conjur/api"
+            expect(configuration.core_url).to eq("https://conjur/api")
           end
           it "is reflected in the copy core_url" do
-            subject.core_url.should == "https://example/api"
+            expect(subject.core_url).to eq("https://example/api")
           end
         end
       end
@@ -70,86 +82,138 @@ describe Conjur::Configuration do
       ENV.delete('CONJUR_ENV')
     }
     context "default env" do
-      its(:env) { should == "production" }
+      describe '#env' do
+        subject { super().env }
+        it { is_expected.to eq("production") }
+      end
     end
     context "default stack" do
-      its(:stack) { should == "v4" }
+      describe '#stack' do
+        subject { super().stack }
+        it { is_expected.to eq("v4") }
+      end
     end
     describe 'authn_url' do
       before {
-        Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
+        allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
       }
       context "with appliance_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com"
+          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com"
         }
-        its(:authn_url) { should == "http://example.com/authn" }
+
+        describe '#authn_url' do
+          subject { super().authn_url }
+          it { is_expected.to eq("http://example.com/authn") }
+        end
       end
       context "without appliance_url" do
-        its(:authn_url) { should == "https://authn-the-account-conjur.herokuapp.com" }
+        describe '#authn_url' do
+          subject { super().authn_url }
+          it { is_expected.to eq("https://authn-the-account-conjur.herokuapp.com") }
+        end
       end
     end
     describe 'authz_url' do
       before {
-        Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
+        allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
       }
       context "with appliance_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com"
+          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com"
         }
-        its(:authz_url) { should == "http://example.com/authz" }
+
+        describe '#authz_url' do
+          subject { super().authz_url }
+          it { is_expected.to eq("http://example.com/authz") }
+        end
       end
       context "without appliance_url" do
-        its(:authz_url) { should == "https://authz-v4-conjur.herokuapp.com" }
+        describe '#authz_url' do
+          subject { super().authz_url }
+          it { is_expected.to eq("https://authz-v4-conjur.herokuapp.com") }
+        end
         context "with specific stack" do
-          before { Conjur::Configuration.any_instance.stub(:stack).and_return "the-stack" }
-          its(:authz_url) { should == "https://authz-the-stack-conjur.herokuapp.com" }
+          before { allow_any_instance_of(Conjur::Configuration).to receive(:stack).and_return "the-stack" }
+
+          describe '#authz_url' do
+            subject { super().authz_url }
+            it { is_expected.to eq("https://authz-the-stack-conjur.herokuapp.com") }
+          end
         end
       end
     end
   end
   context "CONJUR_ENV = 'test'" do
-    its(:env) { should == "test" }
+    describe '#env' do
+      subject { super().env }
+      it { is_expected.to eq("test") }
+    end
     before {
-      Conjur::Configuration.any_instance.stub(:account).and_return "the-account"
+      allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
     }
     describe 'authn_url' do
       context "with appliance_url hostname" do
         before {
-          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com"
+          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com"
         }
-        its(:authn_url) { should == "http://example.com/authn" }
+
+        describe '#authn_url' do
+          subject { super().authn_url }
+          it { is_expected.to eq("http://example.com/authn") }
+        end
       end
       context "with appliance_url hostname and non-trailing-slash path" do
         before {
-          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com/api"
+          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com/api"
         }
-        its(:authn_url) { should == "http://example.com/api/authn" }
+
+        describe '#authn_url' do
+          subject { super().authn_url }
+          it { is_expected.to eq("http://example.com/api/authn") }
+        end
       end
       context "without appliance_url" do
-        its(:authn_url) { should == "http://localhost:5000" }
+        describe '#authn_url' do
+          subject { super().authn_url }
+          it { is_expected.to eq("http://localhost:5000") }
+        end
       end
     end
     describe 'authz_url' do
       context "with appliance_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com/api/"
+          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com/api/"
         }
-        its(:authz_url) { should == "http://example.com/api/authz" }
+
+        describe '#authz_url' do
+          subject { super().authz_url }
+          it { is_expected.to eq("http://example.com/api/authz") }
+        end
       end
       context "without appliance_url" do
-        its(:authz_url) { should == "http://localhost:5100" }
+        describe '#authz_url' do
+          subject { super().authz_url }
+          it { is_expected.to eq("http://localhost:5100") }
+        end
       end
     end
     describe 'core_url' do
       context "with appliance_url" do
         before {
-          Conjur::Configuration.any_instance.stub(:appliance_url).and_return "http://example.com/api"
+          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com/api"
         }
-        its(:core_url) { should == "http://example.com/api" }
+
+        describe '#core_url' do
+          subject { super().core_url }
+          it { is_expected.to eq("http://example.com/api") }
+        end
       end
       context "without appliance_url" do
-        its(:core_url) { should == "http://localhost:5200" }
+        describe '#core_url' do
+          subject { super().core_url }
+          it { is_expected.to eq("http://localhost:5200") }
+        end
       end
     end
   end

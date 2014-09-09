@@ -6,12 +6,12 @@ describe Conjur::API, api: :dummy do
     it "uses Net::HTTP to get something" do
       response = double "response",
           code: '200', body: 'foobar'
-      response.stub(:[]).with('Content-Type').and_return 'text/whatever'
+      allow(response).to receive(:[]).with('Content-Type').and_return 'text/whatever'
 
       url = URI.parse "http://example.com"
-      Net::HTTP.stub(:get_response).with(url).and_return response
+      allow(Net::HTTP).to receive(:get_response).with(url).and_return response
 
-      Conjur::API.enroll_host("http://example.com").should == ['text/whatever', 'foobar']
+      expect(Conjur::API.enroll_host("http://example.com")).to eq(['text/whatever', 'foobar'])
     end
   end
 

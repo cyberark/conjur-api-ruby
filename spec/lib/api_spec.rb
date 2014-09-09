@@ -6,30 +6,42 @@ shared_examples_for "API endpoint" do
   let(:service_name) { api.name.split('::')[-2].downcase }
   context "in development" do
     before(:each) do
-      Conjur::Configuration.any_instance.stub(:env).and_return "development"
+      allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "development"
     end
-    its "host" do
-      should == "http://localhost:#{Conjur.configuration.service_base_port + port_offset}"
+
+    describe '#host' do
+      subject { super().host }
+      it do
+      is_expected.to eq("http://localhost:#{Conjur.configuration.service_base_port + port_offset}")
+    end
     end
   end
   context "'ci' account" do
     before {
-      Conjur::Configuration.any_instance.stub(:account).and_return 'ci'
+      allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return 'ci'
     }
     context "in stage" do
       before(:each) do
-        Conjur::Configuration.any_instance.stub(:env).and_return "stage"
+        allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "stage"
       end
-      its "host" do
-        should == "https://#{service_name}-ci-conjur.herokuapp.com"
+
+      describe '#host' do
+        subject { super().host }
+        it do
+        is_expected.to eq("https://#{service_name}-ci-conjur.herokuapp.com")
+      end
       end
     end
     context "in ci" do
       before(:each) do
-        Conjur::Configuration.any_instance.stub(:env).and_return "ci"
+        allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "ci"
       end
-      its "host" do
-        should == "https://#{service_name}-ci-conjur.herokuapp.com"
+
+      describe '#host' do
+        subject { super().host }
+        it do
+        is_expected.to eq("https://#{service_name}-ci-conjur.herokuapp.com")
+      end
       end
     end
   end
@@ -58,39 +70,39 @@ describe Conjur::API do
         context "for short id (2 tokens)" do
           let(:id) { "token#1:token#2" }
           let(:current_account) { "current_account" }
-          before(:each) { Conjur::Core::API.stub(:conjur_account).and_return current_account }
+          before(:each) { allow(Conjur::Core::API).to receive(:conjur_account).and_return current_account }
 
           it "account: current account" do
-            subject[0].should == current_account
+            expect(subject[0]).to eq(current_account)
           end
 
           it "kind: passed kind" do
-            subject[1].should == kind
+            expect(subject[1]).to eq(kind)
           end
 
           it "subkind: token #1 (escaped)" do
-            subject[2].should == escaped("token#1")
+            expect(subject[2]).to eq(escaped("token#1"))
           end
 
           it "id: token #2 (escaped)" do
-            subject[3].should == escaped("token#2")
+            expect(subject[3]).to eq(escaped("token#2"))
           end
         end
 
         context "for long ids (3+ tokens)" do
           let(:id) { "token#1:token#2:token#3:token#4" }
           it "account: token #1 (escaped)" do
-            subject[0].should == escaped("token#1")
+            expect(subject[0]).to eq(escaped("token#1"))
           end
 
           it "kind: passed kind" do
-            subject[1].should  == kind
+            expect(subject[1]).to  eq(kind)
           end
           it "subkind: token #2 (escaped)" do
-            subject[2].should == escaped("token#2")
+            expect(subject[2]).to eq(escaped("token#2"))
           end
           it "id: tail of id starting from token#3" do
-            subject[3].should == escaped("token#3:token#4")
+            expect(subject[3]).to eq(escaped("token#3:token#4"))
           end
         end
 
@@ -101,12 +113,12 @@ describe Conjur::API do
       let(:id)     { :input_id }
 
       it "#parse_role_id(id): calls parse_id(id, 'roles') and returns result" do
-        Conjur::API.should_receive(:parse_id).with(id, 'roles').and_return(result)
-        Conjur::API.parse_role_id(id).should == result
+        expect(Conjur::API).to receive(:parse_id).with(id, 'roles').and_return(result)
+        expect(Conjur::API.parse_role_id(id)).to eq(result)
       end
       it "#parse_resource_id(id): calls parse_id(id, 'resources') and returns result" do
-        Conjur::API.should_receive(:parse_id).with(id, 'resources').and_return(result)
-        Conjur::API.parse_resource_id(id).should == result
+        expect(Conjur::API).to receive(:parse_id).with(id, 'resources').and_return(result)
+        expect(Conjur::API.parse_resource_id(id)).to eq(result)
       end
     end
   end
@@ -124,57 +136,81 @@ describe Conjur::API do
       subject { api }
       context "'ci' account" do
         before {
-          Conjur::Configuration.any_instance.stub(:account).and_return 'ci'
+          allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return 'ci'
         }
         context "in stage" do
           before(:each) do
-            Conjur::Configuration.any_instance.stub(:env).and_return "stage"
+            allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "stage"
           end
-          its "host" do
-            should == "https://authz-stage-conjur.herokuapp.com"
+
+          describe '#host' do
+            subject { super().host }
+            it do
+            is_expected.to eq("https://authz-stage-conjur.herokuapp.com")
+          end
           end
         end
         context "in ci" do
           before(:each) do
             # Looks at "ENV['CONJUR_STACK']" first, stub this out
-            ENV.stub(:[]).with('CONJUR_STACK').and_return nil
-            Conjur::Configuration.any_instance.stub(:env).and_return "ci"
+            allow(ENV).to receive(:[]).with('CONJUR_STACK').and_return nil
+            allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "ci"
           end
-          its "host" do
-            should == "https://authz-ci-conjur.herokuapp.com"
+
+          describe '#host' do
+            subject { super().host }
+            it do
+            is_expected.to eq("https://authz-ci-conjur.herokuapp.com")
+          end
           end
         end
         context "when ENV['CONJUR_STACK'] is set to 'v12'" do
           before do
-            Conjur::Configuration.any_instance.stub(:stack).and_return "v12"
-            Conjur::Configuration.any_instance.stub(:env).and_return "ci"
+            allow_any_instance_of(Conjur::Configuration).to receive(:stack).and_return "v12"
+            allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "ci"
           end
-          its(:host){ should == "https://authz-v12-conjur.herokuapp.com"}
+
+          describe '#host' do
+            subject { super().host }
+            it { is_expected.to eq("https://authz-v12-conjur.herokuapp.com")}
+          end
         end
       end
       context "in production" do
         before(:each) do
-          Conjur::Configuration.any_instance.stub(:env).and_return "production"
+          allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "production"
         end
-        its "host" do
-          should == "https://authz-v4-conjur.herokuapp.com"
+
+        describe '#host' do
+          subject { super().host }
+          it do
+          is_expected.to eq("https://authz-v4-conjur.herokuapp.com")
+        end
         end
       end
       context "in appliance" do
         before(:each) do
-          Conjur::Configuration.any_instance.stub(:env).and_return "appliance"
+          allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "appliance"
         end
-        its "host" do
-          should == "http://localhost:5100"
+
+        describe '#host' do
+          subject { super().host }
+          it do
+          is_expected.to eq("http://localhost:5100")
+        end
         end
       end
       context "in named production version" do
         before(:each) do
-          Conjur::Configuration.any_instance.stub(:env).and_return "production"
-          Conjur::Configuration.any_instance.stub(:stack).and_return "waffle"
+          allow_any_instance_of(Conjur::Configuration).to receive(:env).and_return "production"
+          allow_any_instance_of(Conjur::Configuration).to receive(:stack).and_return "waffle"
         end
-        its "host" do
-          should == "https://authz-waffle-conjur.herokuapp.com"
+
+        describe '#host' do
+          subject { super().host }
+          it do
+          is_expected.to eq("https://authz-waffle-conjur.herokuapp.com")
+        end
         end
       end
     end
@@ -192,24 +228,31 @@ describe Conjur::API do
     subject { api }
     let(:api) { Conjur::API.new_from_token(token) }
     let(:account) { 'some-account' }
-    before { Conjur::Core::API.stub conjur_account: account }
+    before { allow(Conjur::Core::API).to receive_messages conjur_account: account }
   end
 
   context "credential handling", logged_in: true do
     context "from token" do
-      its(:token) { should == token }
-      its(:credentials) { should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login } }
+      describe '#token' do
+        subject { super().token }
+        it { is_expected.to eq(token) }
+      end
+
+      describe '#credentials' do
+        subject { super().credentials }
+        it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }) }
+      end
     end
     context "from api key", logged_in: true do
       let(:api_key) { "theapikey" }
       let(:api) { Conjur::API.new_from_key(login, api_key) }
       subject { api }
       it("should authenticate to get a token") do
-        Conjur::API.should_receive(:authenticate).with(login, api_key).and_return token
+        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
         
-        api.instance_variable_get("@token").should == nil
-        api.token.should == token
-        api.credentials.should == { headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }
+        expect(api.instance_variable_get("@token")).to eq(nil)
+        expect(api.token).to eq(token)
+        expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
       end
     end
     context "from logged-in RestClient::Resource" do
@@ -217,19 +260,19 @@ describe Conjur::API do
       let(:resource) { RestClient::Resource.new("http://example.com", { headers: { authorization: "Token token=\"#{token_encoded}\"" } })}
       it "can construct a new API instance" do
         api = resource.conjur_api
-        api.credentials[:headers][:authorization].should == "Token token=\"#{token_encoded}\""
-        api.credentials[:username].should == "bob"
+        expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
+        expect(api.credentials[:username]).to eq("bob")
       end
     end
   end
 
   describe "#role_from_username", logged_in: true do
     it "returns a user role when username is plain" do
-      api.role_from_username("plain-username").roleid.should == "#{account}:user:plain-username"
+      expect(api.role_from_username("plain-username").roleid).to eq("#{account}:user:plain-username")
     end
 
     it "returns an appropriate role kind when username is qualified" do
-      api.role_from_username("host/foo/bar").roleid.should == "#{account}:host:foo/bar"
+      expect(api.role_from_username("host/foo/bar").roleid).to eq("#{account}:host:foo/bar")
     end
   end
 
@@ -237,7 +280,7 @@ describe Conjur::API do
     context "when logged in as user" do
       let(:login) { 'joerandom' }
       it "returns a user role" do
-        api.current_role.roleid.should == "#{account}:user:joerandom"
+        expect(api.current_role.roleid).to eq("#{account}:user:joerandom")
       end
     end
 
@@ -245,7 +288,7 @@ describe Conjur::API do
       let(:host) { "somehost" }
       let(:login) { "host/#{host}" }
       it "returns a host role" do
-        api.current_role.roleid.should == "#{account}:host:somehost"
+        expect(api.current_role.roleid).to eq("#{account}:host:somehost")
       end
     end
   end

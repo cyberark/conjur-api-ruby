@@ -7,9 +7,9 @@ describe Conjur do
     before { @old_log = Conjur.log }
     let(:log) { double 'log' }
     it "creates the log with given type and makes it available" do
-      Conjur.stub(:create_log).with(:param).and_return log
+      allow(Conjur).to receive(:create_log).with(:param).and_return log
       Conjur::log = :param
-      Conjur::log.should == log
+      expect(Conjur::log).to eq(log)
     end
     after { Conjur.class_variable_set :@@log, @old_log }
   end
@@ -19,14 +19,14 @@ describe Conjur do
     context "with 'stdout'" do
       let(:param) { 'stdout' }
       it "creates something which writes to STDOUT" do
-        $stdout.grab { log << "foo" }.should == 'foo'
+        expect($stdout.grab { log << "foo" }).to eq('foo')
       end
     end
 
     context "with 'stderr'" do
       let(:param) { 'stderr' }
       it "creates something which writes to STDERR" do
-        $stderr.grab { log << "foo" }.should == 'foo'
+        expect($stderr.grab { log << "foo" }).to eq('foo')
       end
     end
 
@@ -35,7 +35,7 @@ describe Conjur do
       let(:param) { tempfile.path }
       it "creates something which writes to the file" do
         log << "foo"
-        tempfile.read.should == "foo"
+        expect(tempfile.read).to eq("foo")
       end
     end
   end

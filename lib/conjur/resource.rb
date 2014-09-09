@@ -24,6 +24,7 @@ module Conjur
   class Resource < RestClient::Resource
     include HasAttributes
     include PathBased
+    include Exists
     
     def identifier
       match_path(3..-1)
@@ -52,17 +53,6 @@ module Conjur
       self.put(options)
     end
     
-    def exists?(options = {})
-      begin
-        self.head(options)
-        true
-      rescue RestClient::Forbidden
-        true
-      rescue RestClient::ResourceNotFound
-        false
-      end
-    end
-
     # Lists roles that have a specified permission on the resource.
     def permitted_roles(permission, options = {})
       JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}"].get(options)

@@ -25,11 +25,11 @@ describe Conjur::API, api: :dummy do
     shared_context "Stubbed API" do
       let (:expected_url) { "#{core_host}/variables/values?vars=#{varlist.map {|v| api.fully_escape(v) }.join(",")}"  }
       before {
-        RestClient::Request.should_receive(:execute).with(
+        expect(RestClient::Request).to receive(:execute).with(
           method: :get,
           url: expected_url,
           headers: credentials[:headers]
-          ).and_return { 
+          ) { 
             if defined? return_error 
               raise return_error
             else
@@ -46,8 +46,8 @@ describe Conjur::API, api: :dummy do
       let (:return_code) { '200' }
       let (:return_body) { '{"var/1":"val1","var/2":"val2","var/3":"val3"}' }
       it "returns Hash of values built from the response" do  
-        api.should_not_receive(:variable)
-        invoke.should == { "var/1"=>"val1", "var/2"=>"val2", "var/3"=>"val3" }
+        expect(api).not_to receive(:variable)
+        expect(invoke).to eq({ "var/1"=>"val1", "var/2"=>"val2", "var/3"=>"val3" })
       end
     end 
 
@@ -55,15 +55,15 @@ describe Conjur::API, api: :dummy do
       include_context "Stubbed API"
       let (:return_error) { RestClient::ResourceNotFound }
       before {  
-        api.should_receive(:variable).with("var/1").and_return(double(value:"val1_obtained_separately"))
-        api.should_receive(:variable).with("var/2").and_return(double(value:"val2_obtained_separately"))
-        api.should_receive(:variable).with("var/3").and_return(double(value:"val3_obtained_separately"))
+        expect(api).to receive(:variable).with("var/1").and_return(double(value:"val1_obtained_separately"))
+        expect(api).to receive(:variable).with("var/2").and_return(double(value:"val2_obtained_separately"))
+        expect(api).to receive(:variable).with("var/3").and_return(double(value:"val3_obtained_separately"))
       }
       it 'tries variables one by one and returns Hash of values' do
-        invoke.should == { "var/1"=>"val1_obtained_separately", 
+        expect(invoke).to eq({ "var/1"=>"val1_obtained_separately", 
                            "var/2"=>"val2_obtained_separately", 
                            "var/3"=>"val3_obtained_separately" 
-                          }
+                          })
       end
     end 
     
@@ -71,7 +71,7 @@ describe Conjur::API, api: :dummy do
       include_context "Stubbed API"
       let (:return_error) { RestClient::Forbidden }
       it 're-raises error without checking particular variables' do 
-        api.should_not_receive(:variable)
+        expect(api).not_to receive(:variable)
         expect { invoke }.to raise_error(return_error)
       end
     end 

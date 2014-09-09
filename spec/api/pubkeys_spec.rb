@@ -27,12 +27,12 @@ describe Conjur::API, api: :dummy do
   end
   
   before do
-    Conjur::API.stub(pubkeys_asset_host: pubkeys_url)
+    allow(Conjur::API).to receive_messages(pubkeys_asset_host: pubkeys_url)
   end
   
   describe "#public_keys" do
     it "GETs /:username" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         url: pubkeys_url_for("bob"),
         method: :get,
         headers: credentials[:headers],
@@ -43,7 +43,7 @@ describe Conjur::API, api: :dummy do
   
   describe "#add_public_key" do
     it "POSTs /:username with the data" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         url: pubkeys_url_for("bob"),
         method: :post,
         headers: credentials[:headers],
@@ -55,7 +55,7 @@ describe Conjur::API, api: :dummy do
   
   describe "#delete_public_key" do
     it "DELETEs /:username/:keyname" do
-      RestClient::Request.should_receive(:execute).with(
+      expect(RestClient::Request).to receive(:execute).with(
         url: pubkeys_url_for("bob", "bob-key"),
         method: :delete,
         headers: credentials[:headers]
