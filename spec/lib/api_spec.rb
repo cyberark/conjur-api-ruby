@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'timecop'
 
 shared_examples_for "API endpoint" do
   before { Conjur.configuration = Conjur::Configuration.new }
@@ -223,8 +224,7 @@ describe Conjur::API do
 
   shared_context logged_in: true do
     let(:login) { "bob" }
-    let(:token) { { 'data' => login, 'timestamp' => (Time.now + elapsed ).to_s } }
-    let(:elapsed) { 0 }
+    let(:token) { { 'data' => login, 'timestamp' => Time.now.to_s } }
     subject { api }
     let(:api) { Conjur::API.new_from_token(token) }
     let(:account) { 'some-account' }
@@ -243,10 +243,12 @@ describe Conjur::API do
         it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }) }
       end
     end
+
     context "from api key", logged_in: true do
       let(:api_key) { "theapikey" }
       let(:api) { Conjur::API.new_from_key(login, api_key) }
       subject { api }
+
       it("should authenticate to get a token") do
         expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
         
@@ -254,7 +256,21 @@ describe Conjur::API do
         expect(api.token).to eq(token)
         expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
       end
+
+      context "with an expired token" do
+        it "fetches a new one" do
+          allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
+          expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
+
+          Timecop.travel Time.now + 6.minutes
+          new_token = token.merge "timestamp" => Time.now.to_s
+
+          expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return new_token
+          expect(api.token).to eq(new_token)
+        end
+      end
     end
+
     context "from logged-in RestClient::Resource" do
       let(:token_encoded) { Base64.strict_encode64(token.to_json) }
       let(:resource) { RestClient::Resource.new("http://example.com", { headers: { authorization: "Token token=\"#{token_encoded}\"" } })}
