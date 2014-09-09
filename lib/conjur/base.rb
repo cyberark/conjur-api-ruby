@@ -129,8 +129,9 @@ module Conjur
 
     def token_valid?
       return false unless @token
-
-      expiration = 8.minutes
+      
+      # Actual token expiration is 8 minutes, but why cut it so close
+      expiration = 5.minutes
       Time.now - Time.parse(@token['timestamp']) < expiration
     end
   end

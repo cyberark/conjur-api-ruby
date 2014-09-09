@@ -219,7 +219,7 @@ describe Conjur::API do
           allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
           expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
 
-          Timecop.travel Time.now + 9.minutes
+          Timecop.travel Time.now + 6.minutes
           new_token = token.merge "timestamp" => Time.now.to_s
 
           expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return new_token
