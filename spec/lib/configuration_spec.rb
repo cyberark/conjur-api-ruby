@@ -4,8 +4,12 @@ describe Conjur::Configuration do
   before {
     Conjur.configuration = Conjur::Configuration.new
   }
-  let(:configuration) { Conjur.configuration }
-  subject { configuration }
+  after(:all) do
+    # reset the configuration so it doesn't clobber other tests
+    Conjur.configuration = Conjur::Configuration.new
+  end
+
+  subject(:configuration) { Conjur.configuration }
   context "thread-local behavior" do
     it "can swap the Configuration in a new thread" do
       original = Conjur.configuration
