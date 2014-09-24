@@ -147,7 +147,7 @@ module Conjur
     add_option :account, required: true
     
     add_option :env do
-      ENV['RAILS_ENV'] || ENV['RACK_ENV'] || "production"
+      ENV['CONJUR_ENV'] || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || "production"
     end
     
     add_option :stack do
