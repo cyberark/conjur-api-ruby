@@ -48,6 +48,12 @@ conjur = Conjur::API.new_from_key username, api_key
 
 `username` and `api_key` can also be provided by environment variables: `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY`. If the login is a host, the `CONJUR_AUTHN_LOGIN` should be prefixed with `host/`. For example: `host/myhost.example.com`.
 
+If the login and API key are provided by `netrc` or by the environment, you can construct an API client using:
+
+```ruby
+conjur = Conjur::Authn.connect
+```
+
 ## Contributing
 
 1. Fork it
