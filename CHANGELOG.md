@@ -1,3 +1,6 @@
+# v4.10.x
+* Fixed bug retrieving Variable#version_count
+
 # v.4.10.2
 * Authn token is refetched before the expiration
 * Support for configuration `sticky` option is discarded
