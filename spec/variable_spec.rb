@@ -4,7 +4,7 @@ describe Conjur::Variable do
   let(:url) { "http://example.com/variable" }
   subject(:variable) { Conjur::Variable.new url }
 
-  before { subject.attributes = {'versions' => 42} }
+  before { subject.attributes = {'version_count' => 42} }
 
   describe '#version_count' do
     it "is read from the attributes" do
