@@ -35,7 +35,7 @@ module Conjur
     end
     
     def version_count
-      self.attributes['versions']
+      self.attributes['version_count']
     end
     
     def value(version = nil)
