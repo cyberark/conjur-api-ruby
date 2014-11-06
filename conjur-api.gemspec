@@ -2,7 +2,7 @@
 require File.expand_path('../lib/conjur-api/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["Rafa\305\202 Rzepecki","Kevin Gilpin"]
+  gem.authors       = ["Rafal Rzepecki","Kevin Gilpin"]
   gem.email         = ["rafal@conjur.net","kgilpin@conjur.net"]
   gem.description   = %q{Conjur API}
   gem.summary       = %q{Conjur API}
