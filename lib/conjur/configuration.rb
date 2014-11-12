@@ -158,7 +158,9 @@ module Conjur
         env
       end
     end
-    
+
+    add_option :cert_file
+
     private
 
     def global_service_url(service_name, service_port_offset)
