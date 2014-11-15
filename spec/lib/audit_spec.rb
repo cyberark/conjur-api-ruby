@@ -56,6 +56,12 @@ describe Conjur::API, api: :dummy do
         end
       end
       
+      context "when called without options" do
+        let(:expected_path){ "roles" }
+        let(:args){ [] }
+        it_behaves_like "gets roles feed"
+      end
+      
       context "when called with a role id" do
         let(:args){ [role_id] }
         it_behaves_like "gets roles feed"

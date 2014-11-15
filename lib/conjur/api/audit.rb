@@ -29,8 +29,10 @@ module Conjur
     # Return audit events related to the given role_id.  Identitical to audit_events
     # except that a String may be given instead of a Role object.
     # @param role [String] the role for which events should be returned.
-    def audit_role role, options={}, &block
-      audit_event_feed "roles/#{CGI.escape cast(role, :roleid)}", options, &block
+    def audit_role role = nil, options={}, &block
+      path = [ "roles" ]
+      path << CGI.escape(cast(role, :roleid)) if role
+      audit_event_feed path.join('/'), options, &block
     end
     
     # Return audit events related to the given resource
