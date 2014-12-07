@@ -1,5 +1,9 @@
-# v4.10.x
-* Fixed bug retrieving Variable#version_count
+# v4.11.0
+
+* Fixed bug retrieving `Variable#version_count`
+* Include CONJUR_ENV in `Conjur.configuration`
+* Add `cert_file` option to `Conjur.configuration`
+
 
 # v.4.10.2
 * Authn token is refetched before the expiration
