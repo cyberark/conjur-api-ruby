@@ -15,6 +15,6 @@ def require(file)
   r
 end
 
-$: << 'lib'
-require 'date'
-require 'conjur/api'
+#$:.prepend 'lib'
+
+require ARGV.first
