@@ -1,4 +1,5 @@
-# Copyright (C) 2013-2014 Conjur Inc
+#
+# Copyright (C) 2014 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -17,8 +18,15 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-module Conjur
-  class API
-    VERSION = "4.11.1"
+# RestClient monkey patches MIME::Types, breaking it in certain situations.
+# Let's make check if it did and fix it if so.
+# Cf. https://github.com/rest-client/rest-client/pull/346
+
+if MIME::Types.respond_to? :type_for_extension
+  class MIME::Types
+    def self.type_for_extension ext
+      candidates = of ext
+      candidates.empty? ? ext : candidates[0].content_type
+    end
   end
 end

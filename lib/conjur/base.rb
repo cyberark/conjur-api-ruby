@@ -22,6 +22,8 @@ require 'rest-client'
 require 'json'
 require 'base64'
 
+require 'conjur/patches/rest-client'
+
 require 'conjur/exists'
 require 'conjur/has_attributes'
 require 'conjur/has_owner'

@@ -1,3 +1,4 @@
+* Patch rest-client's patch of mime-types to support lazy loading
 * Remove 'wrong' dependency for faster loading
 
 # v4.11.0
