@@ -21,7 +21,6 @@
 require 'rest-client'
 require 'json'
 require 'base64'
-require 'wrong'
 
 require 'conjur/exists'
 require 'conjur/has_attributes'
@@ -39,7 +38,6 @@ module Conjur
     include LogSource
     include StandardMethods
     include Cast
-    include Wrong
 
     class << self
       # Parse a role id into [ account, 'roles', kind, id ]
@@ -115,7 +113,8 @@ module Conjur
 
       @token ||= Conjur::API.authenticate(@username, @api_key)
 
-      assert { token_valid? }
+      fail "obtained token is invalid" unless token_valid? # sanity check
+
       return @token
     end
     
