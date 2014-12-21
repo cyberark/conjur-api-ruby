@@ -1,3 +1,5 @@
+* Remove 'wrong' dependency for faster loading
+
 # v4.11.0
 
 * Fixed bug retrieving `Variable#version_count`
