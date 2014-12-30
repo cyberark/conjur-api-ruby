@@ -20,3 +20,6 @@ tmp
 .kateproject.d
 .rvmrc
 .idea
+
+# rspec
+.rspec
