@@ -4,6 +4,11 @@ module Conjur
   # Currently it just has an edges member, but in future iterations it might support methods for graph
   # properties and various useful output formats
   class Graph
+
+    include Enumerable
+
+    # @!attribute r edges
+    #   @return [Array<Conjur::Graph::Edge>] the edges of this graph
     attr_reader :edges
 
     def initialize val
@@ -17,6 +22,26 @@ module Conjur
       @next_node_id = 0
       @node_ids = Hash.new{ |h,k| h[k] = next_node_id }
     end
+
+    # Enumerates the edges of this graph.
+    # @yieldparam [Conjur::Graph::Edge] each edge of the graph
+    # @return edge [Conjur::Graph] this graph
+    def each_edge
+      return enum_for(__method__) unless block_given?
+      edges.each{|e| yield e}
+      self
+    end
+
+    alias each each_edge
+
+    # Enumerates the vertices (roles) of this graph
+    # @yieldparam vertex [Conjur::Role] each vertex in this graph
+    # @return [Conjur::Graph] this graph
+    def each_vertex
+      return enum_for(__method__) unless block_given?
+      vertices.each{|v| yield v}
+    end
+
 
     def to_json short =  false
       as_json(short).to_json
@@ -152,6 +177,16 @@ module Conjur
       def to_s
         "<Edge #{parent.id} --> #{child.id}>"
       end
+
+      def hash
+        @hash ||= to_a.map(&:to_s).hash
+      end
+
+      def == other
+        other.kind_of?(self.class) and other.parent == parent and other.child == child
+      end
+
+      alias eql? ==
     end
 
   end
