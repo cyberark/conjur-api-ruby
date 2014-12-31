@@ -84,7 +84,7 @@ describe Conjur::Graph do
     subject{ Conjur::Graph.new edges }
     let(:dot_supported?){ false }
     before do
-      expect(subject).to receive(:dot_supported?).at_least(1).times.and_return false
+      expect(subject).to receive(:dot_supported?).at_least(1).times.and_return dot_supported?
     end
 
     context "when dot_supported? is false" do
