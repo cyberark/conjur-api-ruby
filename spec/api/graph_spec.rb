@@ -34,7 +34,65 @@ describe Conjur::Graph do
 
   describe "#vertices" do
     subject{Conjur::Graph.new(edges).vertices.to_set}
-    it{ is_expected.to eq(edges.flatten.uniq.to_set) }
+    it "contains all unique members of edges" do
+      expect(subject.to_set).to eq(edges.flatten.uniq.to_set)
+    end
+  end
+
+  describe "#to_dot" do
+    let(:name){ nil }
+    subject{ Conjur::Graph.new(edges).to_dot(name) }
+    before do
+      File.write('/tmp/conjur-graph-spec.dot', subject)
+    end
+
+    let(:role_to_node_id) do
+      {}.tap do |h|
+        edges.flatten.uniq.each do |v|
+          expect(subject =~ /^\s*([a-z][0-9a-z_\-]*)\s*\[label\="(#{v})"\]/i).to be_truthy
+          h[$2] = $1
+        end
+      end
+    end
+
+    context "when given a name" do
+      let(:name){ 'foo' }
+      it "names the digraph" do
+        expect(subject).to match(/\A\s*digraph\s+foo\s*\{/)
+      end
+    end
+
+    it "defines all the vertices in the graph" do
+      edges.flatten.uniq.each do |v|
+        expect(subject).to match(/^\s*[a-z][0-9a-z_\-]*\s*\[label\="#{v}"\]/i)
+      end
+    end
+
+    it "defines all the edges in the graph" do
+      edges.each do |e|
+        parent_id = role_to_node_id[e[0]]
+        child_id  = role_to_node_id[e[1]]
+        expect(subject).to match(/^\s*#{parent_id}\s*\->\s*#{child_id}/)
+      end
+    end
+  end
+
+  # Not sure how to spec this, since it requires that the dot command be installed,
+  # and involves somme backticking
+  # For now we'll just expect it to raise an exception
+  describe "#to_png" do
+    subject{ Conjur::Graph.new edges }
+    let(:dot_supported?){ false }
+    before do
+      expect(subject).to receive(:dot_supported?).at_least(1).times.and_return false
+    end
+
+    context "when dot_supported? is false" do
+      let(:dot_supported?){ false }
+      it "raises an exception" do
+        expect{ subject.to_png }.to raise
+      end
+    end
   end
 
   describe "Graph.new" do
