@@ -36,13 +36,13 @@ module Conjur
     # @return [Conjur::Graph] An object representing the role memberships digraph
     def role_graph roles, options = {}
       roles.map!{|r| r.is_a?(Role) ? r.id : r}
-      options[:as_role] = options[:as_role].id if options[:as_role].kind_of? Role
-      options.reverse_merge! as_role: current_role, descendants: true, ancestors: true
+      options[:as_role] = options[:as_role].roleid if options[:as_role].kind_of? Role
+      options.reverse_merge! as_role: current_role.roleid, descendants: true, ancestors: true
 
       query = {from_role: options.delete(:as_role)}
         .merge(options.slice(:ancestors, :descendants))
         .merge(roles: roles).to_query
-      Conjur::Graph.new RestClient::Resource.new(Conjur::Authz::API.host, credentials)["roles?#{query}"].get
+      Conjur::Graph.new RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/roles?#{query}"].get
     end
 
     def create_role(role, options = {})
