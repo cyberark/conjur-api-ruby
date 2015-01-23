@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,10 +19,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  # A Graph represents a digraph of role memberships.
-  # (it's not called Digraph because I don't like either of the two possible camel case forms -- jjm)
-  # Currently it just has an edges member, but in future iterations it might support methods for graph
-  # properties and various useful output formats
   class Graph
 
     include Enumerable
@@ -31,6 +27,7 @@ module Conjur
     #   @return [Array<Conjur::Graph::Edge>] the edges of this graph
     attr_reader :edges
 
+    # @api private
     def initialize val
       @edges = case val
         when String then JSON.parse(val)['graph']
@@ -87,24 +84,7 @@ module Conjur
       end
       dot << "\n}"
     end
-
-    def to_png outfile = nil
-      raise "You need to install the 'dot' program (typically in the 'graphviz' package) to render graphs" unless dot_supported?
-      tmp = Tempfile.new('graph')
-      File.write(tmp, to_dot)
-      `dot -Tpng #{tmp.path}`.tap do |pngdata|
-        raise "dot failed" unless $?.success?
-        if outfile
-          File.write(outfile, pngdata)
-        end
-      end
-    end
-
-    def dot_supported?
-      `which dot`
-      $?.success?
-    end
-
+    
     def vertices
       @vertices ||= edges.inject([]) {|a, pair| a.concat pair.to_a }.uniq
     end
