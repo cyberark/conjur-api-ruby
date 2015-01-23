@@ -187,7 +187,8 @@ module Conjur
       end
 
       def to_h
-        {parent: @parent, child: @child}
+        # return string keys to make testing less brittle
+        {'parent' => @parent, 'child' => @child}
       end
 
       def to_a
