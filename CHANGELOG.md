@@ -1,3 +1,9 @@
+# v4.12.0
+
+* Add the API method `role_graph` for retrieving role relationships in bulk
+
+# v4.11.2
+
 * Patch rest-client's patch of mime-types to support lazy loading
 * Remove 'wrong' dependency for faster loading
 
