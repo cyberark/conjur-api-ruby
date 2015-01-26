@@ -19,9 +19,32 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 require 'conjur/role'
+require 'conjur/graph'
 
 module Conjur
   class API
+    ##
+    # Fetch a digraph (or a forest of digraphs) representing of
+    #   role memberships related transitively to any of a list of roles.
+    #
+    # @param [Array<Conjur::Role, String>] roles the  digraph (or forest thereof) of
+    #   the ancestors and descendants of these roles or role ids will be returned
+    # @param [Hash] options options determining the graph returned
+    # @option opts [Boolean] :ancestors Whether to return ancestors of the given roles (true by default)
+    # @option opts [Boolean] :descendants Whether to return descendants of the given roles (true by default)
+    # @option opts [Conjur::Role, String] :as_role Only roles visible to this role will be included in the graph
+    # @return [Conjur::Graph] An object representing the role memberships digraph
+    def role_graph roles, options = {}
+      roles.map!{|r| r.is_a?(Role) ? r.id : r}
+      options[:as_role] = options[:as_role].roleid if options[:as_role].kind_of? Role
+      options.reverse_merge! as_role: current_role.roleid, descendants: true, ancestors: true
+
+      query = {from_role: options.delete(:as_role)}
+        .merge(options.slice(:ancestors, :descendants))
+        .merge(roles: roles).to_query
+      Conjur::Graph.new RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/roles?#{query}"].get
+    end
+
     def create_role(role, options = {})
       role(role).tap do |r|
         r.create(options)
@@ -39,7 +62,7 @@ module Conjur
     def role_from_username username
       role(role_name_from_username username)
     end
-    
+
     def role_name_from_username username = self.username
       tokens = username.split('/')
       if tokens.size == 1
