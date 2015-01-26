@@ -30,15 +30,12 @@ describe Conjur::API, api: :dummy do
     def role_graph_url_for roles, options, current_role
       qs = options.reverse_merge(ancestors: true, descendants: true)
              .merge(from_role: current_role, roles: roles).slice(:from_role, :ancestors, :descendants, :roles).to_query
-      "http://authz.example.com/roles?#{qs}"
+      "http://authz.example.com/#{account}/roles?#{qs}"
     end
 
     def expect_request_with_params params={}
       expect(RestClient::Request).to receive(:execute)
-        .with(method: :get,
-              url: role_graph_url_for(roles, options, current_role),
-              headers: credentials[:headers]
-        )
+        .with(headers: credentials[:headers], method: :get, url: role_graph_url_for(roles, options, current_role))
         .and_return(response)
     end
 

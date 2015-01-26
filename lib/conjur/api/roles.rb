@@ -35,9 +35,9 @@ module Conjur
     # @option opts [Conjur::Role, String] :as_role Only roles visible to this role will be included in the graph
     # @return [Conjur::Graph] An object representing the role memberships digraph
     def role_graph roles, options = {}
-      roles.map!{|r| r.is_a?(Role) ? r.id : r}
-      options[:as_role] = options[:as_role].roleid if options[:as_role].kind_of? Role
-      options.reverse_merge! as_role: current_role.roleid, descendants: true, ancestors: true
+      roles.map!{|r| normalize_roleid(r) }
+      options[:as_role] = normalize_roleid(options[:as_role]) if options.include?(:as_role)
+      options.reverse_merge! as_role: normalize_roleid(current_role), descendants: true, ancestors: true
 
       query = {from_role: options.delete(:as_role)}
         .merge(options.slice(:ancestors, :descendants))
@@ -69,6 +69,15 @@ module Conjur
         [ 'user', username ].join(':')
       else
         [ tokens[0], tokens[1..-1].join('/') ].join(':')
+      end
+    end
+    
+    private
+    def normalize_roleid role
+      case role
+        when String then role
+        when Role then role.roleid
+          else raise "Can't normalize #{role}@#{role.class}"
       end
     end
   end

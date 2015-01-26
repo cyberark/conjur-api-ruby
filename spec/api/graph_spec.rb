@@ -14,7 +14,7 @@ describe Conjur::Graph do
   let(:hash_graph){ {'graph' => edges} }
   let(:json_graph){ hash_graph.to_json }
   let(:short_json_graph){ edges.to_json }
-  let(:long_edges){ edges.map{|e| {parent: e[0], child: e[1]}} }
+  let(:long_edges){ edges.map{|e| {'parent' => e[0], 'child' => e[1]}} }
   let(:long_hash_graph){ {'graph' => long_edges} }
   let(:long_json_graph){ long_hash_graph.to_json }
   let(:edge_objects){ edges.map{|e| Conjur::Graph::Edge.new(*e) }}
@@ -73,24 +73,6 @@ describe Conjur::Graph do
         parent_id = role_to_node_id[e[0]]
         child_id  = role_to_node_id[e[1]]
         expect(subject).to match(/^\s*#{parent_id}\s*\->\s*#{child_id}/)
-      end
-    end
-  end
-
-  # Not sure how to spec this, since it requires that the dot command be installed,
-  # and involves somme backticking
-  # For now we'll just expect it to raise an exception
-  describe "#to_png" do
-    subject{ Conjur::Graph.new edges }
-    let(:dot_supported?){ false }
-    before do
-      expect(subject).to receive(:dot_supported?).at_least(1).times.and_return dot_supported?
-    end
-
-    context "when dot_supported? is false" do
-      let(:dot_supported?){ false }
-      it "raises an exception" do
-        expect{ subject.to_png }.to raise
       end
     end
   end
