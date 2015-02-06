@@ -1,5 +1,4 @@
-#
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -32,5 +31,7 @@ module Conjur
     def remove_member(member)
       role.revoke_from member
     end
+
+    alias_method :update, :put
   end
 end

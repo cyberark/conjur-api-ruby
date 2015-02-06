@@ -1,3 +1,7 @@
+# v4.13.0
+
+* Add GID handling utilities
+
 # v4.12.0
 
 * Add the API method `role_graph` for retrieving role relationships in bulk

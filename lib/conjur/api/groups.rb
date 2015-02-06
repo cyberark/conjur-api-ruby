@@ -1,5 +1,4 @@
-#
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -32,6 +31,10 @@ module Conjur
 
     def group id
       standard_show Conjur::Core::API.host, :group, id
+    end
+
+    def find_groups options
+      JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, credentials)["groups/search?#{options.to_query}"].get)
     end
   end
 end
