@@ -5,7 +5,7 @@ describe Conjur::Group, api: :dummy do
   subject { api.group id }
 
   describe '#update' do
-    it "PUTs to /groups/:id?gidnumber=:gidnumber" do
+    it "PUTs to /groups/:id" do
       expect(RestClient::Request).to receive(:execute).with(
         method: :put,
         url: "#{core_host}/groups/#{api.fully_escape(id)}",

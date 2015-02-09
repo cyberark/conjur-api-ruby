@@ -32,6 +32,14 @@ module Conjur
       role.revoke_from member
     end
 
-    alias_method :update, :put
+    # Update group properties
+    #
+    # @param [Hash] props new property values
+    # @option props [Integer] :gidnumber new GID number
+    # @return [void]
+    def update props
+      # not an alias because doc
+      put props
+    end
   end
 end
