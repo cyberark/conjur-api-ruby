@@ -40,7 +40,7 @@ module Conjur
     # @return [Array<String>] group names matching the criteria
     #
     # @note You can get a {Conjur::Group} by calling {Conjur::API#group}, eg.:
-    #   api.find_groups(gidnumber: 12345).map(&api.method(:group))
+    #   +api.find_groups(gidnumber: 12345).map(&api.method(:group))+
     def find_groups options
       JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, credentials)["groups/search?#{options.to_query}"].get)
     end
