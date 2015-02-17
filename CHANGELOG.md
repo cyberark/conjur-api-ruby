@@ -1,3 +1,5 @@
+* Add a stub so that require 'conjur-api' works
+
 # v4.13.0
 
 * Add GID handling utilities
