@@ -56,10 +56,10 @@ conjur = Conjur::Authn.connect nil, noask: true
 To [authenticate](http://developer.conjur.net/reference/services/authentication/authenticate.html), the API client must
 provide a `login` name and `api_key`. The `Conjur::Authn.connect` will attempt the following, in order:
 
-1) Look for `login` in environment variable `CONJUR_AUTHN_LOGIN`, and `api_key` in `CONJUR_AUTHN_API_KEY` 
-2) Look for credentials on disk. The default credentials file is `~/.netrc`. The location of the credentials file
+1. Look for `login` in environment variable `CONJUR_AUTHN_LOGIN`, and `api_key` in `CONJUR_AUTHN_API_KEY` 
+2. Look for credentials on disk. The default credentials file is `~/.netrc`. The location of the credentials file
 can be overridden using the configuration file `netrc_path` option. 
-3) Prompt for credentials. This can be disabled using the option `noask: true`.
+3. Prompt for credentials. This can be disabled using the option `noask: true`.
 
 ## Connecting Without Files
 
@@ -78,7 +78,7 @@ Conjur.configuration.appliance_url = 'https://conjur.mydomain.com/api'
 
 You can also specify these values using environment variables, which is often a bit more convenient. 
 Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the 
-configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT`, etc.
+configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT`.
 
 In either case, if you are using Conjur's self-signed cert, you will also need to configure certificate trust:
 
