@@ -2,7 +2,7 @@
 
 Programmatic Ruby access to the Conjur API.
 
-## Installation
+# Installation
 
 Add this line to your application's Gemfile:
 
@@ -16,18 +16,69 @@ Or install it yourself as:
 
     $ gem install conjur-api
 
-## Usage
+# Usage
 
-### Programmatic configuration
+Connecting to Conjur is a two-step process:
 
-To configure the API to connect to Conjur, specify the account and appliance_url (both of which are required) like this:
+* **Configuration** Instruct the API where to find the Conjur endpoint and how to secure the connection.
+* **Authentication** Provide the API with credentials that it can use to authenticate.
+
+## Configuration
+
+The simplest way to configure the Conjur API is to use the configuration file stored on the machine.
+If you have configured the machine with [conjur init](http://developer.conjur.net/reference/tools/init.html),
+it's default location is `~/.conjurrc`. 
+
+The Conjur configuration process also checks `/etc/conjur.conf` for global settings. This is typically used
+in server environments.
+
+For custom scenarios, the location of the file can be overridden using the `CONJURRC` environment variable. 
+
+You can load the Conjur configuration file using the following Ruby code:
+
+```ruby
+require 'conjur/cli'
+Conjur::Config.load
+Conjur::Config.apply
+```
+
+**Note** this code requires the [conjur-cli](https://github.com/conjurinc/cli-ruby) gem, which should also be in your
+gemset or bundle.
+
+## Authentication
+
+Once Conjur is configured, the connection can be established like this:
+
+```ruby
+conjur = Conjur::Authn.connect nil, noask: true
+```
+
+To [authenticate](http://developer.conjur.net/reference/services/authentication/authenticate.html), the API client must
+provide a `login` name and `api_key`. The `Conjur::Authn.connect` will attempt the following, in order:
+
+1) Look for `login` in environment variable `CONJUR_AUTHN_LOGIN`, and `api_key` in `CONJUR_AUTHN_API_KEY` 
+2) Look for credentials on disk. The default credentials file is `~/.netrc`. The location of the credentials file
+can be overridden using the configuration file `netrc_path` option. 
+3) Prompt for credentials. This can be disabled using the option `noask: true`.
+
+## Connecting Without Files
+
+It's possible to configure and authenticate the Conjur connection without using any files, and without requiring
+the `conjur-cli` gem.
+
+To accomplish this, apply the configuration settings directly to the [Conjur::Configuration](https://github.com/conjurinc/api-ruby/blob/master/lib/conjur/configuration.rb) 
+object.
+
+For example, specify the `account` and `appliance_url` (both of which are required) like this:
 
 ```ruby
 Conjur.configuration.account = 'my-account'
 Conjur.configuration.appliance_url = 'https://conjur.mydomain.com/api'
 ```
 
-You can also specify these values in environment variables, which is often a bit more convenient.  Environment variables are mapped to configuration variables by prepending CONJUR_ to the all-caps name of the configuration variable, for example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT`, etc.
+You can also specify these values using environment variables, which is often a bit more convenient. 
+Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the 
+configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT`, etc.
 
 In either case, if you are using Conjur's self-signed cert, you will also need to configure certificate trust:
 
@@ -35,24 +86,14 @@ In either case, if you are using Conjur's self-signed cert, you will also need t
 OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE.add_file "/path/to/conjur-youraccount.pem"
 ```
 
-### Using Conjur system configuraiton
-
-To instantiate the API using configuration stored stored in `/etc/conjur.conf` and/or `~/.conjurrc`:
+Once Conjur is configured, you can create a new API client by providing a `login` and `api_key`:
 
 ```ruby
-require 'conjur/cli'
-Conjur::Config.load
-Conjur::Config.apply
-conjur = Conjur::API.new_from_key username, api_key
+Conjur::API.new_from_key login, api_key
 ```
 
-`username` and `api_key` can also be provided by environment variables: `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY`. If the login is a host, the `CONJUR_AUTHN_LOGIN` should be prefixed with `host/`. For example: `host/myhost.example.com`.
-
-If the login and API key are provided by `netrc` or by the environment, you can construct an API client using:
-
-```ruby
-conjur = Conjur::Authn.connect
-```
+Note that if you are connecting as a [Host](http://developer.conjur.net/reference/services/directory/host), the login should be 
+prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.example.com`.
 
 ## Contributing
 
