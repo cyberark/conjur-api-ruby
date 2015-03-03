@@ -26,7 +26,7 @@ if MIME::Types.respond_to? :type_for_extension
   class MIME::Types
     def self.type_for_extension ext
       candidates = of ext
-      candidates.empty? ? ext : candidates[0].content_type
+      (candidates.nil? or candidates.empty?) ? ext : candidates[0].content_type
     end
   end
 end
