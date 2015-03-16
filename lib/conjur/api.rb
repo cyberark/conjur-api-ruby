@@ -47,6 +47,18 @@ class RestClient::Resource
   include Conjur::LogSource
   include Conjur::Cast
   extend  Conjur::BuildFromResponse
+
+  alias_method :initialize_without_defaults, :initialize
+
+  def initialize url, options = nil, &block
+    initialize_without_defaults url, default_options.merge(options || {}), &block
+  end
+
+  def default_options
+    {
+      verify_ssl: true
+    }
+  end
   
   def core_conjur_account
     Conjur::Core::API.conjur_account
