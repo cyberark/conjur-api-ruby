@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2015 Conjur Inc
+# Copyright (C) 2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -17,31 +17,46 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+require 'rest-client'
+require 'conjur/build_from_response'
+require 'conjur/cast'
+require 'conjur/escape'
+require 'conjur/log_source'
+require 'conjur/patches/rest-client'
+
 module Conjur
-  class Variable < Conjur::REST
-    include ActsAsAsset
-    
-    def kind; attributes['kind']; end
-    def mime_type; attributes['mime_type']; end
-    
-    def add_value value
-      log do |logger|
-        logger << "Adding a value to variable #{id}"
-      end
-      invalidate do
-        self['values'].post value: value
+# A REST resource with Conjur-related functionality.
+# Base for all REST references in the library.
+  class REST < RestClient::Resource
+    include Conjur::Escape
+    include Conjur::LogSource
+    include Conjur::Cast
+    extend Conjur::BuildFromResponse
+
+    def core_conjur_account
+      Conjur::Core::API.conjur_account
+    end
+
+    def to_json _options = {}
+      {}
+    end
+
+    def conjur_api
+      Conjur::API.new_from_token token
+    end
+
+    def token
+      authorization = options[:headers][:authorization]
+      if authorization && (token = authorization.to_s[/^Token token="(.*)"/, 1])
+        JSON.parse(Base64.decode64(token))
+      else
+        fail AuthorizationError, "Authorization missing"
       end
     end
-    
-    def version_count
-      self.attributes['version_count']
-    end
-    
-    def value(version = nil)
-      url = 'value'
-      url << "?version=#{version}" if version
-      self[url].get.body
+
+    def username
+      options[:user] || options[:username]
     end
   end
 end

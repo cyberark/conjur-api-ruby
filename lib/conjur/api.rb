@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -40,36 +40,5 @@ require 'conjur/audit-api'
 require 'conjur/core-api'
 require 'conjur/layer-api'
 require 'conjur/pubkeys-api'
+require 'conjur/rest'
 require 'conjur-api/version'
-
-class RestClient::Resource
-  include Conjur::Escape
-  include Conjur::LogSource
-  include Conjur::Cast
-  extend  Conjur::BuildFromResponse
-  
-  def core_conjur_account
-    Conjur::Core::API.conjur_account
-  end
-  
-  def to_json(options = {})
-    {}
-  end
-  
-  def conjur_api
-    Conjur::API.new_from_token token
-  end
-  
-  def token
-    authorization = options[:headers][:authorization]
-    if authorization && authorization.to_s[/^Token token="(.*)"/]
-      JSON.parse(Base64.decode64($1))
-    else
-      raise AuthorizationError.new("Authorization missing")
-    end
-  end
-
-  def username
-    options[:user] || options[:username]
-  end
-end

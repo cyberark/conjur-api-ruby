@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -35,7 +35,7 @@ module Conjur
     end
     
     def tokens
-      self.url[RestClient::Resource.new(Conjur::Authz::API.host)[''].url.length..-1].split('/')
+      url[Conjur::REST.new(Conjur::Authz::API.host)[''].url.length..-1].split('/')
     end
   end
 end

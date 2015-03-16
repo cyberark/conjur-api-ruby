@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -81,7 +81,8 @@ module Conjur
       @resource.invalidate do
         @annotations_hash = nil
         path = [@resource.account,'annotations', @resource.kind, @resource.identifier].join '/'
-        RestClient::Resource.new(Conjur::Authz::API.host, @resource.options)[path].put name: name, value: value
+        Conjur::REST.new(Conjur::Authz::API.host, @resource.options)[path]\
+            .put name: name, value: value
       end
     end
     

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,7 +21,7 @@
 require 'conjur/annotations'
 
 module Conjur
-  class Resource < RestClient::Resource
+  class Resource < Conjur::REST
     include HasAttributes
     include PathBased
     include Exists
@@ -55,7 +55,10 @@ module Conjur
     
     # Lists roles that have a specified permission on the resource.
     def permitted_roles(permission, options = {})
-      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}"].get(options)
+      JSON.parse Conjur::REST.new(Conjur::Authz::API.host, self.options)[
+        [account, 'roles', 'allowed_to', permission,
+         path_escape(kind), path_escape(identifier)].join('/')
+        ].get(options)
     end
     
     # Changes the owner of a resource
@@ -148,7 +151,7 @@ module Conjur
       path += "/#{kind}" if kind
       query = opts.slice(:acting_as, :limit, :offset, :search)
       path += "?#{query.to_query}" unless query.empty?
-      resource = RestClient::Resource.new(host, credentials)[path]
+      resource = Conjur::REST.new(host, credentials)[path]
       
       JSON.parse resource.get
     end

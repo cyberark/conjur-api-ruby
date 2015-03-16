@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -39,7 +39,7 @@ module Conjur
         end
         
         def info
-          @info ||= JSON.parse RestClient::Resource.new(Conjur::Core::API.host)['info'].get
+          @info ||= JSON.parse Conjur::REST.new(Conjur::Core::API.host)['info'].get
         end
       end
     end

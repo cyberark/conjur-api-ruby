@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,7 +21,7 @@
 require 'conjur/role_grant'
 
 module Conjur
-  class Role < RestClient::Resource
+  class Role < Conjur::REST
     include Exists
     include PathBased
 
