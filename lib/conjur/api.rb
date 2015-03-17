@@ -56,7 +56,8 @@ class RestClient::Resource
 
   def default_options
     {
-      verify_ssl: true
+      verify_ssl: true,
+      ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
     }
   end
   
