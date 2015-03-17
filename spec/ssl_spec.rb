@@ -14,6 +14,18 @@ describe 'SSL connection' do
     end
   end
 
+  context 'with certificate added to the default OpenSSL cert store' do
+    before do
+      store = OpenSSL::X509::Store.new
+      store.add_cert cert
+      stub_const 'OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE', store
+    end
+
+    it 'works' do
+      expect { Conjur::API.login 'foo', 'bar' }.to raise_error RestClient::ResourceNotFound
+    end
+  end
+
   let(:port) { 54_128 }
 
   before do
