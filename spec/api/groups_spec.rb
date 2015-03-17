@@ -28,7 +28,7 @@ describe Conjur::API, api: :dummy do
 
   describe '#find_groups' do
     it "searches the group by GID" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: "#{core_host}/groups/search?gidnumber=12345",
         headers: credentials[:headers]

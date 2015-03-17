@@ -1,6 +1,8 @@
 require 'spec_helper'
+require 'helpers/request_helpers'
 
 describe Conjur::Variable do
+  include RequestHelpers
   let(:url) { "http://example.com/variable" }
   subject(:variable) { Conjur::Variable.new url }
 
@@ -14,7 +16,7 @@ describe Conjur::Variable do
 
   describe '#add_value' do
     it "posts the new value" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :post,
         url: "#{url}/values",
         payload: { value: 'new-value' },
@@ -26,7 +28,7 @@ describe Conjur::Variable do
 
   describe '#value' do
     it "gets the value" do
-      allow(RestClient::Request).to receive(:execute).with(
+      allow_request(
         method: :get,
         url: "#{url}/value",
         headers: {}
@@ -35,7 +37,7 @@ describe Conjur::Variable do
     end
 
     it "parametrizes the request with a version" do
-      allow(RestClient::Request).to receive(:execute).with(
+      allow_request(
         method: :get,
         url: "#{url}/value?version=42",
         headers: {}

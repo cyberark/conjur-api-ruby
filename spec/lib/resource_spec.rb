@@ -39,7 +39,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#create' do
     it "simply puts" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :put,
         url: uri,
         payload: {},
@@ -51,7 +51,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#permitted_roles' do
     it 'gets the list from /roles/allowed_to' do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: "http://authz.example.com/some-account/roles/allowed_to/nuke/the-kind/resource-id",
         headers: {}
@@ -63,7 +63,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#give_to' do
     it "puts the owner field" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :put,
         url: uri,
         payload: {owner: 'new-owner' },
@@ -76,7 +76,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#delete' do
     it 'simply deletes' do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :delete,
         url: uri,
         headers: {}
@@ -90,7 +90,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it 'posts permit for every privilege' do
       privileges = [:nuke, :fry]
       privileges.each do |p|
-        expect(RestClient::Request).to receive(:execute).with(
+        expect_request(
           method: :post,
           url: uri + "/?permit&privilege=#{p}&role=dr-strangelove",
           headers: {},
@@ -105,7 +105,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it 'posts deny for every privilege' do
       privileges = [:nuke, :fry]
       privileges.each do |p|
-        expect(RestClient::Request).to receive(:execute).with(
+        expect_request(
           method: :post,
           url: uri + "/?deny&privilege=#{p}&role=james-bond",
           headers: {},
@@ -118,7 +118,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '#permitted?' do
     it 'gets the ?permitted? action' do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: uri + "/?check=true&privilege=fry",
         headers: {}
@@ -153,7 +153,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   describe '.all' do
     it "calls /account/resources" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: "http://authz.example.com/the-account/resources",
         headers: {}
@@ -163,7 +163,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
 
     it "can filter by kind" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: "http://authz.example.com/the-account/resources/chunky",
         headers: {}
@@ -174,7 +174,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
     
     it "passes search, limit, and offset params" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         # Note that to_query sorts the keys
         url: "http://authz.example.com/the-account/resources?limit=5&offset=6&search=something",
@@ -184,7 +184,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     end
 
     it "uses the given authz url" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: "http://otherhost.example.com/the-account/resources",
         headers: {}

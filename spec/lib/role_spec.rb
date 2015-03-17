@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'standard_methods_helper'
 
 describe Conjur::Role, api: :dummy do
   let(:account) { "the-account" }
@@ -77,7 +78,7 @@ describe Conjur::Role, api: :dummy do
 
   describe '#create' do
     it 'simply puts' do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :put,
         url: url,
         payload: {},
@@ -90,7 +91,7 @@ describe Conjur::Role, api: :dummy do
   describe '#all' do
     it 'returns roles for ids got from ?all' do
       roles = ['foo:k:bar', 'baz:k:xyzzy'] 
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: role.url + "/?all",
         headers: {}
@@ -112,7 +113,7 @@ describe Conjur::Role, api: :dummy do
       
       def self.it_passes_the_filter_as(query_string)
         it "calls ?all&#{query_string}" do
-          expect(RestClient::Request).to receive(:execute).with(
+          expect_request(
             method: :get,
             url: role.url + "/?all&#{query_string}",
             headers:{}
@@ -151,7 +152,7 @@ describe Conjur::Role, api: :dummy do
 
   describe '#revoke_from' do
     it 'deletes member' do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :delete,
         url: role.url + "/?members&member=the-member",
         headers: {}
@@ -162,7 +163,7 @@ describe Conjur::Role, api: :dummy do
 
   describe '#permitted?' do
     before do
-      allow(RestClient::Request).to receive(:execute).with(
+      allow_request(
         method: :get,
         url: role.url + "/?check&resource_id=chunky:bacon&privilege=fry",
         headers: {}
@@ -187,13 +188,13 @@ describe Conjur::Role, api: :dummy do
   describe '#members' do
     it "gets ?members and turns each into RoleGrant" do
       grants = %w(foo bar)
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,
         url: role.url + "/?members",
         headers: {}
       ).and_return grants.to_json
       grants.each do |g|
-        expect(Conjur::RoleGrant).to receive(:parse_from_json).with(g, {}).and_return g
+        expect(Conjur::RoleGrant).to receive(:parse_from_json).with(g, anything).and_return g
       end
 
       expect(subject.members).to eq(grants)

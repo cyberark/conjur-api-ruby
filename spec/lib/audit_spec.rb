@@ -11,8 +11,8 @@ describe Conjur::API, api: :dummy do
     let(:expected_path){ nil }
     let(:expected_url){ "#{Conjur::Audit::API.host}/#{expected_path}#{query}" }
     
-    def expect_request
-      expect(RestClient::Request).to receive(:execute).with(
+    def expect_json_request
+      expect_request(
         headers: credentials[:headers],
         url: expected_url,
         method: :get
@@ -27,7 +27,7 @@ describe Conjur::API, api: :dummy do
       
       shared_examples_for "gets all visible events" do
         it "GETs /" do
-          expect_request
+          expect_json_request
           expect(api.audit(*full_args)).to eq(response)
         end
       end
@@ -51,7 +51,7 @@ describe Conjur::API, api: :dummy do
       let(:full_args){ include_options ? args + [options] : args }
       shared_examples_for "gets roles feed" do
         it "GETs roles/:role_id" do
-          expect_request
+          expect_json_request
           expect(api.audit_role(*full_args)).to eq(response)
         end
       end
@@ -82,7 +82,7 @@ describe Conjur::API, api: :dummy do
       let(:full_args){ include_options ? args + [options] : args }
       shared_examples_for "gets the resource feed" do
         it "GETS resources/:resource_id" do
-          expect_request
+          expect_json_request
           expect(api.audit_resource(*full_args)).to eq(response)
         end
       end

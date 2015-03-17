@@ -32,7 +32,7 @@ describe Conjur::User do
 
       describe '#options' do
         subject { super().options }
-        it { is_expected.to eq(credentials) }
+        it { is_expected.to match(hash_including credentials) }
       end
       specify {
         expect { user.roleid }.to raise_error
@@ -41,7 +41,9 @@ describe Conjur::User do
     it "connects to a Resource" do
       require 'conjur/resource'
       expect(Conjur::Core::API).to receive(:conjur_account).and_return 'ci'
-      expect(Conjur::Resource).to receive(:new).with(Conjur::Authz::API.host, credentials).and_return resource = double(:resource)
+      expect(Conjur::Resource).to receive(:new).with(
+        Conjur::Authz::API.host, hash_including(credentials)
+      ).and_return resource = double(:resource)
       expect(resource).to receive(:[]).with("ci/resources/user/the-login")
       
       user.resource
@@ -49,7 +51,9 @@ describe Conjur::User do
     it "connects to a Role" do
       require 'conjur/role'
       expect(Conjur::Core::API).to receive(:conjur_account).and_return 'ci'
-      expect(Conjur::Role).to receive(:new).with(Conjur::Authz::API.host, credentials).and_return role = double(:role)
+      expect(Conjur::Role).to receive(:new).with(
+        Conjur::Authz::API.host, hash_including(credentials)
+      ).and_return role = double(:role)
       expect(role).to receive(:[]).with("ci/roles/user/the-login")
       
       user.role
