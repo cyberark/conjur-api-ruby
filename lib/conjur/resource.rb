@@ -116,7 +116,10 @@ module Conjur
     # @return [void]
     def give_to(owner, options = {})
       owner = cast(owner, :roleid)
-      self.put(options.merge(owner: owner))
+      invalidate do
+        self.put(options.merge(owner: owner))
+      end
+
       nil
     end
 
