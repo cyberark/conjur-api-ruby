@@ -23,6 +23,9 @@ require 'active_support/dependencies/autoload'
 require 'active_support/core_ext'
 
 module Conjur
+  # @api private
+  # This module provides a number of "standard" `REST` helpers,
+  #   to wit, create, list and show.
   module StandardMethods
     
     protected
