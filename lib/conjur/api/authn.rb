@@ -23,7 +23,26 @@ require 'conjur/user'
 module Conjur
   class API
     class << self
-      # Perform login by Basic authentication.
+      # The Conjur {http://developer.conjur.net/reference/services/authentication/login.html login}
+      #   operation exchanges a username and a password for an api key.  The api key
+      #   is preferable for storage and use in code, as it can be rotated and has far greater entropy than
+      #   a user memorizable password.
+      #
+      #  * Note that this method works only for {http://developer.conjur.net/reference/services/directory/user Users}. While
+      #   {http://developer.conjur.net/reference/services/directory/hosts Hosts} possess Conjur identities, they do not
+      #   have passwords.
+      #  * If you pass an api key to this method instead of a password, it will simply return the API key.
+      #  * This method uses Basic Auth to send the credentials.
+      #
+      # @example
+      #   bob_api_key = Conjur::API.login('bob', 'bob_password')
+      #   bob_api_key == Conjur::API.login('bob', bob_api_key)  # => true
+      #
+      # @param [String] username The `username` or `login` for the
+      #   {http://developer.conjur.net/reference/services/directory/user Conjur User}.
+      # @param [String] password The `password` or `api key` to authenticate with.
+      # @return [String] the API key.
+      # @raise [RestClient::Exception] when the request fails or the identity provided is invalid.
       def login username, password
         if Conjur.log
           Conjur.log << "Logging in #{username} via Basic authentication\n"
@@ -31,7 +50,16 @@ module Conjur
         RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/login'].get
       end
 
-      # Perform login by CAS authentication.
+      # TODO I have NO idea how to document login_cas!
+
+      # This method logs in via CAS.  It is similar to the {.login} method, the only difference being that
+      # you need a `cas_api_url`, provided by the administrator of your `CAS` service.
+      #
+      # @see .login
+      # @param [String] username the Conjur username
+      # @param [String] password the Conjur password
+      # @param [String] cas_api_url the url of the CAS service
+      # @return [String] a `CAS` ticket
       def login_cas username, password, cas_api_url
         if Conjur.log
           Conjur.log << "Logging in #{username} via CAS authentication\n"
@@ -41,13 +69,29 @@ module Conjur
         client.get("#{Conjur::Authn::API.host}/users/login").body
       end
 
+      # The Conjur {http://developer.conjur.net/reference/services/authentication/authenticate.html authenticate} operation
+      #    exchanges Conjur credentials for a token.  The token can then be used to authenticate further API calls.
+      #
+      # You will generally not need to use this method, as the API manages tokens automatically for you.
+      #
+      # @param [String] username The username or host id for which we want a token
+      # @param [String] password The password or api key
+      # @return [String] A JSON formatted authentication token.
       def authenticate username, password
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
         JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
       end
-      
+
+      # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
+      #   api keys.  However, you *can*  use the user's api key as the *current* password, if the user was not created
+      #   with a password.
+      #
+      # @param [String] username the name of the user whose password we want to change
+      # @param [String] password the user's *current* password *or* api key
+      # @param [String] new_password the new password for the user.
+      # @return [void]
       def update_password username, password, new_password
         if Conjur.log
           Conjur.log << "Updating password for #{username}\n"
@@ -56,12 +100,9 @@ module Conjur
       end
     end
 
-    # Options:
-    # +password+
-    #
-    # Response:
-    # +login+
-    # +api_key+
+    # @api private
+    # This is used internally to create a user that we can log in as without creating
+    # an actual user in the directory, as with #create_user.
     def create_authn_user login, options = {}
       log do |logger|
         logger << "Creating authn user #{login}"
