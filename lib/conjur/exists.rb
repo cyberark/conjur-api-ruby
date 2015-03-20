@@ -19,7 +19,33 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # Provides an `exists?` method for things that may or may not exist.
+  #
+  #
+  # Most conjur assets returned by `api.asset_name` methods (e.g., {Conjur::API#group}, {Conjur::API#user})
+  # may or may not exist.  The {Conjur::Exists#exists?} method lets you determine whether or not such assets
+  # do in fact exist.
   module Exists
+
+    # Check whether this asset exists by performing a HEAD request to it's URL.
+    #
+    # This method will return false if the asset doesn't exist *or* if you don't have permission to see it.
+    #
+    # @example
+    #   does_not_exist = api.user 'does-not-exist' # Th"#{is returns without error.
+    #
+    #   # this is wrong!
+    #   owner = does_not_exist.ownerid # raises RestClient::ResourceNotFound
+    #
+    #   # this is right!
+    #   owner = if does_not_exist.exists?
+    #     does_not_exist.ownerid
+    #    else
+    #       nil
+    #    end
+    #
+    # @param [Hash] options included for compatibility: **don't use this argument**!
+    # @return [Boolean] does it exist?
     def exists?(options = {})
       begin
         self.head(options)
