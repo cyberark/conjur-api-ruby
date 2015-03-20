@@ -36,27 +36,31 @@ module Conjur
 
     # Create a new group with the given identifier.
     #
+    # Groups can be created with a gidnumber attribute, which is used when mapping LDAP/ActiveDirectory groups
+    # to Conjur groups, and when performing PAM authentication to assign a unix GID.
+    #
+    #
     # @example
-    #   >> group = api.create_group 'cats'
-    #   >> group.attributes
-    #   => {"id"=>"cats",
+    #   group = api.create_group 'cats'
+    #   puts group.attributes
+    #   # Output
+    #   {"id"=>"cats",
     #     "userid"=>"admin",
     #     "ownerid"=>"conjur:user:admin",
     #     "gidnumber"=>nil,
     #     "roleid"=>"conjur:group:cats",
     #     "resource_identifier"=>"conjur:group:cats"}
     #
-    # Groups can be created with a `gidnumber` attribute, which is useful when interfacing with
-    # LDAP or unix groups:
-    # @example
-    #   >> group = api.create_group 'dogs', gidnumber: 1337
-    #   >> group.attributes['gidnumber']
-    #   => 1337
+    # @example Create a group with a GID number.
+    #   group = api.create_group 'dogs', gidnumber: 1337
+    #   puts group.attributes['gidnumber']
+    #   # Output
+    #   1337
     #
     # @param [String] id the identifier for this group
     # @param [Hash] options options for group creation
     # @option options [FixNum] :gidnumber gidnumber to assign to this group (if not present, the
-    #   group will *not* have a gidnumber, in contrast to {#Conjur::User}s).
+    #   group will *not* have a gidnumber, in contrast to Conjur {Conjur::User} instances).
     # @return [Conjur::Group] the group created.
     def create_group(id, options = {})
       standard_create Conjur::Core::API.host, :group, id, options

@@ -42,6 +42,7 @@ module Conjur
     include Cast
 
     class << self
+      # @api private
       # Parse a role id into [ account, 'roles', kind, id ]
       def parse_role_id(id)
         id = id.role if id.respond_to?(:role)
@@ -54,6 +55,7 @@ module Conjur
         end
       end
 
+      # @api private
       # Parse a resource id into [ account, 'resources', kind, id ]
       def parse_resource_id(id)
         id = id.resource if id.respond_to?(:resource)
@@ -66,7 +68,8 @@ module Conjur
         end
       end
     
-      # Converts flat id into path components, with mixed-in "super-kind" 
+      # @api private
+      # Converts flat id into path components, with mixed-in "super-kind"
       #                                     (not that kind which is part of id)
       # NOTE: name is a bit confusing, as result of 'parse' is just recombined
       #       representation of parts, not an object of higher abstraction level
@@ -83,15 +86,72 @@ module Conjur
         [ paths[0], kind, paths[1], paths[2..-1].join(':') ]
       end
 
+
+      # Create a new {Conjur::API} instance from a username and a password or api key.
+      #
+      # @example Create an API with valid credentials
+      #   api = Conjur::API.new_from_key 'admin', '<admin password>'
+      #   api.current_role # => 'conjur:user:admin'
+      #   api.token['data'] # => 'admin'
+      #
+      # @example Authentication is lazy
+      #   api = Conjur::API.new_from_key 'admin', 'wrongpassword'   # succeeds
+      #   api.user 'foo' # raises a 401 error
+      #
+      # @param [String] username the username to use when making authenticated requests.
+      # @param [Sring] api_key the api key or password for `username`
+      # @return [Conjur::API] an api that will authenticate with the given username and api key.
       def new_from_key(username, api_key)
         self.new username, api_key, nil
       end
 
+
+      # Create a new {Conjur::API} instance from a token issued by the
+      # {http://developer.conjur.net/reference/services/authentication Conjur authentication service}
+      #
+      # Generally, you will have a Conjur identitiy (username and api key), and create an {Conjur::API} instance
+      # for the identity using {.new_from_key}.  This method is useful when you are performing authorization checks
+      # given a token.  For example, a Conjur gateway that requires you to prove that you can 'read' a resource named
+      # 'super-secret' might get the token from a request header, create an {Conjur::API} instance with this method,
+      # and use {Conjur::Resource#permitted?} to decide whether to accept and forward the request.
+      #
+      # Note that Conjur tokens are issued as JSON.  This method expects to get the token as a parsed JSON Hash.
+      # When sending tokens as headers, you will normally use base64 encoded strings.  Authorization headers
+      # used by Conjur have the form `'Token token="#{b64encode token.to_json}"'`, but this format is in no way
+      # required.
+      #
+      # @example A simple gatekeeper
+      #   RESOURCE_NAME = 'protected-service'
+      #
+      #   def handle_request request
+      #     token_header = request.header 'X-Conjur-Token'
+      #     token = JSON.parse Base64.b64decode(token_header)
+      #
+      #     api = Conjur::API.new_from_token token
+      #     raise Forbidden unless api.resource(RESOURCE_NAME).permitted? 'read'
+      #
+      #     proxy_to_service request
+      #   end
+      #
+      # @param [Hash] token the authentication token as parsed JSON to use when making authenticated requests
+      # @return [Conjur::API] an api that will authenticate with the token
       def new_from_token(token)
         self.new nil, nil, token
       end
     end
     
+    # Create a new instance from a username and api key or a token.
+    #
+    # @note You should use {Conjur::API.new_from_token} or {Conjur::API.new_from_key} instead of calling this method
+    #   directly.
+    #
+    # This method requires that you pass **either** a username and api_key **or** a token Hash.
+    #
+    # @param [String] username the username to authenticate as
+    # @param [String] api_key the api key or password to use when authenticating
+    # @param [Hash] token the token to use when making authenticated requuests.
+    #
+    # @api internal
     def initialize username, api_key, token
       @username = username
       @api_key = api_key
@@ -101,6 +161,7 @@ module Conjur
     end
     
     attr_reader :api_key, :username
+
     
     def username
       @username || @token['data']
