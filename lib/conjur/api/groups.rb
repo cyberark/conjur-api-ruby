@@ -74,7 +74,7 @@ module Conjur
     #   wrong.exists? # => false
     #
     # @param [String] id the identifier of the group
-    # @return [Conjur::Group] the group, which may or may not exist (you must check this using the {Conjur::Group#exists?})
+    # @return [Conjur::Group] the group, which may or may not exist (you must check this using the {Conjur::Exists#exists?})
     #   method.
     def group id
       standard_show Conjur::Core::API.host, :group, id
