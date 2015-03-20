@@ -89,6 +89,13 @@ module Conjur
     end
     
     # Sets the global configuration.
+    #
+    # This method *has no effect* on the thread local configuration.  Use {Conjur.with_configuration} instead if
+    # that's what you want.
+    #
+    # @param [Conjur::Configuration] the new configuration
+    # @return [Conjur::Configuration] the new value of the configuration
+    #
     def configuration=(config)
       @config = config
     end
