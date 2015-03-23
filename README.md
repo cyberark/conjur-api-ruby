@@ -80,10 +80,10 @@ You can also specify these values using environment variables, which is often a 
 Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the 
 configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT`.
 
-In either case, if you are using Conjur's self-signed cert, you will also need to configure certificate trust:
+In either case, you will also need to configure certificate trust. For example:
 
 ```ruby
-OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE.add_file "/path/to/conjur-youraccount.pem"
+OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE.add_file "/etc/conjur-yourorg.pem"
 ```
 
 Once Conjur is configured, you can create a new API client by providing a `login` and `api_key`:
