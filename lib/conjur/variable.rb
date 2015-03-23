@@ -128,8 +128,9 @@ module Conjur
     # You must have the **`'read'`** permission on a variable to call this method.
     #
     # This attribute is used by the Conjur services to set a response `Content-Type` header when
-    # returning the value of a variable.  All versions of a variable are expected to have the same
-    # `mime_type`.
+    # returning the value of a variable.  Conjur applies the same MIME Type to all versions of a variable,
+    # so if you plan on accessing the variable in a way that depends on a correct `Content-Type` header
+    # you should make sure to store appropriate data for the mime type in all versions.
     #
     # @return [String] a MIME type, such as `'text/plain'` or `'application/octet-stream'`.
     def mime_type
