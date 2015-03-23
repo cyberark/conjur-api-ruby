@@ -160,13 +160,14 @@ module Conjur
       raise "Expecting ( username and api_key ) or token" unless ( username && api_key ) || token
     end
     
-    attr_reader :api_key, :username
+    attr_reader :api_key
 
-    
+    #
     def username
       @username || @token['data']
     end
-    
+
+
     def host
       self.class.host
     end

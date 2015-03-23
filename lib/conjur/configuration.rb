@@ -32,7 +32,7 @@ module Conjur
     # Note that the {Conjur.configuration=} method sets the *global* {Conjur::Configuration}, not the thread-local
     # value.
     #
-    # @example
+    # @example Override Configuration in a Thread
     #   # in this rather contrived example, we'll override the {Conjur::Configuration#appliance_url} parameter
     #   # used by calls within a thread.
     #
@@ -54,19 +54,6 @@ module Conjur
     #   # Outputs:
     #   Global url is https://conjur.main-url.com/api
     #   Thread local url is https://conjur.local-url.com/api
-    #
-    # @example
-    #   # Override configuration temporarily in a single threaded application
-    #
-    #    Conjur.configure do |c|
-    #       # ... set up global configuration
-    #     end
-    #
-    #     api = Conjur::API.new_from_key username, password
-    #     # ... use api to perform actions with the global config.
-    #     Conjur.with_configuration some_other_configuration do
-    #       api.create_user "some-user" # makes the requests using endpoints from `some_other_configuration`
-    #     end
     #
     # @return [void]
     def with_configuration(config)
