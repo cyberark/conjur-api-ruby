@@ -27,12 +27,12 @@ module Conjur
   # do in fact exist.
   module Exists
 
-    # Check whether this asset exists by performing a HEAD request to it's URL.
+    # Check whether this asset exists by performing a HEAD request to its URL.
     #
-    # This method will return false if the asset doesn't exist *or* if you don't have permission to see it.
+    # This method will return false if the asset doesn't exist.
     #
     # @example
-    #   does_not_exist = api.user 'does-not-exist' # Th"#{is returns without error.
+    #   does_not_exist = api.user 'does-not-exist' # This returns without error.
     #
     #   # this is wrong!
     #   owner = does_not_exist.ownerid # raises RestClient::ResourceNotFound
@@ -41,7 +41,7 @@ module Conjur
     #   owner = if does_not_exist.exists?
     #     does_not_exist.ownerid
     #    else
-    #       nil
+    #       nil # or some sensible default
     #    end
     #
     # @param [Hash] options included for compatibility: **don't use this argument**!
