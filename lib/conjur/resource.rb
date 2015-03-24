@@ -137,7 +137,7 @@ module Conjur
     # Grant `privilege` on this resource to `role`.
     #
     # This operation is idempotent, that is, nothing will happen if
-    # you attempt to grant a priviledge that the role already has on
+    # you attempt to grant a privilege that the role already has on
     # this resource.
     #
     # @example
