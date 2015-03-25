@@ -4,7 +4,6 @@ module Conjur
   class API
     #@!group Directory: Layers
 
-
     # Create a new layer with the given id
     #
     # @example
@@ -24,11 +23,15 @@ module Conjur
       standard_create Conjur::API.layer_asset_host, :layer, id, options
     end
 
-    # Get all layers visible to the current role
+    # Get all layers visible to the current role.
     #
-    # @param [Hash] options TODO doc options
-    # @return [Array<Conjur::Layer>] all layers
-    def layers(options = {})
+    # The `options` parameter is only included for backwards
+    # compatibility and has no effect. You should call this method
+    # without arguments.
+    #
+    # @param [Hash] options deprecated, unused
+    # @return [Array<Conjur::Layer>] all layers visible to the current role
+    def layers options={}
       standard_list Conjur::API.layer_asset_host, :layer, options
     end
 
@@ -53,5 +56,7 @@ module Conjur
     def layer id
       standard_show Conjur::API.layer_asset_host, :layer, id
     end
+
+    #@!endgroup
   end
 end

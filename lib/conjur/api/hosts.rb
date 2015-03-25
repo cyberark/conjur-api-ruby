@@ -78,7 +78,7 @@ module Conjur
     #   a member of the owner role.
     #
     def create_host options = nil
-      standard_create Conjur::Core::API.host, :host, nil, opts
+      standard_create Conjur::Core::API.host, :host, nil, options
     end
 
     # Get a host by its *unqualified id*.

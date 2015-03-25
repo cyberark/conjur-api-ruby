@@ -24,6 +24,7 @@ module Conjur
 
   class API
     # @!group Directory: Groups
+
     # List all Conjur groups visible to the current role.  This method does not
     # support advanced query options.  If you want those, use `#resources` with
     # the `:kind` option set to `'group'`.
