@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2014 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,11 +18,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'rest-client'
 require 'json'
 require 'base64'
-
-require 'conjur/patches/rest-client'
 
 require 'conjur/exists'
 require 'conjur/has_attributes'
@@ -31,6 +28,7 @@ require 'conjur/path_based'
 require 'conjur/escape'
 require 'conjur/log'
 require 'conjur/log_source'
+require 'conjur/rest'
 require 'conjur/standard_methods'
 require 'conjur/cast'
 

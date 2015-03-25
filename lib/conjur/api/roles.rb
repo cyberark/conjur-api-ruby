@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -42,7 +42,8 @@ module Conjur
       query = {from_role: options.delete(:as_role)}
         .merge(options.slice(:ancestors, :descendants))
         .merge(roles: roles).to_query
-      Conjur::Graph.new RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/roles?#{query}"].get
+      Conjur::Graph.new Conjur::REST.new(Conjur::Authz::API.host, credentials)\
+          ["#{Conjur.account}/roles?#{query}"].get
     end
 
     def create_role(role, options = {})

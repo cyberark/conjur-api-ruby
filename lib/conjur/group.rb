@@ -18,7 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  class Group < RestClient::Resource
+  class Group < Conjur::REST
     include ActsAsAsset
     include ActsAsRole
     

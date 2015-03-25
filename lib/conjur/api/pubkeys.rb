@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -44,7 +44,7 @@ module Conjur
     
     protected
     def public_keys_resource *path
-      RestClient::Resource.new(Conjur::API.pubkeys_asset_host, credentials)[public_keys_path *path]
+      Conjur::REST.new(Conjur::API.pubkeys_asset_host, credentials)[public_keys_path(*path)]
     end
     
     def public_keys_path *args

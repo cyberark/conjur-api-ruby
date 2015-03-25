@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -37,12 +37,14 @@ module Conjur
       end
       options ||= {}
       options[:id] = id if id
-      resp = RestClient::Resource.new(host, credentials)[type.to_s.pluralize].post(options)
+      resp = Conjur::REST.new(host, credentials)[type.to_s.pluralize].post(options)
       "Conjur::#{type.to_s.classify}".constantize.build_from_response(resp, credentials)
     end
     
     def standard_list(host, type, options)
-      JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |item|
+      JSON.parse(Conjur::REST.new(host, credentials)[type.to_s.pluralize]\
+                  .get(options)
+                ).map do |item|
         # Note that we don't want to fully_escape the ids below -- methods like #layer, #host, etc don't expect
         # ids to be escaped, and will escape them again!.
         if item.is_a? String  # lists w/o details are just list of ids 

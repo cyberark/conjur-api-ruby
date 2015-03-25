@@ -14,7 +14,7 @@ describe Conjur::StandardMethods do
   before do
     subject.extend Conjur::StandardMethods
     allow(subject).to receive(:fully_escape){|x|x}
-    allow(RestClient::Resource).to receive(:new).with(host, credentials).and_return rest_resource
+    allow(Conjur::REST).to receive(:new).with(host, credentials).and_return rest_resource
     allow(rest_resource).to receive(:[]).with('widgets').and_return subresource
     stub_const 'Conjur::Widget', widget_class
   end

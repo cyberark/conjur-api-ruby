@@ -1,5 +1,5 @@
 module Conjur
-  class Layer < RestClient::Resource
+  class Layer < Conjur::REST
     include ActsAsAsset
     include ActsAsRole
     
@@ -9,7 +9,7 @@ module Conjur
         logger << "Adding host #{hostid} to layer #{id}"
       end
       invalidate do
-        RestClient::Resource.new(self['hosts'].url, options).post(hostid: hostid) 
+        Conjur::REST.new(self['hosts'].url, options).post(hostid: hostid)
       end
     end
     
@@ -19,7 +19,7 @@ module Conjur
         logger << "Removing host #{hostid} from layer #{id}"
       end
       invalidate do
-        RestClient::Resource.new(self["hosts/#{fully_escape hostid}"].url, options).delete
+        Conjur::REST.new(self["hosts/#{fully_escape hostid}"].url, options).delete
       end
     end
     

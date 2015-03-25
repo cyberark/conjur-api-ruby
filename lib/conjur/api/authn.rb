@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -28,7 +28,8 @@ module Conjur
         if Conjur.log
           Conjur.log << "Logging in #{username} via Basic authentication\n"
         end
-        RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/login'].get
+        Conjur::REST.new(Conjur::Authn::API.host,
+                         user: username, password: password)['users/login'].get
       end
 
       # Perform login by CAS authentication.
@@ -45,14 +46,18 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
-        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
+        JSON.parse(Conjur::REST.new(Conjur::Authn::API.host)\
+                  ["users/#{fully_escape username}/authenticate"]\
+                  .post password, content_type: 'text/plain')
       end
       
       def update_password username, password, new_password
         if Conjur.log
           Conjur.log << "Updating password for #{username}\n"
         end
-        RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/password'].put new_password
+        Conjur::REST.new(Conjur::Authn::API.host,
+                          user: username, password: password
+                        )['users/password'].put new_password
       end
     end
 
@@ -66,7 +71,8 @@ module Conjur
       log do |logger|
         logger << "Creating authn user #{login}"
       end
-      JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['users'].post(options.merge(login: login))
+      JSON.parse Conjur::REST.new(Conjur::Authn::API.host, credentials)\
+          ['users'].post(options.merge(login: login))
     end
   end
 end

@@ -271,9 +271,12 @@ describe Conjur::API do
       end
     end
 
-    context "from logged-in RestClient::Resource" do
+    context "from logged-in Conjur::REST" do
       let(:token_encoded) { Base64.strict_encode64(token.to_json) }
-      let(:resource) { RestClient::Resource.new("http://example.com", { headers: { authorization: "Token token=\"#{token_encoded}\"" } })}
+      let(:resource) do
+        Conjur::REST.new("http://example.com",
+          headers: { authorization: "Token token=\"#{token_encoded}\"" })
+      end
       it "can construct a new API instance" do
         api = resource.conjur_api
         expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")

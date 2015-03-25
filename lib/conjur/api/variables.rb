@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -35,7 +35,8 @@ module Conjur
       raise ArgumentError, "Variables list is empty" if varlist.empty?
       opts = "?vars=#{varlist.map { |v| fully_escape(v) }.join(',')}"
       begin 
-        resp = RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/values'+opts].get
+        resp = Conjur::REST.new(Conjur::Core::API.host, credentials)\
+            ['variables/values' + opts].get
         return JSON.parse( resp.body ) 
       rescue RestClient::ResourceNotFound 
         return Hash[ *varlist.map { |v| [ v, variable(v).value ]  }.flatten ]  
