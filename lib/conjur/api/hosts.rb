@@ -21,8 +21,11 @@
 require 'conjur/host'
 
 module Conjur
+
   class API
     class << self
+      # @api private
+      # TODO WTF does this do!
       def enroll_host(url)
         if Conjur.log
           Conjur.log << "Enrolling host with URL #{url}\n"
@@ -36,13 +39,69 @@ module Conjur
         [ mime_type, body ]
       end
     end
-    
-    def create_host options = {}
-      standard_create Conjur::Core::API.host, :host, nil, options
+
+    #@!group Directory: Hosts
+
+    # Create a new `host` asset.
+    #
+    # By default this method will create a host with a random id.  However, you may create a host with a
+    # specific name by passing an `:id` option.
+    #
+    # ### Permissions
+    #
+    # * Any Conjur role may perform this method without an `:ownerid` option.  The new hosts owner will be the current role.
+    # * If you pass an ``:ownerid` option, you must be a member of the given role.
+    #
+    # @example
+    #   # Create a host with a random id
+    #   anon = api.create_host
+    #   anon.id # => "wyzg17"
+    #
+    #   # Create a host with a given id
+    #   foo = api.create_host id: 'foo'
+    #   foo.id # => "foo"
+    #
+    #   # Trying to create a new host named foo fails
+    #   foo2 = api.create_host id: 'foo' # raises RestClient::Conflict
+    #
+    #   # Create a host owned by user 'alice' (assuming we're authenticated as
+    #   # a role of which alice is a member).
+    #   alice_host = api.create_host id: "host-for-alice", ownerid: 'conjur:user:ailce'
+    #   alice_host.ownerid # => "conjur:user:alice"
+    #
+    # @param [Hash,nil] options options for the new host
+    # @option options [String] :id the id for the new host
+    # @option options [String] :ownerid set the new hosts owner to this role
+    # @return [Conjur::Host] the created host
+    # @raise RestClient::Conflict when id is given and a host with that id already exists.
+    # @raise RestClient::Forbidden when ownerid is given and the owner role does not exist, or you are not
+    #   a member of the owner role.
+    #
+    def create_host options = nil
+      standard_create Conjur::Core::API.host, :host, nil, opts
     end
-    
+
+    # Get a host by its *unqualified id*.
+    #
+    # Like other Conjur methods, this will return a {Conjur::Host} whether
+    # or not the record is found, and you must use the {Conjur::Exists#exists?} method
+    # to check this.
+    #
+    # @example
+    #   api.create_host id: 'foo'
+    #   foo = api.host "foo" # => returns a Conjur::Host
+    #   puts foo.resourceid # => "conjur:host:foo"
+    #   puts foo.id # => "foo"
+    #   mistake = api.host "doesnotexist" # => Also returns a Conjur::Host
+    #   foo.exists? # => true
+    #   mistake.exists? # => false
+    #
+    # @param [String] id the unqualified id of the host
+    # @return [Conjur::Host] an object representing the host, which may or may not exist.
     def host id
       standard_show Conjur::Core::API.host, :host, id
     end
+
+    #@!endgroup
   end
 end

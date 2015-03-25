@@ -23,6 +23,8 @@ require 'conjur/user'
 module Conjur
   class API
     class << self
+      #@!group Authentication Methods
+
       # The Conjur {http://developer.conjur.net/reference/services/authentication/login.html login}
       #   operation exchanges a username and a password for an api key.  The api key
       #   is preferable for storage and use in code, as it can be rotated and has far greater entropy than
@@ -98,6 +100,8 @@ module Conjur
         end
         RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/password'].put new_password
       end
+
+      #@!endgroup
     end
 
     # @api private

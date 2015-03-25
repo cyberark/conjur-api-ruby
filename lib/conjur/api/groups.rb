@@ -20,7 +20,10 @@
 require 'conjur/group'
 
 module Conjur
+
+
   class API
+    # @!group Directory: Groups
     # List all Conjur groups visible to the current role.  This method does not
     # support advanced query options.  If you want those, use `#resources` with
     # the `:kind` option set to `'group'`.
@@ -102,5 +105,6 @@ module Conjur
     def find_groups options
       JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, credentials)["groups/search?#{options.to_query}"].get)
     end
+    #@!endgroup
   end
 end

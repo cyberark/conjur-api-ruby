@@ -20,18 +20,7 @@
 #
 
 module Conjur
-  # # Public Keys Service
-  # The {http://developer.conjur.net/reference/services/pubkeys Conjur Public Keys} service provides a
-  # simple database of public keys with access controlled by Conjur.  Reading a user's public keys requires
-  # no authentication at all -- the user's public keys are public information, after all.
-  #
-  # Adding or deleting a public key may only be done if you have permission to update the *public keys
-  # resource*, which is created when the appliance is launched, and has a resource id
-  # `'<organizational account>:service:pubkeys-1.0/public-keys'`.  The appliance also comes with a Group named
-  # `'pubkeys-1.0/key-managers'` that has this permission.  Rather than granting each user permission to
-  # modify the public keys database, you should consider adding users to this group.
-  #
-  # A very common use case is {http://developer.conjur.net/tutorials/ssh public key management for SSH}
+
    class API
     # @!group Public Keys Service
 

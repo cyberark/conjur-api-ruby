@@ -20,7 +20,11 @@
 
 require 'conjur/event_source'
 module Conjur
+
+
   class API
+    #@!group Audit Service
+
     # Return up to 100 audit events visible to the current authorized role.
     #
     # An audit event is visible to a role if that role or one of it's ancestors is in the
@@ -77,7 +81,9 @@ module Conjur
     def audit_resource resource, options={}, &block
       audit_event_feed "resources/#{CGI.escape cast(resource, :resourceid)}", options, &block
     end
-    
+
+    #@!endgroup
+
     private
     def audit_event_feed path, options={}, &block
       query = options.slice(:since, :till)
