@@ -43,10 +43,12 @@ module Conjur
     
     def standard_list(host, type, options)
       JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |item|
+        # Note that we don't want to fully_escape the ids below -- methods like #layer, #host, etc don't expect
+        # ids to be escaped, and will escape them again!.
         if item.is_a? String  # lists w/o details are just list of ids 
-          send(type, fully_escape(item)) 
+          send(type,item)
         else                  # list w/ details consists of hashes
-          send(type, fully_escape(item['id'])).tap { |obj| obj.attributes=item }
+          send(type, item['id']).tap { |obj| obj.attributes=item }
         end
       end
     end
