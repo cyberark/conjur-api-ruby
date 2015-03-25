@@ -1,3 +1,4 @@
+* Bugfix: Don't escape ids twice when listing records
 * Add a stub so that require 'conjur-api' works
 
 # v4.13.0
