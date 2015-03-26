@@ -22,10 +22,34 @@ require 'conjur/deputy'
 
 module Conjur
   class API
+    #@!group Directory: Deputies
+
+    # @api internal
+    #
+    # Create a Conjur deputy.
+    #
+    # Deputies are used internally by Conjur services that need to perform
+    # actions as a particular role.  While the deputies API is stable,
+    # it isn't intended for use by end users.
+    #
+    # @param [Hash] options options for deputy creation
+    # @option options [String] :id the *unqualified* id for the new deputy.  If not present,
+    #   the deputy will be given a randomly generated id.
+    # @return [Conjur::Deputy] the new deputy
+    # @raise [RestClient::Conflict] if a deputy already exists with the given id.
     def create_deputy options = {}
       standard_create Conjur::Core::API.host, :deputy, nil, options
     end
-    
+
+    # @api internal
+    #
+    # Find a Conjur deputy by id.
+    # Deputies are used internally by Conjur services that need to perform
+    # actions as a particular role.  While the deputies API is stable,
+    # it isn't intended for use by end users.
+    #
+    # @param [String] id the deputy's *unqualified* id
+    # @return [Conjur::Deputy] the deputy, which may or may not exist.
     def deputy id
       standard_show Conjur::Core::API.host, :deputy, id
     end
