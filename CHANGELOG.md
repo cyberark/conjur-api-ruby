@@ -1,7 +1,10 @@
+# v4.14.0
+
 * Bump rest-client version, remove the troublesome mime-types patch
 * Make sure SSL certificate verification is enabled
 * Bugfix: Don't escape ids twice when listing records
 * Add a stub so that require 'conjur-api' works
+* Lots of doc updates
 
 # v4.13.0
 

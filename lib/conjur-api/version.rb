@@ -19,7 +19,6 @@
 
 module Conjur
   class API
-    # The current version of the Conjur API Gem.
-    VERSION = "4.13.0"
+    VERSION = "4.14.0"
   end
 end
