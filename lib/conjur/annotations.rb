@@ -17,7 +17,9 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+require 'forwardable'
+
 module Conjur
   # Conjur allows {http://developer.conjur.net/reference/services/authorization/resource Resource}
   #   instances to be {http://developer.conjur.net/reference/services/authorization/resource/annotate.html annotated}
@@ -30,7 +32,7 @@ module Conjur
   #   with {#[]} and update with {#[]=}, {#each} it, and {#merge!} to do bulk updates.
   #
   class Annotations
-    include Enumerable
+
 
     # Create an `Annotations` instance for the given {Conjur::Resource}.
     #
@@ -69,6 +71,49 @@ module Conjur
       self
     end
 
+    # Return a *copy* of the annotation values
+    #
+    # @example Changing values has no effectannotations_hash
+    #   resource.annotations.values ["Some Value"]
+    #   resource.annotations.values.each do |v|
+    #     v << "HI"
+    #   end
+    #   resource.annotations.values # => ["Some Value"]
+    #
+    #    # Notice that this is different from ordinary Hash behavior
+    #    h = {"Some Key" => "Some Value"}
+    #    h.values.each do |v|
+    #       v << "HI"
+    #    end
+    #    h.values # "Some ValueHI"
+    #
+    # @example Show the values of a resources annotations
+    #   resource.annotations # => {'Name' => 'The Best Resource EVAR',
+    #                        #  'Story' => 'The Coolest!' }
+    #   resource.annotations.values # => ['The Best Resource EVAR', 'The Coolest!']
+    #
+    # @return [Array<String>] the annotation values
+    def values
+      annotations_hash.values.map(&:dup)
+    end
+
+    # Return the annotation names.
+    #
+    # This has exactly the same behavior as {Hash#keys}, in that the
+    # returned keys are immutable, and modifications to the array have no
+    # effect.
+    #
+    # @return [Array<String, Symbol>] the annotation names
+    def keys
+      annotations_hash.keys
+    end
+    alias keys names
+
+    def to_a
+      to_h.to_a
+    end
+
+
     # Set annotations from key,value pairs in `hash`.
     #
     # @note this is currently no more efficient than setting each
@@ -77,7 +122,9 @@ module Conjur
     # @param [Hash, #each] hash
     # @return [Conjur::Annotations] self
     def merge! hash
-      hash.each{|k,v| self[k] = v }
+      hash.each do |k, v|
+        self[k] = v unless self[k] == v
+      end
       self
     end
     
@@ -118,7 +165,6 @@ module Conjur
         RestClient::Resource.new(Conjur::Authz::API.host, @resource.options)[path].put name: name, value: value
       end
     end
-
     # @api private
     # Our internal {Hash} of annotations.  Lazily loaded.
     def annotations_hash
