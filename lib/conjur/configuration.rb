@@ -21,8 +21,42 @@
 module Conjur
   
   class << self
-    # Sets the Configuration for the current thread, yields the block, then resets the thread-local variable.
-    def with_configuration(config, &block)
+    # Saves the current thread local {Conjur::Configuration},
+    # sets the thread local {Conjur::Configuration} to `config`, yields to the block, and ensures that
+    # the original thread local configuration is restored.
+    #
+    # Because Conjur configuration is accessed from the 'global' {Conjur.configuration} method by all Conjur
+    # API methods, this method provides the ability to set a thread local value for use within the current,
+    # or within a block in a single threaded application.
+    #
+    # Note that the {Conjur.configuration=} method sets the *global* {Conjur::Configuration}, not the thread-local
+    # value.
+    #
+    # @example Override Configuration in a Thread
+    #   # in this rather contrived example, we'll override the {Conjur::Configuration#appliance_url} parameter
+    #   # used by calls within a thread.
+    #
+    #   # Set up the configuration in the main thread
+    #   Conjur.configure do |c|
+    #     # ...
+    #     c.appliance_url = 'https://conjur.main-url.com/api'
+    #   end
+    #
+    #   # Start a new thread that will perform requests to another server.  In practice, you might
+    #   # have a web server that uses a Conjur endpoint specified by a request header.
+    #   Thread.new do
+    #      Conjur.with_configuration Conjur.config.clone(appliance_url: 'https://conjur.local-url.com/api') do
+    #         sleep 2
+    #         puts "Thread local url is #{Conjur.config.appliance_url}"
+    #      end
+    #   end
+    #   puts "Global url is #{Conjur.config.appliance_url}"
+    #   # Outputs:
+    #   Global url is https://conjur.main-url.com/api
+    #   Thread local url is https://conjur.local-url.com/api
+    #
+    # @return [void]
+    def with_configuration(config)
       oldvalue = Thread.current[:conjur_configuration]
       Thread.current[:conjur_configuration] = config
       yield
@@ -31,26 +65,123 @@ module Conjur
     end
     
     # Gets the current thread-local or global configuration.
+    #
+    # The thread-local Conjur configuration can only be set using the {Conjur.with_configuration}
+    # method.  This method will try to return that value first, then the global configuration as
+    # set with {Conjur.configuration=} (which is lazily initialized if not set).
+    #
+    # @return [Conjur::Configuration] the thread-local or global Conjur configuration.
     def configuration
       Thread.current[:conjur_configuration] || (@config ||= Configuration.new)
     end
     
     # Sets the global configuration.
+    #
+    # This method *has no effect* on the thread local configuration.  Use {Conjur.with_configuration} instead if
+    # that's what you want.
+    #
+    # @param [Conjur::Configuration] config the new configuration
+    # @return [Conjur::Configuration] the new value of the configuration
     def configuration=(config)
       @config = config
     end
+
+    alias config configuration
+    alias config= configuration=
+
+    # Configure Conjur with a block.
+    #
+    # @example
+    #   Conjur.configure do |c|
+    #     c.account = 'some-account'
+    #     c.appliance_url = 'https://conjur.companyname.com/api'
+    #   end
+    #
+    # @yieldparam [Conjur::Configuration] c the configuration instance to modify.
+    def configure
+      yield configuration
+    end
   end
-  
+
+  # Stores a configuration for the Conjur API client.  This class provides *global* and *thread local* storage
+  # for common options used by the Conjur API.  Most importantly, it specifies the
+  #
+  #  * REST endpoints, derived from the {Conjur::Configuration#appliance_url} and {Conjur::Configuration#account} options
+  #  * The certificate used for secure connections to the Conjur appliance ({Conjur::Configuration#cert_file})
+  #
+  # ### Environment Variables
+  #
+  # Option values used by Conjur can be given by environment variables, using a standard naming scheme. Specifically,
+  # an environment variable named `CONJUR_ACCOUNT` will be used to provide a default value for the {Conjur::Configuration#account}
+  # option.
+  #
+  #
+  # ### Required Options
+  #
+  # The {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url} are always required.  Except in
+  # special cases, the {Conjur::Configuration#cert_file} is also required, but you may omit it if your Conjur root
+  # certificate is in the OpenSSl default certificate store.
+  #
+  # ### Thread Local Configuration
+  #
+  # While using a globally available configuration is convenient for most applications, sometimes you will need to
+  # use different configurations in different threads.  This is supported by  returning a thread local version from {Conjur.configuration}
+  # if one has been set by {Conjur.with_configuration}.
+  #
+  # @see Conjur.configuration
+  # @see Conjur.configure
+  # @see Conjur.with_configuration
+  #
+  # @example Basic Configuration
+  #   Conjur.configure do |c|
+  #     c.account = 'the-account'
+  #     c.cert_file = find_conjur_cert_file
+  #   end
+  #
+  # @example Setting the appliance_url from an environment variable
+  #   ENV['CONJUR_APPLIANCE_URL'] = 'https://some-host.com/api'
+  #   Conjur::Configuration.new.appliance_url # => 'https://some-host.com/api'
+  #
+  # @example Using thread local configuration in a web application request handler
+  #   # Assume that we're in a request handler thread in a multithreaded web server.
+  #
+  #   requested_appliance_url = request.header 'X-Conjur-Appliance-Url'
+  #
+  #   with_configuration Conjur.config.clone(appliance_url: requested_appliance_url) do
+  #     # `api` is an instance attribute.  Note that we can use an api that was created
+  #     # before we modified the thread local configuration.
+  #
+  #
+  #     # 404 if the user doesn't exist
+  #
+  #     user = api.user request.header('X-Conjur-Login')
+  #     raise HttpError, 404, "User #{user.login} does not exist" unless user.exists?
+  #     # ... finish the request
+  #   end
+  #
+  #
   class Configuration
-    # All explicit values.
+    # @api private
     attr_reader :explicit
-    
-    # All explicit and cached values.
+
+    # @api private
     attr_reader :supplied
-    
-    def initialize explicit = {}
-      @explicit = explicit.dup
-      @supplied = explicit.dup
+
+
+    # Create a new {Conjur::Configuration}, setting initial values from
+    # `options`.
+    #
+    # @note `options` must use symbols for keys.
+    #
+    # @example
+    #   Conjur.config = Conjur::Configuration.new account: 'companyname'
+    #   Conjur.config.account # => 'companyname'
+    #
+    # @param [Hash] options hash of options to set on the new instance.
+    #
+    def initialize options = {}
+      @explicit = options.dup
+      @supplied = options.dup
     end
     
     class << self
@@ -112,44 +243,129 @@ module Conjur
       end
     end
     
-    # Copies the current configuration, except a set of overridden options.
-    def clone override_options
+    # Return a copy of this {Conjur::Configuration} instance, optionally
+    # updating the copy with options from the `override_options` hash.
+    #
+    # @example
+    #   original = Conjur.configuration
+    #   original.account  # => 'conjur'
+    #   copy = original.clone account: 'some-other-account'
+    #   copy.account    # => 'some-other-account'
+    #   original.account # => 'conjur'
+    #
+    # @param [Hash] override_options options to set on the new instance
+    # @return [Conjur::Configuration] a copy of this configuration
+    def clone override_options = {}
       self.class.new self.explicit.dup.merge(override_options)
     end
 
+    # Manually set an option.  Note that setting an option not present in
+    # {Conjur::Configuration.accepted_options} is a no op.
+    # @api private
+    # @param [Symbol, String] key the name of the option to set
+    # @param [Object] value the option value.
     def set(key, value)
       if self.class.accepted_options.include?(key.to_sym)
         explicit[key.to_sym] = value
         supplied[key.to_sym] = value
       end
     end
-    
+
+    # @!attribute authn_url
+    # The url for the {http://developer.conjur.net/reference/services/authentication Conjur authentication service}.
+    #
+    # @note You should not generally set this value.  Instead, Conjur will derive it from the
+    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
+    #   properties.
+    #
+    # @return [String] the authentication service url
     add_option :authn_url do
       account_service_url 'authn', 0
     end
-    
+
+    # @!attribute authz_url
+    # The url for the {http://developer.conjur.net/reference/services/authorization Conjur authorization service}.
+    #
+    # @note You should not generally set this value.  Instead, Conjur will derive it from the
+    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
+    #   properties.
+    #
+    # @return [String] the authorization service url
     add_option :authz_url do
       global_service_url  'authz', 100
     end
 
+    # @!attribute core_url
+    # The url for the {http://developer.conjur.net/reference/services/directory Conjur core/directory service}.
+    #
+    # @note You should not generally set this value.  Instead, Conjur will derive it from the
+    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
+    #   properties.
+    #
+    # @return [String] the core/directory service url
     add_option :core_url do
       default_service_url 'core', 200
-    end    
-    
+    end
+
+    # @!attribute audit_url
+    # The url for the {http://developer.conjur.net/reference/services/audit Conjur audit service}.
+    #
+    # @note You should not generally set this value.  Instead, Conjur will derive it from the
+    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
+    #   properties.
+    #
+    # @return [String] the audit service url
     add_option :audit_url do
       global_service_url  'audit', 300
     end    
-    
+
+    # @!attribute appliance_url
+    # The url for your Conjur appliance.
+    #
+    # If your appliance's hostname is `'conjur.companyname.com'`, then your `appliance_url` will
+    # be `'https://conjur.companyname.com/api'`.
+    #
+    # @note If you are using an appliance (if you're not sure, you probably are), this option is *required*.
+    #
+    # @return [String] the appliance URL
     add_option :appliance_url
-    
+
+    # NOTE DO NOT DOCUMENT THIS AS AN ATTRIBUTE, IT IS PRIVATE AND YARD DOESN'T SUPPORT @api private ON ATTRIBUTES.
+    #
+    # The port used to derive ports for conjur services running locally. You will only use this if you are
+    # running the Conjur services locally, in which case you are probably a Conjur developer, and should ask
+    # someone in chat ;-)
+    #
     add_option :service_base_port, default: 5000
 
+    # @!attribute account
+    # The organizational account used by Conjur.
+    #
+    # On Conjur appliances, this option will be set once when the appliance is first configured.  You can get the
+    # value for the acccount option from your conjur administrator, or if you have installed
+    # the {http://developer.conjur.net/client_setup/cli.html Conjur command line tools} by running
+    # {http://developer.conjur.net/reference/services/authentication/whoami.html conjur authn whoami},
+    # or examining your {http://developer.conjur.net/client_setup/cli.html#Configure .conjurrc file}.
+    #
+    # @note this option is **required**, and attempting to make any api calls prior to setting it (either
+    #   explicitly or with the `"CONJUR_ACCOUNT"` environment variable) will raise an exception.
+    #
+    # @return [String]
     add_option :account, required: true
-    
+
+
+    # @!attribute env
+    #
+    # The type of environment your program is running in (e.g., `development`, `production`, `test`).
+    #
+    # @deprecated
+    #
+    # @return [String] the environment name
     add_option :env do
       ENV['CONJUR_ENV'] || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || "production"
     end
-    
+
+    # DEPRECATED SaaS option, do not doc comment!
     add_option :stack do
       case env
       when "production"
@@ -159,6 +375,17 @@ module Conjur
       end
     end
 
+    # @!attribute cert_file
+    #
+    # Path to the certificate file to use when making secure connections to your Conjur appliance.
+    #
+    # This should be the path to the root Conjur SSL certificate in PEM format. You will normally get the
+    # certificate file using the {http://developer.conjur.net/reference/tools/utilities/init.html conjur init} command.
+    # This option is not required if the certificate or its root is in the OpenSSL default cert store.
+    # If your program throws an error indicating that SSL verification has failed, you probably need
+    # to set or fix this option.
+    #
+    # @return [String, nil] path to the certificate file, or nil if you aren't using one.
     add_option :cert_file
 
     private

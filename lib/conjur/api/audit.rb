@@ -20,24 +20,70 @@
 
 require 'conjur/event_source'
 module Conjur
+
+
   class API
-    # Return all events visible to the current authorized role
+    #@!group Audit Service
+
+    # Return up to 100 audit events visible to the current authorized role.
+    #
+    # An audit event is visible to a role if that role or one of it's ancestors is in the
+    #   event's `:roles` field, or the role has a privilege any of the event's `:resources` field.
+    #
+    # @param options [Hash]
+    # @option options [Time, nil] :till only show events before this time
+    # @option options [Time, nil] :since only show events after this time
+    # @option options [Boolean] :follow block the current thread and call `block` with `Array` of
+    #   audit events as the occur.
+    #
+    # @see #audit_role
+    #
+    # @return [Array<Hash>] the audit events
     def audit options={}, &block
       audit_event_feed "", options, &block
     end
-    
-    # Return audit events related to the given role_id.  Identitical to audit_events
-    # except that a String may be given instead of a Role object.
-    # @param role [String] the role for which events should be returned.
+
+    # Return up to 100 audit events visible to the current role and related to the given role.
+    #
+    # See {#audit} for the conditions under which an event is visible to a role.
+    #
+    # An event is said to be "related to" a role iff the role is a member of the event's
+    # `:roles` field.
+    #
+    # @param role [Conjur::Role, String, #roleid] the role to audit (if a string is given, it must
+    #   be of the form `'account:kind:id'`).
+    # @param options [Hash]
+    # @option options [Time, nil] :till only show events before this time
+    # @option options [Time, nil] :since only show events after this time
+    # @option options [Boolean] :follow block the current thread and call `block` with `Array` of
+    #   audit events as the occur.
+    #
+    # @return [Array<Hash>] the audit events
     def audit_role role, options={}, &block
       audit_event_feed "roles/#{CGI.escape cast(role, :roleid)}", options, &block
     end
-    
-    # Return audit events related to the given resource
+
+    # Return up to 100 audit events visible to the current role and related to the given resource.
+    #
+    # See {#audit} for the conditions under which an event is visible to a role.
+    #
+    # An event is said to be "related to" a role iff the role is a member of the event's
+    #   `:roles` field.
+    # @param resource [Conjur::Resource, String, #resourceid] the resource to audit (when a string is given, it must be
+    #   of the form `'account:kind:id'`).
+    # @param options [Hash]
+    # @option options [Time, nil] :till only show events before this time
+    # @option options [Time, nil] :since only show events after this time
+    # @option options [Boolean] :follow block the current thread and call `block` with `Array` of
+    #   audit events as the occur.
+    #
+    # @return [Array<Hash>] the audit events
     def audit_resource resource, options={}, &block
       audit_event_feed "resources/#{CGI.escape cast(resource, :resourceid)}", options, &block
     end
-    
+
+    #@!endgroup
+
     private
     def audit_event_feed path, options={}, &block
       query = options.slice(:since, :till)

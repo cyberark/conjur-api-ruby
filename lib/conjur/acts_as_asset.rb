@@ -20,15 +20,12 @@
 #
 module Conjur
   module ActsAsAsset
-    def self.included(base)
-      base.instance_eval do
-        include HasId
-        include Exists
-        include HasOwner
-        include ActsAsResource
-        include HasAttributes
-      end
-    end
+    include HasId
+    include Exists
+    include HasOwner
+    include ActsAsResource
+    include HasAttributes
+
       
     def add_member(role_name, member, options = {})
       owned_role(role_name).grant_to member, options
