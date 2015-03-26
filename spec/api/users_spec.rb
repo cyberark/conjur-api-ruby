@@ -11,7 +11,7 @@ describe Conjur::API, api: :dummy do
   describe 'user#update' do
     let(:userid) { "alice@wonderland" }
     it "PUTs to /users/:id?uidnumber=:uidnumber" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :put,
         url: "#{core_host}/users/#{api.fully_escape(userid)}",
         headers: credentials[:headers],
@@ -28,7 +28,7 @@ describe Conjur::API, api: :dummy do
     let(:search_result)     { ["someuser"].to_json }
     
     it "GETs /users/search with appropriate options, and returns parsed JSON response" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get,  
         url: "#{core_host}/users/search?uidnumber=12345",
         headers: credentials[:headers]

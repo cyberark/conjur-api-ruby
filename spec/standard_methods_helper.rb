@@ -1,4 +1,6 @@
+require 'helpers/request_helpers'
 shared_context api: :dummy do
+  include RequestHelpers
   subject { api }
 end
 

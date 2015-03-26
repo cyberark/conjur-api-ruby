@@ -1,6 +1,9 @@
 require 'spec_helper'
+require 'helpers/request_helpers'
 
 describe Conjur::Annotations do
+  include RequestHelpers
+
   let(:identifier){ 'the-resource-id' }
   let(:kind){ 'some-kind' }
   let(:account){ 'the-account' }
@@ -23,7 +26,7 @@ describe Conjur::Annotations do
   let(:url){ "#{Conjur::Authz::API.host}/#{account}/annotations/#{kind}/#{identifier}" }
 
   def expect_put_request url, payload
-    expect(RestClient::Request).to receive(:execute).with(
+    expect_request(
       method: :put,
       headers: {},
       url: url,

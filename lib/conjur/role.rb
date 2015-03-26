@@ -98,7 +98,7 @@ module Conjur
       false
     end
     
-    def members
+    def members options = {}
       JSON.parse(self["?members"].get(options)).collect do |json|
         RoleGrant.parse_from_json(json, self.options)
       end

@@ -25,7 +25,7 @@ describe Conjur::API, api: :dummy do
     shared_context "Stubbed API" do
       let (:expected_url) { "#{core_host}/variables/values?vars=#{varlist.map {|v| api.fully_escape(v) }.join(",")}"  }
       before {
-        expect(RestClient::Request).to receive(:execute).with(
+        expect_request(
           method: :get,
           url: expected_url,
           headers: credentials[:headers]

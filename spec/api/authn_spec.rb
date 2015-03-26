@@ -1,7 +1,10 @@
 require 'spec_helper'
 require 'cas_rest_client'
+require 'helpers/request_helpers'
 
 describe Conjur::API do
+  include RequestHelpers
+
   let(:host) { 'http://authn.example.com' }
   let(:user) { 'kmitnick' }
   let(:password) { 'sikret' }
@@ -12,7 +15,7 @@ describe Conjur::API do
 
   describe "::login" do
     it "gets /users/login" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :get, url: "http://authn.example.com/users/login", 
         user: user,
         password: password, 
@@ -41,7 +44,7 @@ describe Conjur::API do
 
   describe "::authenticate" do
     it "posts the password and dejsons the result" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :post, url: "http://authn.example.com/users/#{user}/authenticate",
         payload: password, headers: { content_type: 'text/plain' }
       ).and_return '{ "response": "foo"}'
@@ -51,7 +54,7 @@ describe Conjur::API do
   
   describe "::update_password" do
     it "logs in and puts the new password" do
-      expect(RestClient::Request).to receive(:execute).with(
+      expect_request(
         method: :put, 
         url: "http://authn.example.com/users/password",
         user: user,

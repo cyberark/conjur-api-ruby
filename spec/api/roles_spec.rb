@@ -1,6 +1,8 @@
 require 'spec_helper'
+require 'helpers/request_helpers'
 
 describe Conjur::API, api: :dummy do
+  include RequestHelpers
   subject { api }
 
   describe 'role_graph' do
@@ -34,8 +36,8 @@ describe Conjur::API, api: :dummy do
     end
 
     def expect_request_with_params params={}
-      expect(RestClient::Request).to receive(:execute)
-        .with(headers: credentials[:headers], method: :get, url: role_graph_url_for(roles, options, current_role))
+      expect_request(headers: credentials[:headers], method: :get,
+                     url: role_graph_url_for(roles, options, current_role))
         .and_return(response)
     end
 
