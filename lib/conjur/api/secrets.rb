@@ -22,10 +22,25 @@ require 'conjur/secret'
 
 module Conjur
   class API
+
+    # @api private
+    #
+    # Create a Conjur secret.  Secrets are a low-level construcct upon which variables
+    # are built,
+    #
+    # @param [String] value the secret data
+    # @return [Conjur::Secret] the new secret
     def create_secret(value, options = {})
       standard_create Conjur::Core::API.host, :secret, nil, options.merge(value: value)
     end
-    
+
+    # @api private
+    #
+    # Fetch a Conjur secret by id.  Secrets are a low-level construct upon which variables
+    # are built, and should not generally be used directly.
+    #
+    # @param [String] id the *unqualified* identifier for the secret
+    # @return [Conjur::Secret] an object representing the secret
     def secret id
       standard_show Conjur::Core::API.host, :secret, id
     end
