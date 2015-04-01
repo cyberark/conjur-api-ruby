@@ -42,7 +42,7 @@ module Conjur
 
     # Enumerates the edges of this graph.
     # @yieldparam [Conjur::Graph::Edge] each edge of the graph
-    # @return edge [Conjur::Graph] this graph
+    # @return [Conjur::Graph] this graph
     def each_edge
       return enum_for(__method__) unless block_given?
       edges.each{|e| yield e}

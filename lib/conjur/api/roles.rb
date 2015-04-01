@@ -23,18 +23,20 @@ require 'conjur/graph'
 
 module Conjur
   class API
-    ##
-    # Fetch a digraph (or a forest of digraphs) representing of
-    #   role memberships related transitively to any of a list of roles.
+    #@!group Authorization: Roles
+
+    # Fetch a {Conjur::Graph} representing the relationships of a given role or roles.  Such graphs are transitive,
+    # and follow the normal permissions for role visibility.
     #
-    # @param [Array<Conjur::Role, String>] roles the  digraph (or forest thereof) of
-    #   the ancestors and descendants of these roles or role ids will be returned
-    # @param [Hash] options options determining the graph returned
+    # @param [Array<Conjur::Role, String>, String, Conjur::Role] roles role or or array of roles
+    #   roles whose relationships we're interested in
+    # @param [Hash] options options for the request
     # @option opts [Boolean] :ancestors Whether to return ancestors of the given roles (true by default)
     # @option opts [Boolean] :descendants Whether to return descendants of the given roles (true by default)
     # @option opts [Conjur::Role, String] :as_role Only roles visible to this role will be included in the graph
     # @return [Conjur::Graph] An object representing the role memberships digraph
     def role_graph roles, options = {}
+      roles = [roles] unless roles.kind_of? Array
       roles.map!{|r| normalize_roleid(r) }
       options[:as_role] = normalize_roleid(options[:as_role]) if options.include?(:as_role)
       options.reverse_merge! as_role: normalize_roleid(current_role), descendants: true, ancestors: true
@@ -45,12 +47,45 @@ module Conjur
       Conjur::Graph.new RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/roles?#{query}"].get
     end
 
+    # Create a {Conjur::Role} with the given id
+    #
+    # ### Permissions
+    # * All Conjur roles can create new roles.
+    # * The creator role (either the current role or the role given by the `:acting_as` option)
+    #   is made a member of the new role.  The new role is also made a member of itself.
+    # * If you give an `:acting_as` option, you must be a (transitive) member of the `:acting_as`
+    #   role.
+    # * The new role is granted to the creator role with *admin option*: that is, the creator role
+    #   is able to grant the created role to other roles.
+    #
+    # @example Basic role creation
+    #   # Current role is 'user:jon', assume the organizational account is 'conjur'
+    #    api.current_role # => 'conjur:user:jon'
+    #
+    #   # Create a Conjur actor to control the permissions of a chron job (rebuild_indices)
+    #   role = api.create_role 'robot:rebuild_indices'
+    #   role.role_id # => "conjur:robot:rebuild_indices"
+    #   role.members.map{ |grant| grant.member.role_id } # => ['conjur:user:jon', 'conjur:robot:rebuild_indices']
+    #   api.role('user:jon').admin_of?(role) # => true
+    #
+    #
+    # @param [String] role a qualified role identifier for the new role
+    # @param [Hash] options options for the action
+    # @option options [String] :acting_as the resource will effectively be created by this role
+    # @return [Conjur::Role] the created role
+    # @raise [RestClient::MethodNotAllowed] if the role already exists.  Note that this differs from
+    #   the `RestClient::Conflict` exception raised when trying to create existing high level (user, group, etc.)
+    #   Conjur assets.
     def create_role(role, options = {})
       role(role).tap do |r|
         r.create(options)
       end
     end
 
+    # Return a {Conjur::Role} representing a role with the given id.  Note that the {Conjur::Role} may or
+    # may not exist (see {Conjur::Exists#exists?}).
+    #
+    #
     def role role
       Role.new(Conjur::Authz::API.host, credentials)[self.class.parse_role_id(role).join('/')]
     end
@@ -71,7 +106,9 @@ module Conjur
         [ tokens[0], tokens[1..-1].join('/') ].join(':')
       end
     end
-    
+
+    #@!endgroup
+
     private
     def normalize_roleid role
       case role

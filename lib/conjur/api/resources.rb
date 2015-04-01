@@ -133,10 +133,11 @@ module Conjur
     #   # do something with your resources
     #
     # @param opts [Hash] search criteria
-    # @option opts [String] :search find resources whose ids or annotations contain this string
-    # @option opts [String] :kind find resources whose `kind` matches this string
-    # @option opts [Integer] :limit the maximum number of records to return (Conjur may return fewer)
-    # @options opts [Integer] :offset offset of the first record to return
+    # @option opts [String]   :search find resources whose ids or annotations contain this string
+    # @option opts [String]   :kind find resources whose `kind` matches this string
+    # @option opts [Integer]  :limit the maximum number of records to return (Conjur may return fewer)
+    # @option opts [Integer]  :offset offset of the first record to return
+    # @return [Array<Conjur::Resource>] the resources matching the criteria given
     def resources opts = {}
       opts = { host: Conjur::Authz::API.host, credentials: credentials }.merge opts
       opts[:account] ||= Conjur.account

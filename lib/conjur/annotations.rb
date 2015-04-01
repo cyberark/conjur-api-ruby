@@ -107,7 +107,7 @@ module Conjur
     def keys
       annotations_hash.keys
     end
-    alias keys names
+    alias names keys
 
     def to_a
       to_h.to_a
