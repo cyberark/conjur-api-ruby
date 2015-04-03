@@ -49,6 +49,8 @@ module Conjur
     # @param [Hash] options options for user creation
     # @option options [String] :acting_as Qualified id of a role to perform the action as
     # @option options [String, Integer] :uidnumber UID number to assign to the new user.  If not given, one will be generated.
+    # @option options [String] :password when present, the user will be given a password in addition to a randomly
+    #   generated api key.
     # @return [Conjur::User] an object representing the new user
     # @raise [RestClient::Conflict] If the user already exists, or a user with the given uidnumber exists.
     def create_user(login, options = {})

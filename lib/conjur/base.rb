@@ -186,19 +186,37 @@ module Conjur
 
       raise "Expecting ( username and api_key ) or token" unless ( username && api_key ) || token
     end
-    
+
+    #@!attribute [r] api_key
+    # The api key used to create this instance.  This is only present when you created the api with {Conjur::API.new_from_key}.#
+    #
+    # @return [String] the api key, or nil if this instance was created from a token.
     attr_reader :api_key
 
+    # The name of the user as which this api instance is authenticated.  This is available whether the api
+    # instance was created from credentials or an authentication token.
     #
+    # @return [String] the login of the current user.
     def username
       @username || @token['data']
     end
 
-
+    # @api private
+    # used to delegate to host providing subclasses.
+    # @return [String] the host
     def host
       self.class.host
     end
 
+    # The token used to authenticate requests made with the api.  The token will be fetched
+    # if it hasn't already, or if it has expired.  Accordingly, this method may raise a RestClient::Unauthorized
+    # exception if the credentials are invalid.
+    #
+    # @note calling this method on an {Conjur::API} instance created with {Conjur::API.new_from_token} will have
+    # undefined behavior if the token is expired.
+    #
+    # @return [Hash] the authentication token as a Hash
+    # @raise [RestClient::Unauthorized] if the username and api key are invalid.
     def token
       @token = nil unless token_valid?
 
@@ -208,15 +226,22 @@ module Conjur
 
       return @token
     end
-    
-    # Authenticate the username and api_key to obtain a request token.
-    # Tokens are cached by username for a short period of time.
+
+    # Credentials that can be merged with options to be passed to `RestClient::Resource` HTTP request methods.
+    # These include a username and an Authorization header containing the authentication token.
+    #
+    # @return [Hash] the options.
+    # @raise [RestClient::Unauthorized] if fetching the token fails.
+    # @see {#token}
     def credentials
       { headers: { authorization: "Token token=\"#{Base64.strict_encode64 token.to_json}\"" }, username: username }
     end
 
     private
 
+    # Check to see if @token is defined, and whether it's expired
+    #
+    # @return [Boolean] whether or not the token is valid.
     def token_valid?
       return false unless @token
       

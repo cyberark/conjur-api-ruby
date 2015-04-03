@@ -21,6 +21,11 @@
 module Conjur
   class API
     class << self
+      # @api private
+      #
+      # Host for the core service.  We don't really use this anymore.
+      #
+      # @return [String] the core asset host
       def core_asset_host
         ::Conjur::Core::API.host
       end
