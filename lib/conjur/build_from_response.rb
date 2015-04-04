@@ -20,6 +20,15 @@
 #
 module Conjur
   module BuildFromResponse
+    # @api private
+    #
+    # Build a Conjur asset from a REST response.
+    #
+    # @param [RestCliet::Response] response the response to build the object from
+    # @param [Hash] credentials options as {Conjur::API#credentials} used to perform requests in methods on
+    #   the created asset.
+    #
+    # @return [*] an object of this type
     def build_from_response(response, credentials)
       new(response.headers[:location], credentials).tap do |obj|
         obj.attributes = JSON.parse(response.body)

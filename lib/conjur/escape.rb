@@ -19,21 +19,56 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+
+  # Provides helpers for escaping url components.
+  #
+  # The helpers are added as both class and isntance methods.
   module Escape
     module ClassMethods
+      # URL escape the entire string.  This is essentially the same as calling `CGI.escape str`.
+      #
+      # @example
+      #   fully_escape 'foo/bar@baz'
+      #   # => "foo%2Fbar%40baz"
+      #
+      # @param [String] str the string to escape
+      # @return [String] the escaped string
       def fully_escape(str)
         require 'cgi'
         CGI.escape(str.to_s)
       end
-      
+
+      # Escape a URI path component.
+      #
+      # This method simply calls {Conjur::Escape::ClassMethods#path_or_query_escape}.
+      #
+      # @param [String] str the string to escape
+      # @return [String] the escaped string
+      # @see Conjur::Escape::ClassMethods#path_or_query_escape
       def path_escape(str)
         path_or_query_escape str
       end
 
+      # Escape a URI query value.
+      #
+      # This method simply calls {Conjur::Escape::ClassMethods#path_or_query_escape}.
+      #
+      # @param [String] str the string to escape
+      # @return [String] the escaped string
+      # @see Conjur::Escape::ClassMethods#path_or_query_escape
       def query_escape(str)
         path_or_query_escape str
       end
-      
+
+      # Escape a path or query value.
+      #
+      # This method is *similar* to `URI.escape`, but it has several important differences:
+      #   * If a falsey value is given, the string `"false"` is returned.
+      #   * If the value given responds to `#id`, the value returned by `str.id` is escaped instead.
+      #   * The value is escaped without modifying `':'` or `'/'`.
+      #
+      # @param [String, FalseClass, NilClass, #id] str the value to escape
+      # @return [String] the value escaped as described
       def path_or_query_escape(str)
         return "false" unless str
         str = str.id if str.respond_to?(:id)
@@ -43,19 +78,45 @@ module Conjur
         URI.escape(str.to_s, Regexp.new("[^#{pattern}]"))
       end
     end
-    
+
+    # @api private
+    # :nodoc:
     def self.included(base)
       base.extend ClassMethods
     end
-    
+
+    # URL escape the entire string.  This is essentially the same as calling `CGI.escape str`.
+    #
+    # @example
+    #   fully_escape 'foo/bar@baz'
+    #   # => "foo%2Fbar%40baz"
+    #
+    # @param [String] str the string to escape
+    # @return [String] the escaped string
+    # @see Conjur::Escape::ClassMethods#fully_escape
     def fully_escape(str)
       self.class.fully_escape str
     end
 
+    # Escape a URI path component.
+    #
+    # This method simply calls {Conjur::Escape::ClassMethods#path_or_query_escape}.
+    #
+    # @param [String] str the string to escape
+    # @return [String] the escaped string
+    # @see Conjur::Escape::ClassMethods#path_or_query_escape
     def path_escape(str)
       self.class.path_escape str
     end
 
+
+    # Escape a URI query value.
+    #
+    # This method simply calls {Conjur::Escape::ClassMethods#path_or_query_escape}.
+    #
+    # @param [String] str the string to escape
+    # @return [String] the escaped string
+    # @see Conjur::Escape::ClassMethods#path_or_query_escape
     def query_escape(str)
       self.class.query_escape str
     end

@@ -35,14 +35,29 @@ module Conjur
   module Core
     class API < Conjur::API
       class << self
+        # @api private
+        # @deprecated
+        # The host for the Conjur directory service
+        # @return [String] the host.
         def host
           Conjur.configuration.core_url
         end
-        
+
+        # Returns the account as determined by the conjur server.
+        #
+        # You should generally provide the account with {Conjur::Configuration#account}, but this method
+        # can determine it by asking the server.
+        #
+        # You do not need any credentials to call this method.
         def conjur_account
           info['account'] or raise "No account field in #{info.inspect}"
         end
-        
+
+        # @api private
+        #
+        # Used to fetch an `info` hash from the server.
+        #
+        # @return [Hash] a hash containing an `'account'` field that specifies the current Conjur account.
         def info
           @info ||= JSON.parse RestClient::Resource.new(Conjur::Core::API.host)['info'].get
         end

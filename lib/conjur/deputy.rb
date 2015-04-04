@@ -19,6 +19,14 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # A Deputy is an actor, typically representing a service.  It is given a login and
+  # an api key, just like {Conjur::Host}s and {Conjur::User}s, and can perform various
+  # actions.
+  #
+  # You should not create instances of this class directly.  Instead, you can get a {Conjur::Deputy}
+  # instance with {Conjur::API#deputy} or {Conjur::API#create_deputy}.
+  #
+  # The deputies api is stable, but is primarily used internally.
   class Deputy < RestClient::Resource
     include Exists
     include HasId
@@ -26,11 +34,20 @@ module Conjur
     include HasAttributes
     include ActsAsUser
     include ActsAsResource
-    
+
+    # Login for the deputy.  Of the form "deputy/<deputy-id>".
+    #
+    # @return [String] the login.
     def login
       [ self.class.name.split('::')[-1].downcase, id ].join('/')
     end
-    
+
+    # API Key that can be used to login as the deputy.
+    #
+    # This is only available if the {Conjur::Deputy} was returned
+    # by {Conjur::API#create_deputy}.
+    #
+    # @return [String] the api key.
     def api_key
       self.attributes['api_key']
     end

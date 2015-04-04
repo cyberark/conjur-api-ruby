@@ -19,11 +19,20 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+
+  # Included in classes for assets that derive their id from their urls.
   module HasId
+    # @api private
+    # :nodoc:
     def to_json(options = {})
       { id: id }
     end
-  
+
+
+    # Get this assets id.  This is the *unqualified* Conjur id for the asset,
+    # and is derived from the asset's url.
+    #
+    # @return [String] the asset's id
     def id
       URI.unescape self.url.split('/')[-1]
     end    

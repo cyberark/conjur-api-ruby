@@ -21,18 +21,33 @@
 module Conjur
   extend self
 
+  # @deprecated
+  # @api private
+  # This method delegates to {Conjur::Configuration#service_base_port}
+  #
+  # @return [Integer] the service base port
   def service_base_port
     Conjur.configuration.service_base_port
   end
-  
+
+  # This method delegates to {Conjur::Configuration#account}
+  #
+  # @return [String] the value of `Conjur.configuration.account`
   def account
     Conjur.configuration.account
   end
-  
+
+  # This method delegates to {Conjur::Configuration#env}
+  # @return [String] the value of `Conjur.configuration.env`
   def env
     Conjur.configuration.env
   end
-  
+
+  # @api private
+  # @deprecated
+  # This method delegates to {Conjur::Configuration#stack}
+  #
+  # @return [String] the value of `Conjur.configuration.stack`
   def stack
     Conjur.configuration.stack
   end

@@ -19,17 +19,31 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # Included in assets that have an *owner*.
   module HasOwner
-    def self.included(base)
-      base.instance_eval do
-        include HasAttributes
-      end
-    end
-    
+    include HasAttributes
+
+    # Return the `userid` attribute.  This is the id of the Conjur role that
+    # created this asset.
+    #
+    # ### Permissions
+    # You must have the "`read`" permission on the underlying resource to call this method.
+    #
+    # @return [String] the userid
     def userid
       attributes['userid']
     end    
-    
+
+
+    # Return the owner of this resource or asset.
+    #
+    # The owner of a resource or an asset with an underlying resource is allowed to do anything to the resource,
+    # including granting permissions to other roles.
+    #
+    # ### Permissions
+    # You must have the "`read`" permission on the underlying resource to call this method.
+    #
+    # @return [String] the fully qualified role id of the asset's  owner.
     def ownerid
       attributes['ownerid']
     end    
