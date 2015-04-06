@@ -23,3 +23,6 @@ tmp
 
 # rspec
 .rspec
+
+# Script to connect to jon's lxc appliances
+lxcsh.rb
