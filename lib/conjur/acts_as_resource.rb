@@ -33,11 +33,18 @@ module Conjur
     def resourceid
       [ core_conjur_account, resource_kind, resource_id ].join(':')
     end
-    
+
+    # The kind of resource underlying the role.
     def resource_kind
       self.class.name.split("::")[-1].underscore.split('/').join('-')
     end
 
+    # @api private
+    #
+    # Confusingly, this method returns the *unqualified* resource id, as opposed to the *qualified*
+    # resource id returned by {#resourceid}.
+    #
+    # @return [String] the *unqualified* resource id.
     def resource_id
       id
     end
