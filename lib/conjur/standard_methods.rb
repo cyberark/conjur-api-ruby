@@ -29,7 +29,17 @@ module Conjur
   module StandardMethods
     
     protected
-    
+
+    # @api private
+    #
+    # Create this resource by sending a POST request to its URL.
+    #
+    # @param [String] host the url of the service (for example, https://conjur.host.com/api)
+    # @param [String] type the asset `kind` (for example, 'user', 'group')
+    # @param [String, nil] id the id of the new asset
+    # @param [Hash] options options to pass through to `RestClient::Resource`'s `post` method.
+    # @return [Object] an instance of a class determined by `type`.  For example, if `type` is
+    #   `'user'`, the class will be `Conjur::User`.
     def standard_create(host, type, id = nil, options = nil)
       log do |logger|
         logger << "Creating #{type}"
@@ -43,7 +53,16 @@ module Conjur
       resp = RestClient::Resource.new(host, credentials)[type.to_s.pluralize].post(options)
       "Conjur::#{type.to_s.classify}".constantize.build_from_response(resp, credentials)
     end
-    
+
+    # @api private
+    #
+    # Fetch a list of assets by sending a GET request to the URL for resources of the given `type`.
+    #
+    # @param [String] host the url of the service (for example, https://conjur.host.com/api)
+    # @param [String] type the asset `kind` (for example, 'user', 'group')
+    # @param [Hash] options options to pass through to `RestClient::Resource`'s `post` method.
+    # @return [Array<Object>] an array of instances of the asset class determined by `type`.  For example, if
+    #   `type` is `'group'`, and array of `Conjur::Group` instances will be returned.
     def standard_list(host, type, options)
       JSON.parse(RestClient::Resource.new(host, credentials)[type.to_s.pluralize].get(options)).collect do |item|
         if item.is_a? String  # lists w/o details are just list of ids 
@@ -53,7 +72,16 @@ module Conjur
         end
       end
     end
-    
+
+    # @api private
+    #
+    # Fetch details of an asset by sending a GET request to its URL.
+    #
+    # @param [String] host the url of the service (for example, https://conjur.host.com/api)
+    # @param [String] type the asset `kind` (for example, 'user', 'group')
+    # @param [String, nil] id the id of the asset to show
+    # @return [Object] an instance of a class determined by `type`.  For example, if `type` is
+    #   `'user'`, the class will be `Conjur::User`.
     def standard_show(host, type, id)
       "Conjur::#{type.to_s.classify}".constantize.new(host, credentials)[ [type.to_s.pluralize, fully_escape(id)].join('/') ]
     end

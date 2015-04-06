@@ -22,7 +22,8 @@ module Conjur
   # This module provides methods for determining Conjur id components from an asset's
   # REST URL.
   module PathBased
-    # Return the Conjur {LINK organizational account} for this role or resource.  The `account`
+    # Return the Conjur {http://developer.conjur.net/reference/services/authorization#Organization.Account
+    # organizational account} for this role or resource.  The `account`
     # is the first token in a fully qualified Conjur id, like `"account:kind:identifier"`
     #
     # @example
@@ -62,7 +63,7 @@ module Conjur
     #   self.match_path 0..2 # => "foo/roles/bar"
     #   self.match_path 2..-1 # => "bar/baz"
     #
-    # @param [Range] the range of parts
+    # @param [Range] range the range of parts
     # @return [String] the parts joined by `'/'`
     def match_path(range)
       tokens[range].map{|t| URI.unescape(t)}.join('/')

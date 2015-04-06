@@ -32,7 +32,7 @@ module Conjur
   #   with {#[]} and update with {#[]=}, {#each} it, and {#merge!} to do bulk updates.
   #
   class Annotations
-
+    include Enumerable
 
     # Create an `Annotations` instance for the given {Conjur::Resource}.
     #

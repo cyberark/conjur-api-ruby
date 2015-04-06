@@ -20,6 +20,11 @@
 #
 module Conjur
   class Host < Deputy
+
+    # @api private
+    # @deprecated
+    #
+    # This method was used before conjurize came along.  It's no longer in use.
     def enrollment_url
       log do |logger|
         logger << "Fetching enrollment_url for #{id}"

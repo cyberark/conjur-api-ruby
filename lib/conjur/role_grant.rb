@@ -19,8 +19,30 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # A `RoleGrant` instance represents the membership of a role in some unspecified role.  `RoleGrant`s are returned
+  # by {Conjur::Role#members} and represent members of the role on which the method was invoked.
+  #
+  # @example
+  #   alice.members.map{|grant| grant.member}.include? admin_role # => true
+  #   admin_role.members.map{|grant| grant.member}.include? alice # => false
   RoleGrant = Struct.new(:member, :grantor, :admin_option) do
+    #@!attribute [r] member
+    # @return [Conjur::Role] the member role
+
+    #@!attribute [r] grantor
+    # @return [Conjur::Role] the role that granted this membership
+
+    #@!attribute [r] admin_option
+    # @return [Boolean] whether {#member} is allowed to transfer the grant to other roles
+
     class << self
+      # @api private
+      #
+      # Create a `RoleGrant` from a JSON respnose
+      #
+      # @param [Hash] json the parsed JSON response
+      # @param [Hash] credentials the credentials used to create APIs for the member and grantor role objects
+      # @return [Conjur::RoleGrant]
       def parse_from_json(json, credentials)
         member = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['member']).join('/')]
         grantor = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['grantor']).join('/')]
