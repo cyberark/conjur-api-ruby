@@ -20,11 +20,7 @@
 #
 module Conjur
   module ActsAsUser
-    def self.included(base)
-      base.instance_eval do
-        include ActsAsRole
-      end
-    end
+    include ActsAsRole
     
     def api_key
       attributes['api_key'] or raise "api_key is only available on a newly created #{self.class.name.downcase}"
