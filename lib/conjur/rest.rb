@@ -24,6 +24,7 @@ require 'conjur/cast'
 require 'conjur/escape'
 require 'conjur/log_source'
 require 'conjur/patches/rest-client'
+require 'conjur-api/version'
 
 module Conjur
 # A REST resource with Conjur-related functionality.
