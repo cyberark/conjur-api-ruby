@@ -19,7 +19,34 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # This module provides logging support for actions taken by the Conjur API.
+  #
+  # @example
+  #     class Example
+  #       include LogSource
+  #
+  #       def something_interesting param
+  #         log{|l| l << "doing something interesting with #{param}"}
+  #
+  #         # Do something interesting...
+  #       end
+  #
+  #     end
+  #     # ...
+  #
+  #     Example.new.something_interesting 'foo'
+  #     # will log:
+  #     # [admin] doing something interesting with foo
+  #
   module LogSource
+    # Yield a logger to the block.  You should use the `<<` method to write to the
+    # logger so that you don't send newlines or formatting.  The block will only be called
+    # if {Conjur.log} is not nil.
+    #
+    # The log format is `"[<username>]<messages logged in block>\n"`.
+    #
+    # @yieldparam [#<<] logger a logger to write messages
+    # @return [void]
     def log(&block)
       if Conjur.log
         Conjur.log << "["

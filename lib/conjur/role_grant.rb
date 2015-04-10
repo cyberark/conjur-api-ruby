@@ -24,16 +24,42 @@ module Conjur
   #
   # @example
   #   alice.members.map{|grant| grant.member}.include? admin_role # => true
-  #   admin_role.members.map{|grant| grant.member}.include? alice # => false
-  RoleGrant = Struct.new(:member, :grantor, :admin_option) do
-    #@!attribute [r] member
-    # @return [Conjur::Role] the member role
+  #   admin_role.members.map{|grant| grant.member}.include? alice # => true
+  #
+  class RoleGrant
 
-    #@!attribute [r] grantor
-    # @return [Conjur::Role] the role that granted this membership
 
-    #@!attribute [r] admin_option
-    # @return [Boolean] whether {#member} is allowed to transfer the grant to other roles
+    # The member role in the relationship
+    # @return [Conjur::Role] the member
+    attr_reader :member
+
+    # The role that created this grant.
+    #
+    # @return [Conjur::Role] the role that created the grant
+    attr_reader :grantor
+
+    # When true, the role {#member} is allowed to give this grant to other roles
+    #
+    # @return [Boolean] whether the role can grant the role to others
+    attr_reader :admin_option
+
+
+    # @api private
+    #
+    # Create a new RoleGrant instance.
+    #
+    # @param [Conjur::Role] member the member to which the role was granted
+    # @param [Conjur::Role] grantor  the role that created this grant
+    # @param [Boolean] admin_option whether `member` can give the grant to other roles
+    def initialize member, grantor, admin_option
+      @member = member
+      @grantor = grantor
+      @admin_option = admin_option
+    end
+
+    #@!attribute member
+    #   The member thing
+    #   @return [Conjur::Role] a ret?
 
     class << self
       # @api private

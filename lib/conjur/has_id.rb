@@ -23,7 +23,10 @@ module Conjur
   # Included in classes for assets that derive their id from their urls.
   module HasId
     # @api private
-    # :nodoc:
+    # This method is provided to support basic JSON serialization for all objects with `id`s.
+    #
+    # @param [Hash] options provided for backwards compatibility, do not use.
+    # @return [Hash] the JSON hash.
     def to_json(options = {})
       { id: id }
     end

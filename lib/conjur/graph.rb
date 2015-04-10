@@ -35,8 +35,9 @@ module Conjur
 
     include Enumerable
 
-    # @!attribute r edges
-    #   @return [Array<Conjur::Graph::Edge>] the edges of this graph
+    # Returns an array containing the directed edges of the graph.
+    #
+    # @return [Array<Conjur::Graph::Edge>] the edges of this graph
     attr_reader :edges
 
     # @api private
@@ -55,7 +56,8 @@ module Conjur
     end
 
     # Enumerates the edges of this graph.
-    # @yieldparam [Conjur::Graph::Edge] each edge of the graph
+    #
+    # @yieldparam [Conjur::Graph::Edge] edge each edge of the graph
     # @return [Conjur::Graph] this graph
     def each_edge
       return enum_for(__method__) unless block_given?
@@ -66,7 +68,7 @@ module Conjur
     alias each each_edge
 
     # Enumerates the vertices (roles) of this graph
-    # @yieldparam vertex [Conjur::Role] each vertex in this graph
+    # @yieldparam  [Conjur::Role] vertex each vertex in this graph
     # @return [Conjur::Graph] this graph
     def each_vertex
       return enum_for(__method__) unless block_given?
@@ -82,6 +84,31 @@ module Conjur
       as_json(short).to_json
     end
 
+    # Convert the graph to a JSON serializable data structure.  The value returned by this method can have two
+    # forms:  An array of arrays when `short` is `true`, or hash like
+    # `{ 'graph' => [ {'parent' => 'roleid', 'child' => 'roleid'} ]}` otherwise.
+    #
+    # @example Graph formats
+    #   graph = api.role_graph 'conjur:group:pubkeys-1.0/key-managers'
+    #
+    #   # Short format
+    #   graph.as_json true
+    #   #  => [
+    #   #  ["conjur:group:pubkeys-1.0/key-managers", "conjur:group:pubkeys-1.0/admin"],
+    #   #  ["conjur:group:pubkeys-1.0/admin", "conjur:user:admin"]
+    #   # ]
+    #
+    #   # Default format (you can omit the false parameter in this case)
+    #   graph.as_json false
+    #   # => {
+    #   #  "graph" => [
+    #   #    {"parent"=>"conjur:group:pubkeys-1.0/key-managers", "child"=>"conjur:group:pubkeys-1.0/admin"},
+    #   #    {"parent"=>"conjur:group:pubkeys-1.0/admin", "child"=>"conjur:user:admin"}
+    #   #  ]
+    #   #}
+    #
+    # @param [Boolean] short whether to use short of default format
+    # @return [Hash, Array] JSON serializable representation of the graph
     def as_json short = false
       edges = self.edges.map{|e| e.as_json(short)}
       short ? edges : {'graph' => edges}
@@ -89,9 +116,10 @@ module Conjur
 
     # Returns a string formatted for use by the {http://www.graphviz.org/ graphviz dot} tool.
     #
-    # @param [String, NilClass] name to assign to the graph. Usually this can be omitted unless you
-    #   are writing multiple graphs to a single file.  Must be in the ID format specified by
-    #   http://www.graphviz.org/content/dot-language
+    # @param [String, NilClass] name An identifier to assign to the graph. This can be omitted unless you
+    #   are writing multiple graphs to a single file.  This must be in the ID format specified by
+    #   http://www.graphviz.org/content/dot-language.
+    #
     # @return [String] the dot format (used by graphviz, among others) representation of this graph.
     def to_dot name = nil
       dot = "digraph #{name || ''} {"

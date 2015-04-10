@@ -22,6 +22,10 @@ module Conjur
   module Authn
     class API < Conjur::API
       class << self
+
+        # The URL for the audit service
+        #
+        # @return [String] the audit service url.
         def host
           Conjur.configuration.authn_url
         end

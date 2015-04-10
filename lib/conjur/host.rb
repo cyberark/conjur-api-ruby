@@ -19,6 +19,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # This class represents a {http://developer.conjur.net/reference/services/directory/host
+  # Conjur Host} asset.  You should not create {Conjur::Host} instances directly, but use {Conjur::API}
+  # methods such as {Conjur::API#create_host} and {Conjur::API#host}.
   class Host < Deputy
 
     # @api private

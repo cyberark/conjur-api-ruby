@@ -21,13 +21,18 @@
 module Conjur
   class InvalidToken < Exception
   end
-  
+
+  # This class represents a {http://developer.conjur.net/reference/services/directory/user Conjur User}.
   class User < RestClient::Resource
     include ActsAsAsset
     include ActsAsUser
 
-    alias login id
+    # Using a method instead of an alias here to make the docs look nicer :-/ - jjm
 
+    # This method is simply an alias for {#id}.  It returns the user's *unqualified* id, which is referred to as
+    # `login` here because it can be used to login to Conjur.
+    # @return [String] the login for this user
+    def login; id end
 
     # Assign new attributes to the user.  Currently, this method only lets you change the
     # `:uidnumber` attribute.
