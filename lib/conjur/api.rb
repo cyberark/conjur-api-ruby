@@ -60,18 +60,42 @@ class RestClient::Resource
     }
   end
   
+  # @api private
+  # @deprecated
+  # The account used by the core service.  This  is deprecated in favor of {Conjur.account} and
+  # {Conjur::Configuration#account}.
+  # @return [String] the core account
   def core_conjur_account
     Conjur::Core::API.conjur_account
   end
-  
+
+  # @api private
+  # This method exists so that all {RestClient::Resource}s support JSON serialization.  It returns an
+  # empty hash.
+  # @return [Hash] the empty hash
   def to_json(options = {})
     {}
   end
-  
+
+  # Creates a Conjur API from this resource's authorization header.
+  #
+  # The new API is created using the token, so it will not be able to refresh
+  # when the token expires (after about 8 minutes).  This is equivalent to creating
+  # an {Conjur::API} instance with {Conjur::API.new_from_token}.
+  #
+  # @return {Conjur::API} the new api
   def conjur_api
     Conjur::API.new_from_token token
   end
-  
+
+  # Get an authentication token from the clients Authorization header.
+  #
+  # Useful fields in the token include `"data"`, which holds the username for which the
+  # token was issued, and `"timestamp"`, which contains the time at which the token was issued.
+  # The token will expire 8 minutes after timestamp, but we recommend you treat the lifespan as
+  # about 5  minutes to account for time differences.
+  #
+  # @return [Hash] the parsed authentication token
   def token
     authorization = options[:headers][:authorization]
     if authorization && authorization.to_s[/^Token token="(.*)"/]
@@ -81,6 +105,9 @@ class RestClient::Resource
     end
   end
 
+  # The username this resource authenticates as.
+  #
+  # @return [String] the username
   def username
     options[:user] || options[:username]
   end

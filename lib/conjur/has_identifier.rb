@@ -19,13 +19,16 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # Included in Conjur assets that have an identifier attribute.
   module HasIdentifier
-    def self.included(base)
-      base.instance_eval do
-        include HasAttributes
-      end
-    end
-    
+    include HasAttributes
+
+    # Get the identifier attribute.  This is a *fully qualified* Conjur id.
+    #
+    # ### Permissions
+    # You must have the "`read`" permission on the underlying resource to call this method.
+    #
+    # @return [String] the asset's fully qualified id
     def identifier
       attributes['identifier']
     end    

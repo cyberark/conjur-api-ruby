@@ -22,6 +22,14 @@ require 'conjur/api'
 require 'conjur/configuration'
 
 class Conjur::Configuration
+  # @!attribute pubkeys_url
+  # The url for the {http://developer.conjur.net/reference/services/pubkyes Conjur public keys service}.
+  #
+  # @note You should not generally set this value.  Instead, Conjur will derive it from the
+  #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
+  #   properties.
+  #
+  # @return [String] the pubkeys service url
   add_option :pubkeys_url do
     account_service_url 'pubkeys', 400
   end
@@ -29,6 +37,10 @@ end
 
 class Conjur::API
   class << self
+    # @api private
+    #
+    # Url to the pubkeys service.
+    # @return [String] the url
     def pubkeys_asset_host 
       Conjur.configuration.pubkeys_url
     end

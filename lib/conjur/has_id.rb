@@ -19,11 +19,23 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+
+  # Included in classes for assets that derive their id from their urls.
   module HasId
+    # @api private
+    # This method is provided to support basic JSON serialization for all objects with `id`s.
+    #
+    # @param [Hash] options provided for backwards compatibility, do not use.
+    # @return [Hash] the JSON hash.
     def to_json(options = {})
       { id: id }
     end
-  
+
+
+    # Get this assets id.  This is the *unqualified* Conjur id for the asset,
+    # and is derived from the asset's url.
+    #
+    # @return [String] the asset's id
     def id
       URI.unescape self.url.split('/')[-1]
     end    

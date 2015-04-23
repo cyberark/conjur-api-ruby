@@ -19,17 +19,27 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # This module provides methods for things that are like users (specifically, those that have
+  # api keys).
   module ActsAsUser
-    def self.included(base)
-      base.instance_eval do
-        include ActsAsRole
-      end
-    end
-    
+    include ActsAsRole
+
+    # Returns a newly created user's api_key.
+    #
+    # @note this method can only be called on newly created user-like things (those returned from, for example,)
+    #   {Conjur::API#create_user}.
+    #
+    # @return [String] the api key
+    # @raise [Exception] when the object isn't newly created.
     def api_key
       attributes['api_key'] or raise "api_key is only available on a newly created #{self.class.name.downcase}"
     end
-    
+
+    # Create an api logged in as this user-like thing.
+    #
+    # @note As with {#api_key}, this method only works on newly created instances.
+    # @see #api_key
+    # @return [Conjur::API] an api logged in as this user-like thing.
     def api
       Conjur::API.new_from_key login, api_key
     end

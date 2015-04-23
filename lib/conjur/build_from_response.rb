@@ -19,7 +19,18 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # @api private
+  # This module is included by classes that can be built from JSON responses.
   module BuildFromResponse
+    # @api private
+    #
+    # Build a Conjur asset from a REST response.
+    #
+    # @param [RestCliet::Response] response the response to build the object from
+    # @param [Hash] credentials options as {Conjur::API#credentials} used to perform requests in methods on
+    #   the created asset.
+    #
+    # @return [Object] an object of this type
     def build_from_response(response, credentials)
       new(response.headers[:location], credentials).tap do |obj|
         obj.attributes = JSON.parse(response.body)

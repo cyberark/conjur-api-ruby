@@ -21,7 +21,11 @@
 module Conjur
   module Cast
     protected
-    
+
+    # Convert a value to a role or resource identifier.
+    #
+    # @param [String, Array, #roleid, #resourceid] obj the value to cast
+    # @param [Symbol] kind must be either `:roleid` or `:resourceid`
     def cast(obj, kind)
       case kind
       when :roleid, :resourceid

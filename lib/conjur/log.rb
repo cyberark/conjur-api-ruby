@@ -21,11 +21,26 @@
 require 'logger'
 
 module Conjur
-  # You can also configure logging by the environment variable CONJURAPI_LOG.
+  # Assign a Logger for use by Conjur API methods.  This method accepts
+  # several argument forms:
+  # * The strings 'stdout' and 'stderr' cause log messages to be sent to the corresponding stream.
+  # * Other stings are treated as paths and will cause log messages to be sent to those files.
+  # * A `Logger` instance will be used as is.
+  #
+  # Note that the logger specified by the `CONJURAPI_LOG` environment variable will override
+  # the value set here.
+  #
+  # @param [String, Logger,nil] log the new logger to use
+  # @return [void]
   def self.log= log
     @@log = create_log log
   end
 
+  # @api private
+  # Create a log from a String or Logger param
+  #
+  # @param [String, Logger, nil] param the value to create the logger from
+  # @return Logger
   def self.create_log param
     if param
       if param.is_a? String
@@ -46,7 +61,12 @@ module Conjur
 
   @@log = nil
 
-  def self.log # :nodoc:
+  # @api private
+  # @note this method may return nil if no log has been set, so you **must** check the value
+  # before attempting to use the logger.
+  #
+  # You should consider using {Conjur::LogSource} instead.
+  def self.log
     @@env_log || @@log
   end
 end

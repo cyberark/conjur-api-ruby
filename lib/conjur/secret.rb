@@ -19,9 +19,17 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # @api private
+  #
+  # Secrets are primitive encrypted values upon which {Conjur::Variable}s are built.
+  # You probably want to use {Conjur::Variable} instead.
   class Secret < RestClient::Resource
     include ActsAsAsset
-    
+
+    # @api private
+    # Return the value of the secret
+    #
+    # @return [String] the value stored by this secret
     def value
       self['value'].get.body
     end

@@ -19,15 +19,30 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+
+  # A Graph represents a directed graph of roles.
+  #
+  # An instance of this class is returned by {Conjur::API#role_graph}.
+  #
+  # @example Graphs act like arrays of edges
+  #   graph.each do |edge|
+  #     puts "#{edge.parent} -> #{edge.child}"
+  #   end
+  #   # role1 -> role2
+  #   # role2 -> role3
+  #
   class Graph
 
     include Enumerable
 
-    # @!attribute r edges
-    #   @return [Array<Conjur::Graph::Edge>] the edges of this graph
+    # Returns an array containing the directed edges of the graph.
+    #
+    # @return [Array<Conjur::Graph::Edge>] the edges of this graph
     attr_reader :edges
 
     # @api private
+    #
+    # @param val [String, Hash, Array, Graph] Data from which to initialize the instance
     def initialize val
       @edges = case val
         when String then JSON.parse(val)['graph']
@@ -41,8 +56,9 @@ module Conjur
     end
 
     # Enumerates the edges of this graph.
-    # @yieldparam [Conjur::Graph::Edge] each edge of the graph
-    # @return edge [Conjur::Graph] this graph
+    #
+    # @yieldparam [Conjur::Graph::Edge] edge each edge of the graph
+    # @return [Conjur::Graph] this graph
     def each_edge
       return enum_for(__method__) unless block_given?
       edges.each{|e| yield e}
@@ -52,28 +68,59 @@ module Conjur
     alias each each_edge
 
     # Enumerates the vertices (roles) of this graph
-    # @yieldparam vertex [Conjur::Role] each vertex in this graph
+    # @yieldparam  [Conjur::Role] vertex each vertex in this graph
     # @return [Conjur::Graph] this graph
     def each_vertex
       return enum_for(__method__) unless block_given?
       vertices.each{|v| yield v}
     end
 
-
+    # Serialize the graph as JSON
+    # @param [Boolean] short when true, the graph is serialized as an array of arrays instead of an array of hashes.
+    # @return [String] the JSON serialized graph.
+    # @see #as_json
+    #
     def to_json short =  false
       as_json(short).to_json
     end
 
+    # Convert the graph to a JSON serializable data structure.  The value returned by this method can have two
+    # forms:  An array of arrays when `short` is `true`, or hash like
+    # `{ 'graph' => [ {'parent' => 'roleid', 'child' => 'roleid'} ]}` otherwise.
+    #
+    # @example Graph formats
+    #   graph = api.role_graph 'conjur:group:pubkeys-1.0/key-managers'
+    #
+    #   # Short format
+    #   graph.as_json true
+    #   #  => [
+    #   #  ["conjur:group:pubkeys-1.0/key-managers", "conjur:group:pubkeys-1.0/admin"],
+    #   #  ["conjur:group:pubkeys-1.0/admin", "conjur:user:admin"]
+    #   # ]
+    #
+    #   # Default format (you can omit the false parameter in this case)
+    #   graph.as_json false
+    #   # => {
+    #   #  "graph" => [
+    #   #    {"parent"=>"conjur:group:pubkeys-1.0/key-managers", "child"=>"conjur:group:pubkeys-1.0/admin"},
+    #   #    {"parent"=>"conjur:group:pubkeys-1.0/admin", "child"=>"conjur:user:admin"}
+    #   #  ]
+    #   #}
+    #
+    # @param [Boolean] short whether to use short of default format
+    # @return [Hash, Array] JSON serializable representation of the graph
     def as_json short = false
       edges = self.edges.map{|e| e.as_json(short)}
       short ? edges : {'graph' => edges}
     end
 
-    # @param [String, NilClass] name to assign to the graph. Usually this can be omitted unless you
-    # are writing multiple graphs to a single file.  Must be in the ID format specified by
-    # http://www.graphviz.org/content/dot-language
+    # Returns a string formatted for use by the {http://www.graphviz.org/ graphviz dot} tool.
     #
-    # @return [String] the dot format (used by graphvis, among others) representation of this graph.
+    # @param [String, NilClass] name An identifier to assign to the graph. This can be omitted unless you
+    #   are writing multiple graphs to a single file.  This must be in the ID format specified by
+    #   http://www.graphviz.org/content/dot-language.
+    #
+    # @return [String] the dot format (used by graphviz, among others) representation of this graph.
     def to_dot name = nil
       dot = "digraph #{name || ''} {"
       vertices.each do |v|
@@ -84,7 +131,9 @@ module Conjur
       end
       dot << "\n}"
     end
-    
+
+    # Return the vertices (roles) of the graph as an array.
+    # @return [Array<Conjur::Role>] the vertices/roles
     def vertices
       @vertices ||= edges.inject([]) {|a, pair| a.concat pair.to_a }.uniq
     end
@@ -148,41 +197,83 @@ module Conjur
       "#{parent_id} -> #{child_id}"
     end
 
-    # an edge consisting of a parent & child, both of which are Conjur::Role instances
+    # Represents a directed Edge between a parent role and a child role.
+    #
+    # In this context, the parent role is a *member of* the child role.  For example,
+    # the `admin` role is a parent of every role, either directly or indirectly, because
+    # it is added as a member to all roles it creates.
     class Edge
+
+      # Return the parent of this edge. The {#parent} role *is a member of* the {#child} role.
+      # @return [Conjur::Role] the parent role
       attr_reader :parent
+
+      # Return the child of this edge.  The {#parent} role *is a member of* the {#child} role.
+      # @return [Conjur::Role] the child role
       attr_reader :child
 
+      # Create a directed edge with a parent and child
+      #
+      # @param [Conjur::Role] parent the parent or source of this edge
+      # @param  [Conjur::Role] child the child or destination of this edge
       def initialize parent, child
         @parent = parent
         @child = child
       end
 
+      # Serialize this edge as JSON.
+      #
+      # @see #as_json
+      # @param [Boolean] short when true, serialize the edge as an Array instead of a Hash
+      # @return [String] the JSON serialized edge
       def to_json short = false
         as_json(short).to_json
       end
 
+      # Return a value suitable for JSON serialization.
+      #
+      # The `short` parameter determines whether to return a `["parent", "child"]` Array
+      # or a Hash like `{"parent" => "parent-role", "child" => "child-role"}`.
+      #
+      # @param [Boolean] short return an Array when true, otherwise return a Hash.
+      # @return [Array, Hash] value suitable for JSON serialization
       def as_json short = false
         short ? to_a : to_h
       end
 
+      # Return this edge as a Hash like {"parent" => "...", "child" => "..."}.
+      #
+      # Note that the keys in the hash are strings.
+      #
+      # @return [Hash] a Hash representing this edge
       def to_h
         # return string keys to make testing less brittle
         {'parent' => @parent, 'child' => @child}
       end
 
+      # Return this edge as an Array like ["parent", "child"]
+      #
+      # @return [Array<String>] the edge as an Array
       def to_a
         [@parent, @child]
       end
 
+      # @api private
+      # :nodoc:
       def to_s
         "<Edge #{parent.id} --> #{child.id}>"
       end
 
+      # Support using edges as hash keys
+      # @api private
+      # :nodoc:
       def hash
         @hash ||= to_a.map(&:to_s).hash
       end
 
+      # Support using edges as hash keys and equality testing
+      # @api private
+      # :nodoc:
       def == other
         other.kind_of?(self.class) and other.parent == parent and other.child == child
       end

@@ -1,7 +1,13 @@
 module Conjur
+  # @api private
   # An EventSource instance is used to parse a stream in the format given by
   # the Server Sent Events standard: http://www.whatwg.org/specs/web-apps/current-work/#server-sent-events
+  #
+  # This class is used internally by the audit methods in follow mode.
+  #
   class EventSource
+    # @api private
+    # Representation of a SSE event
     class Event < Struct.new(:data, :name, :id);
     end
 
@@ -20,6 +26,8 @@ module Conjur
     attr_accessor :json
     alias json? json
 
+    # @api private
+    # Create an EventSource
     def initialize
       @json   = true
       @on     = {}
@@ -27,9 +35,11 @@ module Conjur
       @buffer = ""
     end
 
-    # Feed a chunk of data to the EventSource and dispatch any fully receieved
+    # @api private
+    # Feed a chunk of data to the EventSource and dispatch any fully received
     # events.  
     # @param [String] chunk the data to parse
+    # @return [void]
     def feed chunk
       @buffer << chunk
 
@@ -38,7 +48,10 @@ module Conjur
       end
     end
 
-    # Adds a listener for :name:
+    # Add a block to be called when events with an `'event'` field of `name` are received.
+    #
+    # @param [String, Symbol] name the name to listen for
+    # @yieldparam [Conjur::EventSource::Event] the event
     def on name, &block
       (@on[name.to_sym] ||= []) << block
     end
