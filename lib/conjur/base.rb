@@ -37,31 +37,7 @@ require 'conjur/cast'
 module Conjur
   # NOTE: You have to put all 'class level' api docs here, because YARD is stoopid :-(
 
-  # This class provides access to Conjur services
-  # **TODO MOAR**
-  #
-  # # Conjur Services
-  #
-  # ### Public Keys Service
-  # The {http://developer.conjur.net/reference/services/pubkeys Conjur Public Keys} service provides a
-  # simple database of public keys with access controlled by Conjur.  Reading a user's public keys requires
-  # no authentication at all -- the user's public keys are public information, after all.
-  #
-  # Adding or deleting a public key may only be done if you have permission to update the *public keys
-  # resource*, which is created when the appliance is launched, and has a resource id
-  # `'<organizational account>:service:pubkeys-1.0/public-keys'`.  The appliance also comes with a Group named
-  # `'pubkeys-1.0/key-managers'` that has this permission.  Rather than granting each user permission to
-  # modify the public keys database, you should consider adding users to this group.
-  #
-  # A very common use case is {http://developer.conjur.net/tutorials/ssh public key management for SSH}
-  #
-  #
-  # ### Audit Service
-  #
-  # The {http://developer.conjur.net/reference/services/audit Conjur Audit Service} allows you to
-  # fetch audit records.
-  #
-  # Generally you will need to have *at least one* privilege on the subject of an event in order to see it.
+  # This class provides access to the Conjur services.
   class API
     include Escape
     include LogSource
