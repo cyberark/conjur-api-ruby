@@ -190,8 +190,7 @@ describe Conjur::Role, api: :dummy do
       grants = %w(foo bar)
       expect_request(
         method: :get,
-        url: role.url + "/?members",
-        headers: {}
+        url: role.url + "/?members"
       ).and_return grants.to_json
       grants.each do |g|
         expect(Conjur::RoleGrant).to receive(:parse_from_json).with(g, anything).and_return g
