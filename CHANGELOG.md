@@ -1,3 +1,7 @@
+# v4.15.0
+ * Extensive documentation improvements
+ * A few additional methoods, for example `Conjur::API#public_key_names`.
+
 # v4.14.0
 
 * Bump rest-client version, remove the troublesome mime-types patch
