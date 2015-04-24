@@ -392,15 +392,39 @@ module Conjur
 
     # @!attribute ssl_certificate
     #
-    # Contents of a certificate file.  This can be used instead of :cert_file in environments like Heroku
-    # where your ability to save a certificate to a file is restricted (if you try to do so , you'll get an error about
-    # the certificate not being in the proper directory, and you can't write to the proper directory).
+    # Contents of a certificate file.  This can be used instead of :cert_file in environments like Heroku where  you
+    # can't use a certificate file.
+    #
+    # This option overrides the value of {#cert_file} if both are given, and issues a warning.
     #
     # @see cert_file
     add_option :ssl_certificate
 
 
+
+    # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
+    # store used by Conjur clients.
+    #
+    # @param [OpenSSL::X509::Store] store the certificate store that the certificate will be installed in.
+    # @return [Boolean]  whether a certificate was added to the store.
+    def apply_cert_config! store=OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+      if ssl_certificate
+        add_cert_string store, ssl_certificate
+      elsif cert_file
+        store.add_file cert_file
+      else
+        return false
+      end
+      true
+    end
+
     private
+
+    def add_cert_string store, str
+      store.add_cert OpenSSL::X509::Certificate.new str
+    rescue OpenSSL::X509::StoreError => ex
+      raise ex unless ex.message == 'cert already in hash table'
+    end
 
     def global_service_url(service_name, service_port_offset)
       if appliance_url
