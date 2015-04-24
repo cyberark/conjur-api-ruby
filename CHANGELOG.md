@@ -1,3 +1,7 @@
+# v4.16.0
+  * Add ssl_certificate option to allow certs to be provided as strings (helpful in heroku)
+  * Add `Conjur::Configuration#apply_cert_config!` method to add certs from `#cert_file` and `#ssl_certificate` 
+     to the default cert store.
 # v4.15.0
  * Extensive documentation improvements
  * A few additional methoods, for example `Conjur::API#public_key_names`.
