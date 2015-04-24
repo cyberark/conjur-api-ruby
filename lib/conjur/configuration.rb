@@ -18,6 +18,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
+require 'set'
 module Conjur
   
   class << self
@@ -388,6 +390,16 @@ module Conjur
     # @return [String, nil] path to the certificate file, or nil if you aren't using one.
     add_option :cert_file
 
+    # @!attribute ssl_certificate
+    #
+    # Contents of a certificate file.  This can be used instead of :cert_file in environments like Heroku
+    # where your ability to save a certificate to a file is restricted (if you try to do so , you'll get an error about
+    # the certificate not being in the proper directory, and you can't write to the proper directory).
+    #
+    # @see cert_file
+    add_option :ssl_certificate
+
+
     private
 
     def global_service_url(service_name, service_port_offset)
@@ -428,5 +440,6 @@ module Conjur
     def herokuize name
       name.downcase.gsub(/[^a-z0-9\-]/, '-')
     end
+
   end
 end
