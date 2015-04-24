@@ -213,4 +213,90 @@ describe Conjur::Configuration do
       end
     end
   end
+
+  describe "apply_cert_config!" do
+    subject{ Conjur.configuration.apply_cert_config! }
+
+    let(:store){ double('default store') }
+
+
+    before do
+      stub_const 'OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE', store
+      allow_any_instance_of(Conjur::Configuration).to receive(:ssl_certificate).and_return ssl_certificate
+      allow_any_instance_of(Conjur::Configuration).to receive(:cert_file).and_return cert_file
+
+    end
+
+    context "when neither cert_file or ssl_certificate is present" do
+      let(:cert_file){ nil }
+      let(:ssl_certificate){ nil }
+
+      it 'does nothing to the store' do
+        expect(store).to_not receive(:add_file)
+        expect(store).to_not receive(:add_cert)
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'when both are given' do
+      let(:cert_file){ '/path/to/cert.pem' }
+      let(:ssl_certificate){ 'certificate contents' }
+      let(:cert){ double('certificate') }
+      it 'calls store.add_cert with a certificate created from ssl_certificate' do
+        expect(OpenSSL::X509::Certificate).to receive(:new).with(ssl_certificate).once.and_return cert
+        expect(store).to receive(:add_cert).once.with(cert)
+        expect(subject).to be_truthy
+      end
+    end
+
+    context 'when cert_file is given and ssl_certificate is not' do
+      let(:cert_file){ '/path/to/cert.pem' }
+      let(:ssl_certificate){ nil }
+      it 'calls store.add_file with cert_file' do
+        expect(store).to receive(:add_file).with(cert_file).once
+        expect(subject).to be_truthy
+      end
+    end
+
+    context 'when ssl_certificate is given' do
+      let(:cert_file){ nil }
+      let(:ssl_certificate){ 'certificate contents' }
+      let(:cert){ double('cert') }
+
+      before do
+        expect(OpenSSL::X509::Certificate).to receive(:new).with(ssl_certificate).at_least(:once).and_return cert
+      end
+
+      it 'calls store.add_cert with a certificate created from ssl_certificate' do
+        expect(store).to receive(:add_cert).with(cert).once
+        expect(subject).to be_truthy
+      end
+
+      it 'rescues from a StoreError with message "cert already in hash tabble"' do
+        expect(store).to receive(:add_cert).with(cert).once.and_raise(OpenSSL::X509::StoreError.new('cert already in hash table'))
+        expect(subject).to be_truthy
+      end
+
+
+      it 'does not rescue from other exceptions' do
+        expect(store).to receive(:add_cert).with(cert).once.and_raise(OpenSSL::X509::StoreError.new('some other message'))
+        expect{subject}.to raise_exception
+        expect(store).to receive(:add_cert).with(cert).once.and_raise(ArgumentError.new('bad news'))
+        expect{subject}.to raise_exception
+      end
+    end
+
+    context 'when given a store argument' do
+      let(:cert_file){ '/path/to/cert.pem' }
+      let(:ssl_certificate){ nil }
+      let(:alt_store){ double('alt store') }
+      subject{ Conjur.configuration.apply_cert_config! alt_store }
+
+      it 'uses that store instead' do
+        expect(alt_store).to receive(:add_file).with(cert_file).once
+        expect(subject).to be_truthy
+      end
+    end
+
+  end
 end
