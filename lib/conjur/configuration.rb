@@ -421,7 +421,14 @@ module Conjur
     private
 
     def add_cert_string store, str
+      str = str.gsub(/\s+/, "\n")
+      str.gsub!("-----BEGIN\n", "-----BEGIN ")
+      str.gsub!("-----END\n", "-----END ")
       store.add_cert OpenSSL::X509::Certificate.new str
+    rescue OpenSSL::X509::CertificateError => ex
+      $stderr.puts "Invalid certificate:"
+      $stderr.puts str
+      raise ex
     rescue OpenSSL::X509::StoreError => ex
       raise ex unless ex.message == 'cert already in hash table'
     end
