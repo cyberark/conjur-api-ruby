@@ -196,7 +196,7 @@ module Conjur
 
       @token ||= Conjur::API.authenticate(@username, @api_key)
 
-      fail "obtained token is invalid" unless token_valid? # sanity check
+      validate_token
 
       return @token
     end
@@ -213,15 +213,28 @@ module Conjur
 
     private
 
+    def token_valid?
+      begin
+        validate_token
+        return true
+      rescue Exception
+        return false
+      end
+    end
+
     # Check to see if @token is defined, and whether it's expired
     #
-    # @return [Boolean] whether or not the token is valid.
-    def token_valid?
-      return false unless @token
+    # @raise [Exception] if the token is invalid
+    def validate_token
+      fail "token not present" unless @token
       
       # Actual token expiration is 8 minutes, but why cut it so close
       expiration = 5.minutes
-      Time.now - Time.parse(@token['timestamp']) < expiration
+      lag = Time.now - Time.parse(@token['timestamp'])
+      unless lag < expiration
+        fail "obtained token is invalid: "\
+            "token timestamp is #{@token['timestamp']}, #{lag} seconds ago"
+      end
     end
   end
 end

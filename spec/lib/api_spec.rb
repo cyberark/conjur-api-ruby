@@ -257,6 +257,14 @@ describe Conjur::API do
         expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
       end
 
+      it("checks if the token is fresh") do
+        expired_token = token.merge 'timestamp' => 10.minutes.ago.to_s
+        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return expired_token
+
+        expect(api.instance_variable_get("@token")).to eq(nil)
+        expect { api.token }.to raise_error /obtained token is invalid/
+      end
+
       context "with an expired token" do
         it "fetches a new one" do
           allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
