@@ -232,7 +232,7 @@ module Conjur
     # 
     # @return The API instance.
     def with_privilege privilege
-      self.class.new_from_token(username, api_key, token, remote_ip).tap do |api|
+      self.class.new(username, api_key, token, remote_ip).tap do |api|
         api.privilege = privilege
       end
     end
