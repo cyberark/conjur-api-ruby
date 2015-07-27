@@ -85,7 +85,12 @@ class RestClient::Resource
   #
   # @return {Conjur::API} the new api
   def conjur_api
-    Conjur::API.new_from_token token
+    api = Conjur::API.new_from_token token, remote_ip
+    if conjur_privilege
+      api.with_privilege conjur_privilege
+    else
+      api
+    end
   end
 
   # Get an authentication token from the clients Authorization header.
@@ -103,6 +108,14 @@ class RestClient::Resource
     else
       raise AuthorizationError.new("Authorization missing")
     end
+  end
+  
+  def remote_ip
+    options[:headers][:x_forwarded_for]
+  end
+  
+  def conjur_privilege
+    options[:headers][:x_conjur_privilege]
   end
 
   # The username this resource authenticates as.

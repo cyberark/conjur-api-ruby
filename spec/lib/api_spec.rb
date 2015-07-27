@@ -226,7 +226,9 @@ describe Conjur::API do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => Time.now.to_s } }
     subject { api }
-    let(:api) { Conjur::API.new_from_token(token) }
+    let(:remote_ip) { nil }
+    let(:api_args) { [ token, remote_ip ].compact }
+    let(:api) { Conjur::API.new_from_token(*api_args) }
     let(:account) { 'some-account' }
     before { allow(Conjur::Core::API).to receive_messages conjur_account: account }
   end
@@ -246,7 +248,9 @@ describe Conjur::API do
 
     context "from api key", logged_in: true do
       let(:api_key) { "theapikey" }
-      let(:api) { Conjur::API.new_from_key(login, api_key) }
+      let(:api_args) { [ login, api_key, remote_ip ].compact }
+      let(:api) { Conjur::API.new_from_key(*api_args) }
+      let(:remote_ip) { nil }
       subject { api }
 
       it("should authenticate to get a token") do
