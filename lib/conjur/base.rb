@@ -217,8 +217,8 @@ module Conjur
     def credentials
       headers = {}.tap do |h|
         h[:authorization] = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
-        h[:"x-conjur-privilege"] = @privilege if @privilege
-        h[:"x-forwarded-for"] = @remote_ip if @remote_ip
+        h[:x_conjur_privilege] = @privilege if @privilege
+        h[:x_forwarded_for] = @remote_ip if @remote_ip
       end
       { headers: headers, username: username }
     end
