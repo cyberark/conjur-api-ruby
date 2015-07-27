@@ -100,7 +100,8 @@ module Conjur
       #   api.user 'foo' # raises a 401 error
       #
       # @param [String] username the username to use when making authenticated requests.
-      # @param [Sring] api_key the api key or password for `username`
+      # @param [String] api_key the api key or password for `username`
+      # @param [String] remote_ip the optional IP address to be recorded in the audit record.
       # @return [Conjur::API] an api that will authenticate with the given username and api key.
       def new_from_key(username, api_key, remote_ip = nil)
         self.new username, api_key, nil, remote_ip
@@ -135,6 +136,7 @@ module Conjur
       #   end
       #
       # @param [Hash] token the authentication token as parsed JSON to use when making authenticated requests
+      # @param [String] remote_ip the optional IP address to be recorded in the audit record.
       # @return [Conjur::API] an api that will authenticate with the token
       def new_from_token(token, remote_ip = nil)
         self.new nil, nil, token, remote_ip
@@ -151,6 +153,7 @@ module Conjur
     # @param [String] username the username to authenticate as
     # @param [String] api_key the api key or password to use when authenticating
     # @param [Hash] token the token to use when making authenticated requuests.
+    # @param [String] remote_ip the optional IP address to be recorded in the audit record.
     #
     # @api internal
     def initialize username, api_key, token, remote_ip = nil
@@ -168,10 +171,12 @@ module Conjur
     # @return [String] the api key, or nil if this instance was created from a token.
     attr_reader :api_key
     
-    # TODO: docme
+    #@!attribute [r] remote_ip
+    # An optional IP address to be recorded in the audit record for any actions performed by this API instance.
     attr_reader :remote_ip
 
-    # TODO: docme
+    #@!attribute [r] privilege
+    # The optional global privilege (e.g. 'sudo' or 'reveal') which should be attempted on the request.
     attr_accessor :privilege
 
     # The name of the user as which this api instance is authenticated.  This is available whether the api
@@ -223,8 +228,9 @@ module Conjur
       { headers: headers, username: username }
     end
 
-    # TODO: docme
-    # Return a new API object with the specified X-Conjur-Privilege
+    # Return a new API object with the specified X-Conjur-Privilege.
+    # 
+    # @return The API instance.
     def with_privilege privilege
       self.class.new_from_token(username, api_key, token, remote_ip).tap do |api|
         api.privilege = privilege
