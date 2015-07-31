@@ -226,7 +226,9 @@ describe Conjur::API do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => Time.now.to_s } }
     subject { api }
-    let(:api) { Conjur::API.new_from_token(token) }
+    let(:remote_ip) { nil }
+    let(:api_args) { [ token, remote_ip ].compact }
+    let(:api) { Conjur::API.new_from_token(*api_args) }
     let(:account) { 'some-account' }
     before { allow(Conjur::Core::API).to receive_messages conjur_account: account }
   end
@@ -242,11 +244,28 @@ describe Conjur::API do
         subject { super().credentials }
         it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }) }
       end
+      
+      describe "privileged" do
+        describe '#credentials' do
+          subject { super().with_privilege('sudo').credentials }
+          it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"", :x_conjur_privilege=>"sudo" }, username: login }) }
+        end
+      end
+      
+      context "with remote_ip" do
+        let(:remote_ip) { "66.0.0.1" }
+        describe '#credentials' do
+          subject { super().credentials }
+          it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"", :x_forwarded_for=>"66.0.0.1" }, username: login }) }
+        end
+      end
     end
 
     context "from api key", logged_in: true do
       let(:api_key) { "theapikey" }
-      let(:api) { Conjur::API.new_from_key(login, api_key) }
+      let(:api_args) { [ login, api_key, remote_ip ].compact }
+      let(:api) { Conjur::API.new_from_key(*api_args) }
+      let(:remote_ip) { nil }
       subject { api }
 
       it("should authenticate to get a token") do
@@ -281,11 +300,36 @@ describe Conjur::API do
 
     context "from logged-in RestClient::Resource" do
       let(:token_encoded) { Base64.strict_encode64(token.to_json) }
-      let(:resource) { RestClient::Resource.new("http://example.com", { headers: { authorization: "Token token=\"#{token_encoded}\"" } })}
+      let(:headers) { { authorization: "Token token=\"#{token_encoded}\"" } }
+      let(:resource) { RestClient::Resource.new("http://example.com", { headers: headers })}
       it "can construct a new API instance" do
         api = resource.conjur_api
         expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
+        expect(api.credentials[:headers][:x_conjur_privilege]).to be_nil
+        expect(api.credentials[:headers][:x_forwarded_for]).to be_nil
         expect(api.credentials[:username]).to eq("bob")
+      end
+      
+      context "privileged" do
+        let(:headers) { { authorization: "Token token=\"#{token_encoded}\"", x_conjur_privilege: "sudo" } }
+        it "can clone itself" do
+          api = resource.conjur_api
+          expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
+          expect(api.credentials[:headers][:x_conjur_privilege]).to eq("sudo")
+          expect(api.credentials[:headers][:x_forwarded_for]).to be_nil
+          expect(api.credentials[:username]).to eq("bob")
+        end
+      end
+      
+      context "privileged" do
+        let(:headers) { { authorization: "Token token=\"#{token_encoded}\"", x_forwarded_for: "66.0.0.1" } }
+        it "can clone itself" do
+          api = resource.conjur_api
+          expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
+          expect(api.credentials[:headers][:x_conjur_privilege]).to be_nil
+          expect(api.credentials[:headers][:x_forwarded_for]).to eq("66.0.0.1")
+          expect(api.credentials[:username]).to eq("bob")
+        end
       end
     end
   end
