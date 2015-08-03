@@ -1,3 +1,6 @@
+# v4.17.0
+
+* Add handling for `X-Forwarded-For` and `X-Conjur-Privilege` ("conjur sudo")
 * Transform embedded whitespace in certificate string into newlines
 
 # v4.16.0
