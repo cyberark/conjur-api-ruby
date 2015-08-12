@@ -49,7 +49,7 @@ gemset or bundle.
 
 Once Conjur is configured, the connection can be established like this:
 
-```ruby
+```
 conjur = Conjur::Authn.connect nil, noask: true
 ```
 
@@ -71,7 +71,7 @@ object.
 
 For example, specify the `account` and `appliance_url` (both of which are required) like this:
 
-```ruby
+```
 Conjur.configuration.account = 'my-account'
 Conjur.configuration.appliance_url = 'https://conjur.mydomain.com/api'
 ```
@@ -82,13 +82,13 @@ configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, 
 
 In either case, you will also need to configure certificate trust. For example:
 
-```ruby
+```
 OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE.add_file "/etc/conjur-yourorg.pem"
 ```
 
 Once Conjur is configured, you can create a new API client by providing a `login` and `api_key`:
 
-```ruby
+```
 Conjur::API.new_from_key login, api_key
 ```
 
