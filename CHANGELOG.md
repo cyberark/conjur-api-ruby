@@ -1,3 +1,7 @@
+# v4.18.0
+
+* Add method `global_privilege_permitted?` to facilitate working with Conjur 4.5 global privileges.
+
 # v4.17.0
 
 * Add handling for `X-Forwarded-For` and `X-Conjur-Privilege` ("conjur sudo")
