@@ -22,7 +22,6 @@ require 'conjur/resource'
 
 module Conjur
   class API
-
     #@!group Authorization: Resources
 
     # Create a {http://developer.conjur.net/reference/services/authorization/resource Conjur Resource}.
@@ -60,7 +59,7 @@ module Conjur
         r.create(options)
       end
     end
-
+    
     # Find a resource by it's id.  The id given to this method must be qualified by a kind, but the account is
     # optional.
     #
@@ -84,7 +83,7 @@ module Conjur
     #
     # @param identifier [String] a qualified resource identifier, optionally including an account
     # @return [Conjur::Resource] the resource, which may or may not exist
-     def resource identifier
+    def resource identifier
       Resource.new(Conjur::Authz::API.host, credentials)[self.class.parse_resource_id(identifier).join('/')]
     end
 
@@ -147,6 +146,25 @@ module Conjur
           r.attributes = result
         end
       end
+    end
+
+    # The resource which grants global privileges to Conjur.
+    # Privileges given on this resource apply to any record in the system.
+    # There are two defined global privileges:
+    #
+    # * **sudo** permission is granted for any action. 
+    # * **reveal** methods which list records will always return every matching
+    #   record, regardless of whether the user has any privileges on these records or not.
+    #   Services can also choose to attach additional semantics to *reveal*, such as allowing
+    #   the user to show non-sensitive attributes of any record.
+    #
+    # Global privileges are available in Conjur 4.5 and later.
+    GLOBAL_PRIVILEGE_RESOURCE = "!:!:conjur"
+    
+    # Checks whether the client has a particular global privilege.
+    # The global privileges are *sudo* and *reveal*.
+    def global_privilege_permitted? privilege
+      resource(GLOBAL_PRIVILEGE_RESOURCE).permitted? privilege
     end
   end
 end
