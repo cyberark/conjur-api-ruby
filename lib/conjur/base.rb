@@ -175,7 +175,7 @@ module Conjur
     # An optional IP address to be recorded in the audit record for any actions performed by this API instance.
     attr_reader :remote_ip
 
-    #@!attribute [r] privilege
+    #@!attribute [rw] privilege
     # The optional global privilege (e.g. 'elevate' or 'reveal') which should be attempted on the request.
     attr_accessor :privilege
 
