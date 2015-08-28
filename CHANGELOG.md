@@ -1,3 +1,8 @@
+# v4.19.0
+
+* Rename `sudo` to `elevate` throughout the spec and docstrings. This is an incompatible change, but it
+occurs before the Conjur 4.5 server that implements `elevate` is released.
+
 # v4.18.0
 
 * Add method `global_privilege_permitted?` to facilitate working with Conjur 4.5 global privileges.
