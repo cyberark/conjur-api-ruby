@@ -1,4 +1,7 @@
-* Rename 'sudo' to 'elevate' throughout the spec and docstrings.
+# v4.19.0
+
+* Rename `sudo` to `elevate` throughout the spec and docstrings. This is an incompatible change, but it
+occurs before the Conjur 4.5 server that implements `elevate` is released.
 
 # v4.18.0
 
