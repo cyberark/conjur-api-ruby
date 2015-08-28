@@ -152,7 +152,7 @@ module Conjur
     # Privileges given on this resource apply to any record in the system.
     # There are two defined global privileges:
     #
-    # * **sudo** permission is granted for any action. 
+    # * **elevate** permission is granted for any action.
     # * **reveal** methods which list records will always return every matching
     #   record, regardless of whether the user has any privileges on these records or not.
     #   Services can also choose to attach additional semantics to *reveal*, such as allowing
@@ -162,7 +162,7 @@ module Conjur
     GLOBAL_PRIVILEGE_RESOURCE = "!:!:conjur"
     
     # Checks whether the client has a particular global privilege.
-    # The global privileges are *sudo* and *reveal*.
+    # The global privileges are *elevate* and *reveal*.
     def global_privilege_permitted? privilege
       resource(GLOBAL_PRIVILEGE_RESOURCE).permitted? privilege
     end

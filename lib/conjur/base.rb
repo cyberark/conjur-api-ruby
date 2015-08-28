@@ -176,7 +176,7 @@ module Conjur
     attr_reader :remote_ip
 
     #@!attribute [r] privilege
-    # The optional global privilege (e.g. 'sudo' or 'reveal') which should be attempted on the request.
+    # The optional global privilege (e.g. 'elevate' or 'reveal') which should be attempted on the request.
     attr_accessor :privilege
 
     # The name of the user as which this api instance is authenticated.  This is available whether the api

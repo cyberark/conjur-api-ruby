@@ -247,8 +247,8 @@ describe Conjur::API do
       
       describe "privileged" do
         describe '#credentials' do
-          subject { super().with_privilege('sudo').credentials }
-          it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"", :x_conjur_privilege=>"sudo" }, username: login }) }
+          subject { super().with_privilege('elevate').credentials }
+          it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"", :x_conjur_privilege=>"elevate" }, username: login }) }
         end
       end
       
@@ -311,11 +311,11 @@ describe Conjur::API do
       end
       
       context "privileged" do
-        let(:headers) { { authorization: "Token token=\"#{token_encoded}\"", x_conjur_privilege: "sudo" } }
+        let(:headers) { { authorization: "Token token=\"#{token_encoded}\"", x_conjur_privilege: "elevate" } }
         it "can clone itself" do
           api = resource.conjur_api
           expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
-          expect(api.credentials[:headers][:x_conjur_privilege]).to eq("sudo")
+          expect(api.credentials[:headers][:x_conjur_privilege]).to eq("elevate")
           expect(api.credentials[:headers][:x_forwarded_for]).to be_nil
           expect(api.credentials[:username]).to eq("bob")
         end
