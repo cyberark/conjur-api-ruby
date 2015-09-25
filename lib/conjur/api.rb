@@ -42,6 +42,9 @@ require 'conjur/layer-api'
 require 'conjur/pubkeys-api'
 require 'conjur-api/version'
 
+# Monkey patch RestClient::Request so it always uses
+# :ssl_cert_store. (RestClient::Resource uses Request to send
+# requests, so it sees :ssl_cert_store, too).
 class RestClient::Request
   alias_method :initialize_without_defaults, :initialize
 
