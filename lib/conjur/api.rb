@@ -42,24 +42,31 @@ require 'conjur/layer-api'
 require 'conjur/pubkeys-api'
 require 'conjur-api/version'
 
+# Monkey patch RestClient::Request so it always uses
+# :ssl_cert_store. (RestClient::Resource uses Request to send
+# requests, so it sees :ssl_cert_store, too).
+class RestClient::Request
+  alias_method :initialize_without_defaults, :initialize
+
+  def default_args
+    {
+      ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+    }
+  end
+  
+  def initialize args
+    initialize_without_defaults default_args.merge(args)
+  end
+  
+end
+
+    
 class RestClient::Resource
   include Conjur::Escape
   include Conjur::LogSource
   include Conjur::Cast
   extend  Conjur::BuildFromResponse
 
-  alias_method :initialize_without_defaults, :initialize
-
-  def initialize url, options = nil, &block
-    initialize_without_defaults url, default_options.merge(options || {}), &block
-  end
-
-  def default_options
-    {
-      ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
-    }
-  end
-  
   # @api private
   # @deprecated
   # The account used by the core service.  This  is deprecated in favor of {Conjur.account} and
