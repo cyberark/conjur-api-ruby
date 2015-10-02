@@ -30,6 +30,15 @@ describe RestClient::Request do
     end
   end
 
+  context 'default arguments' do
+    let(:cache) { nil }
+    let(:lazy) { false }
+    it "sets cert_store to OpenSSL's default cert store" do
+      request = RestClient::Request.new(method: 'GET', url: 'http://example.com')
+      expect(request.ssl_opts[:cert_store]).to eq(OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE)
+    end
+  end
+  
   def reinit_mime_types!
     # pretend to initialize MIME::Types from scratch
     MIME::Types.instance_variable_set :@__types__, nil
