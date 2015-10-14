@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,9 @@
 #
 
 require 'set'
+
+require 'conjur/cert_utils'
+
 module Conjur
   
   class << self
@@ -409,7 +412,13 @@ module Conjur
     # @return [Boolean]  whether a certificate was added to the store.
     def apply_cert_config! store=OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
       if ssl_certificate
-        add_cert_string store, ssl_certificate
+        CertUtils.parse_certs(ssl_certificate).each do |cert|
+          begin
+            store.add_cert cert
+          rescue OpenSSL::X509::StoreError => ex
+            raise unless ex.message == 'cert already in hash table'
+          end
+        end
       elsif cert_file
         store.add_file cert_file
       else
@@ -419,19 +428,6 @@ module Conjur
     end
 
     private
-
-    def add_cert_string store, str
-      str = str.gsub(/\s+/, "\n")
-      str.gsub!("-----BEGIN\n", "-----BEGIN ")
-      str.gsub!("-----END\n", "-----END ")
-      store.add_cert OpenSSL::X509::Certificate.new str
-    rescue OpenSSL::X509::CertificateError => ex
-      $stderr.puts "Invalid certificate:"
-      $stderr.puts str
-      raise ex
-    rescue OpenSSL::X509::StoreError => ex
-      raise ex unless ex.message == 'cert already in hash table'
-    end
 
     def global_service_url(service_name, service_port_offset)
       if appliance_url
