@@ -1,3 +1,7 @@
+# v4.19.1
+
+* BUGFIX: Allow Configuration to parse several certs in a string
+
 # v4.19.0
 
 * Rename `sudo` to `elevate` throughout the spec and docstrings. This is an incompatible change, but it
