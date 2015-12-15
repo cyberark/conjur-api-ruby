@@ -34,9 +34,13 @@ describe Conjur::User do
         subject { super().options }
         it { is_expected.to match(hash_including credentials) }
       end
-      specify {
-        expect { user.roleid }.to raise_error
-      }
+
+      describe '#roleid' do
+        it "gets account name from server info" do
+          allow(Conjur::Core::API).to receive_messages conjur_account: 'test-account'
+          expect(subject.roleid).to eq "test-account:user:#{login}"
+        end
+      end
     end
     it "connects to a Resource" do
       require 'conjur/resource'

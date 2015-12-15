@@ -55,13 +55,13 @@ describe Conjur::API do
       let (:kind) { "sample-kind" }
 
       it "fails  on non-string ids" do
-        expect { subject.parse_id({}, kind) }.to raise_error
+        expect { subject.parse_id({}, kind) }.to raise_error /Unexpected class/
       end
       
       it "fails on malformed ids (<2 tokens)" do
-        expect { subject.parse_id("foo", kind) }.to raise_error
-        expect { subject.parse_id("", kind) }.to raise_error
-        expect { subject.parse_id(nil, kind) }.to raise_error
+        expect { subject.parse_id("foo", kind) }.to raise_error /Expecting at least two /
+        expect { subject.parse_id("", kind) }.to raise_error /Expecting at least two /
+        expect { subject.parse_id(nil, kind) }.to raise_error /Unexpected class/
       end
      
       describe "returns array of [account, kind, subkind, id]" do
