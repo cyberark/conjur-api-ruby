@@ -58,7 +58,7 @@ module Conjur
     # @raise [RestClient::Conflict] If the user already exists, or a user with the given uidnumber exists.
     def create_user(login, options = {})
       options = options.merge \
-          cidr: [*options[:cidr]].map(&CIDR.method(:validate)) if options[:cidr]
+          cidr: [*options[:cidr]].map(&CIDR.method(:validate)).map(&:to_s) if options[:cidr]
       standard_create Conjur::Core::API.host, :user, nil, options.merge(login: login)
     end
 

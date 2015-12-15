@@ -23,6 +23,7 @@ module Conjur
   module CIDR
     # Parse addr into an IPAddr if it's not one already, then extend it with CIDR
     # module. This will force validation and will raise ArgumentError if invalid.
+    # @return [IPAddr] the address (extended with CIDR module)
     def self.validate addr
       addr = IPAddr.new addr unless addr.kind_of? IPAddr
       addr.extend self
@@ -38,7 +39,14 @@ module Conjur
 
     attr_reader :mask_addr
 
-    # Returns the length of the network mask prefix
+    # @return [String] the address as an "address/mask length" string
+    # @example
+    #     IPAddr.new("192.0.2.0/255.255.255.0").extend(CIDR).to_s == "192.0.2.0/24"
+    def to_s
+      [super, prefixlen].join '/'
+    end
+
+    # @return [Fixnum] the length of the network mask prefix
     def prefixlen
       unless @prefixlen
         @prefixlen = 0
