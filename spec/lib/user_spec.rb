@@ -63,4 +63,15 @@ describe Conjur::User do
       user.role
     end
   end
+
+  describe '#update', api: :dummy do
+    subject(:user) { api.user username }
+    it "calls set_cidr_restrictions if given CIDR" do
+      expect(user).to receive(:set_cidr_restrictions).with(['192.0.2.0/24'])
+      user.update cidr: ['192.0.2.0/24']
+
+      expect(user).to_not receive(:set_cidr_restrictions)
+      user.update foo: 42
+    end
+  end
 end
