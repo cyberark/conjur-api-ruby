@@ -54,8 +54,7 @@ module Conjur
       unless @prefixlen
         return @prefixlen = 0 if (mask = mask_addr) == 0
 
-        fullmask = ipv4? ? IPAddr::IN4MASK : IPAddr::IN6MASK
-        @prefixlen = fullmask.bit_length
+        @prefixlen = ipv4? ? 32 : 128
 
         while (mask & 1) == 0
           mask >>= 1
