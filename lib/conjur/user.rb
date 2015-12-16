@@ -44,7 +44,8 @@ module Conjur
     # You must have update permission on the user's resource or be the user to
     # update CIDR restrictions.
     #
-    # @note This feature requires Conjur server version 4.3 or later.
+    # @note Updating `uidnumber` requires Conjur server version 4.3 or later.
+    # @note Updating `cidr` requires Conjur server version 4.6 or later.
     #
     # @param [Hash] options attributes to change
     # @option options [FixNum] :uidnumber the new uidnumber for this user.
