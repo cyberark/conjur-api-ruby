@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'standard_methods_helper'
+require 'cidr_helper'
 
 describe Conjur::API, api: :dummy do
   describe '#create_user' do
@@ -7,27 +8,10 @@ describe Conjur::API, api: :dummy do
       let(:invoke) { api.create_user 'login', other: true }
     end
 
-    it "formats the CIDRs correctly" do
-      cidrs = %w(192.0.2.0/24 198.51.100.0/24)
-      expect do
-        api.create_user 'login', cidr: cidrs.map(&IPAddr.method(:new))
-      end.to call_standard_create_with :user, nil, login: 'login', cidr: cidrs
-    end
-
-    it "parses addresses given as strings" do
-      expect do
-        api.create_user 'login', cidr: %w(192.0.2.0/255.255.255.128)
-      end.to call_standard_create_with :user, nil, login: 'login', cidr: %w(192.0.2.0/25)
-    end
-
-    it "raises ArgumentError on invalid CIDR" do
-      expect do
-        api.create_user 'login', cidr: %w(192.0.2.0/255.255.0.255)
-      end.to raise_error ArgumentError
-
-      expect do
-        api.create_user 'login', cidr: %w(192.0.2.256/1)
-      end.to raise_error ArgumentError
+    include_examples 'CIDR create' do
+      def create opts
+        api.create_user 'login', opts
+      end
     end
   end
 

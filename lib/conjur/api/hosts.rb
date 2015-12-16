@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -78,6 +78,8 @@ module Conjur
     #   a member of the owner role.
     #
     def create_host options = nil
+      options = options.merge \
+          cidr: [*options[:cidr]].map(&CIDR.method(:validate)).map(&:to_s) if options[:cidr]
       standard_create Conjur::Core::API.host, :host, nil, options
     end
 
