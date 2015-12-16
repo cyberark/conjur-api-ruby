@@ -7,7 +7,7 @@ describe Conjur::ActsAsUser, api: :dummy do
     it "sends the new restrictions to the authn server" do
       expect_request(
         headers: hash_including(content_type: :json),
-        url: "http://authn.example.com/users/kmitnick",
+        url: "http://authn.example.com/users?id=kmitnick",
         method: :put,
         payload: { cidr: ['192.0.2.1/32'] }.to_json
       )
@@ -17,7 +17,7 @@ describe Conjur::ActsAsUser, api: :dummy do
     it "resets the restrictions on the authn server if given empty cidr string" do
       expect_request(
         headers: hash_including(content_type: :json),
-        url: "http://authn.example.com/users/kmitnick",
+        url: "http://authn.example.com/users?id=kmitnick",
         method: :put,
         payload: { cidr: [] }.to_json
       )

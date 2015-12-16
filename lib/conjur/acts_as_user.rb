@@ -49,7 +49,7 @@ module Conjur
     # @param [Array<String, IPAddr>] networks which allow logging in. Set to empty to remove restrictions
     def set_cidr_restrictions networks
       authn_user = RestClient::Resource.new(Conjur::Authn::API.host, options)\
-          ['users'][fully_escape login]
+          ["users?id=#{fully_escape login}"]
 
       # we need use JSON here to be able to PUT an empty array
       params = { cidr: [*networks].map(&CIDR.method(:validate)).map(&:to_s) }
