@@ -1,10 +1,17 @@
 require 'spec_helper'
 require 'standard_methods_helper'
+require 'cidr_helper'
 
 describe Conjur::API, api: :dummy do
   describe '#create_user' do
     it_should_behave_like 'standard_create with', :user, nil, login: 'login', other: true do
       let(:invoke) { api.create_user 'login', other: true }
+    end
+
+    include_examples 'CIDR create' do
+      def create opts
+        api.create_user 'login', opts
+      end
     end
   end
 

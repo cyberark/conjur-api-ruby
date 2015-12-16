@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -42,6 +42,18 @@ module Conjur
     # @return [Conjur::API] an api logged in as this user-like thing.
     def api
       Conjur::API.new_from_key login, api_key
+    end
+
+    # Set login network restrictions for the user.
+    #
+    # @param [Array<String, IPAddr>] networks which allow logging in. Set to empty to remove restrictions
+    def set_cidr_restrictions networks
+      authn_user = RestClient::Resource.new(Conjur::Authn::API.host, options)\
+          ["users?id=#{fully_escape login}"]
+
+      # we need use JSON here to be able to PUT an empty array
+      params = { cidr: [*networks].map(&CIDR.method(:validate)).map(&:to_s) }
+      authn_user.put params.to_json, content_type: :json
     end
   end
 end

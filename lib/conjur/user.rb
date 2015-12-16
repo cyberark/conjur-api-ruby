@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -34,27 +34,35 @@ module Conjur
     # @return [String] the login for this user
     def login; id end
 
-    # Assign new attributes to the user.  Currently, this method only lets you change the
-    # `:uidnumber` attribute.
+    # Assign new attributes to the user.
     #
     # If a user with the given `:uidnumber` already exists, this method will raise `RestClient::Forbidden`, with
     # the response body providing additional details if possible.
     #
     # ### Permissions
-    # You must be a member of the user's role to call this method.
+    # You must be a member of the user's role to update the uidnumber.
+    # You must have update permission on the user's resource or be the user to
+    # update CIDR restrictions.
     #
-    # @note This feature requires Conjur server version 4.3 or later.
+    # @note Updating `uidnumber` requires Conjur server version 4.3 or later.
+    # @note Updating `cidr` requires Conjur server version 4.6 or later.
     #
     # @param [Hash] options attributes to change
-    # @option options [FixNum] :uidnumber the new uidnumber for this user.  This option *must* be present.
+    # @option options [FixNum] :uidnumber the new uidnumber for this user.
+    # @option options [Array<String, IPAddr>] :cidr the network restrictions for this user. Requires Conjur server version 4.6 or later
     # @return [void]
     # @raise [RestClient::Conflict] if the uidnumber is already in use
-    # @raise [ArgumentError] if uidnumber isn't a `Fixnum` or isn't present in `options`
+    # @raise [ArgumentError] if uidnumber or cidr aren't valid
     def update options
-      # Currently the server raises a 400 Bad Request if uidnumber is missing, require it here
-      raise ArgumentError "options[:uidnumber] is required" unless uidnumber = options[:uidnumber]
-      raise ArgumentError, "options[:uidnumber] must be a Fixnum" unless uidnumber.kind_of?(Fixnum)
-      self.put(options)
+      if uidnumber = options[:uidnumber]
+        # Currently the server raises a 400 Bad Request if uidnumber is missing, require it here
+        raise ArgumentError, "options[:uidnumber] must be a Fixnum" unless uidnumber.kind_of?(Fixnum)
+        self.put(options)
+      end
+
+      if cidr = options[:cidr]
+        set_cidr_restrictions cidr
+      end
     end
 
     # Get the user's uidnumber, which is used by LDAP and SSH login, among other things.

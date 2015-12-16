@@ -301,10 +301,12 @@ CERT
 
 
       it 'does not rescue from other exceptions' do
-        expect(store).to receive(:add_cert).with(cert).once.and_raise(OpenSSL::X509::StoreError.new('some other message'))
-        expect{subject}.to raise_exception
-        expect(store).to receive(:add_cert).with(cert).once.and_raise(ArgumentError.new('bad news'))
-        expect{subject}.to raise_exception
+        exn = OpenSSL::X509::StoreError.new('some other message')
+        expect(store).to receive(:add_cert).with(cert).once.and_raise(exn)
+        expect{subject}.to raise_error exn
+        exn = ArgumentError.new('bad news')
+        expect(store).to receive(:add_cert).with(cert).once.and_raise(exn)
+        expect{subject}.to raise_error exn
       end
     end
 

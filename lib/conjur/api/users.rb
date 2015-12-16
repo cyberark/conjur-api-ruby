@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2015 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,6 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 require 'conjur/user'
+require 'conjur/cidr'
 
 module Conjur
   class API
@@ -48,12 +49,16 @@ module Conjur
     # @param [String] login the login for the new user
     # @param [Hash] options options for user creation
     # @option options [String] :acting_as Qualified id of a role to perform the action as
+    # @option options [Array<String, IPAddr>] :cidr CIDR addresses of networks
+    #   the new user will be allower to login from
     # @option options [String, Integer] :uidnumber UID number to assign to the new user.  If not given, one will be generated.
     # @option options [String] :password when present, the user will be given a password in addition to a randomly
     #   generated api key.
     # @return [Conjur::User] an object representing the new user
     # @raise [RestClient::Conflict] If the user already exists, or a user with the given uidnumber exists.
     def create_user(login, options = {})
+      options = options.merge \
+          cidr: [*options[:cidr]].map(&CIDR.method(:validate)).map(&:to_s) if options[:cidr]
       standard_create Conjur::Core::API.host, :user, nil, options.merge(login: login)
     end
 
