@@ -18,6 +18,9 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
+require 'ipaddr'
+
 module Conjur
   # Utility methods for CIDR network addresses
   module CIDR
@@ -49,22 +52,17 @@ module Conjur
     # @return [Fixnum] the length of the network mask prefix
     def prefixlen
       unless @prefixlen
-        @prefixlen = 0
-        mask = mask_addr
-        addr = to_i
+        return @prefixlen = 0 if (mask = mask_addr) == 0
+
+        fullmask = ipv4? ? IPAddr::IN4MASK : IPAddr::IN6MASK
+        @prefixlen = fullmask.bit_length
 
         while (mask & 1) == 0
           mask >>= 1
-          addr >>= 1
+          @prefixlen -= 1
         end
 
-        while addr != 0 && (mask & 1) == 1
-          mask >>= 1
-          addr >>= 1
-          @prefixlen += 1
-        end
-
-        if mask != 0 || addr != 0
+        if mask != ((1 << @prefixlen) - 1)
           fail InvalidCIDR, "#{inspect} is not a valid CIDR network address"
         end
       end
