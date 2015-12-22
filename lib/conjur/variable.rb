@@ -205,5 +205,19 @@ module Conjur
       url << "?version=#{version}" if version
       self[url].get.body
     end
+
+    # Set the expiration for the variable.
+    #
+    # You must have the **`'update'`** permission on a variable to call this method.
+    #
+    # @example Set the expiration for a variable to tomorrow
+    #   var = api.variable 'my-secret'
+    #   var.expire 'P1D'
+    # @param duration ISO8601 duration the variable should be valid
+    # @return [Hash] description of the variable's expiration, including the time when it expires
+    def expire duration
+      JSON::parse(self['expiration'].post(duration: duration))
+    end
+
   end
 end

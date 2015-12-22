@@ -105,6 +105,10 @@ module Conjur
       end
     end
 
+    def variable_expirations(window = nil)
+      JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/expirations'].get)
+    end
+
     #@!endgroup
   end
 end
