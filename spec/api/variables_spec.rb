@@ -13,6 +13,25 @@ describe Conjur::API, api: :dummy do
     it_should_behave_like 'standard_show with', :variable, :id
   end
 
+
+  let (:expected_url) { nil }
+  let (:expected_headers) { {} }
+  shared_context "Stubbed API" do
+    before {
+      expect_request(
+        method: :get,
+        url: expected_url,
+        headers: credentials[:headers].merge(expected_headers)
+        ) { 
+        if defined? return_error 
+          raise return_error
+        else
+          double( code: return_code, body: return_body ) 
+        end
+      }
+    }
+  end
+
   describe "#variable_values" do
 
     let (:varlist) { ["var/1","var/2","var/3" ] }
@@ -22,22 +41,7 @@ describe Conjur::API, api: :dummy do
       expect { api.variable_values([]) }.to raise_exception(ArgumentError)
     end 
 
-    shared_context "Stubbed API" do
-      let (:expected_url) { "#{core_host}/variables/values?vars=#{varlist.map {|v| api.fully_escape(v) }.join(",")}"  }
-      before {
-        expect_request(
-          method: :get,
-          url: expected_url,
-          headers: credentials[:headers]
-          ) { 
-            if defined? return_error 
-              raise return_error
-            else
-              double( code: return_code, body: return_body ) 
-            end
-          }
-      }
-    end
+    let (:expected_url) { "#{core_host}/variables/values?vars=#{varlist.map {|v| api.fully_escape(v) }.join(",")}"  }
 
     let (:invoke) { api.variable_values(varlist) }
 
@@ -76,6 +80,17 @@ describe Conjur::API, api: :dummy do
       end
     end 
 
+  end
+
+  describe '#variable_expirations' do
+    include_context "Stubbed API"
+    let (:expected_url) { "#{core_host}/variables/expirations" }
+    let (:return_code) { '200' }
+    let (:return_body) { '[]' }
+
+    it 'works' do
+      expect(api.variable_expirations).to eq([])
+    end
   end
 
 end

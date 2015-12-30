@@ -206,7 +206,12 @@ module Conjur
       self[url].get.body
     end
 
-    # Set the expiration for the variable.
+    # Set the expiration for the variable. After the variable expires,
+    # the value of the variable will no longer be retrievable.
+    #
+    # The lifetime of the variable is described by an ISO8601
+    # duration, as described here:
+    # https://en.wikipedia.org/wiki/ISO_8601#Durations
     #
     # You must have the **`'update'`** permission on a variable to call this method.
     #
@@ -216,7 +221,7 @@ module Conjur
     # @param duration ISO8601 duration the variable should be valid
     # @return [Hash] description of the variable's expiration, including the time when it expires
     def expire duration
-      JSON::parse(self['expiration'].post(duration: duration))
+      JSON::parse(self['expiration'].post(duration: duration).body)
     end
 
   end

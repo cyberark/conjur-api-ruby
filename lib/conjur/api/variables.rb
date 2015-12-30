@@ -105,8 +105,15 @@ module Conjur
       end
     end
 
-    def variable_expirations(window = nil)
-      JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/expirations'].get)
+    # Fetch all visible variables that expire within the given
+    # interval (expressed as an ISO8601 duration). If no duration is
+    # specifed, all variables that are set to expire will be returned.
+    #
+    # param [String] duration ISO8601 duration 
+    # return [Hash] variable expirations
+    def variable_expirations(duration = nil)
+      params = {}.tap { |p| p.merge!({:params => {:duration => duration}}) if duration }
+      JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/expirations'].get(params).body)
     end
 
     #@!endgroup
