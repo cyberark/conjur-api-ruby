@@ -47,15 +47,16 @@ describe Conjur::Variable do
   end
 
   describe '#expire' do
+    let (:expiration) { 2.weeks }
     it 'posts the expiration' do
       expect_request(
         :method => :post,
         :url => "#{url}/expiration",
-        :payload => { :duration => 'P0Y' },
+        :payload => { :duration => "PT#{expiration.to_i}S" },
         :headers => {}
         ).and_return(double('response', :body => '{}'))
 
-      subject.expire 'P0Y'
+      subject.expire expiration
     end
   end
 
