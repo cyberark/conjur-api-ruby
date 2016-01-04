@@ -1,3 +1,9 @@
+# v4.20.0
+
+* Add support for Host Factory functionality (replaces conjur-asset-host-factory plugin).
+* Add support for sending audit events (replaces conjur-asset-audit-send plugin).
+* Add support for variable expiration. Variable expiration is available in version 4.6 of the Conjur server.
+
 # v4.19.1
 
 * BUGFIX: Allow Configuration to parse several certs in a string
