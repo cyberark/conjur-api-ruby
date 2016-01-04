@@ -40,6 +40,7 @@ require 'conjur/audit-api'
 require 'conjur/core-api'
 require 'conjur/layer-api'
 require 'conjur/pubkeys-api'
+require 'conjur/host-factory-api'
 require 'conjur-api/version'
 
 # Monkey patch RestClient::Request so it always uses

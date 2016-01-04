@@ -205,5 +205,24 @@ module Conjur
       url << "?version=#{version}" if version
       self[url].get.body
     end
+
+    # Set the variable to expire after the given number of
+    # seconds. Once a variable has expired, its value will no longer
+    # be retrievable.
+    #
+    # Seconds can be any object that responds to #to_i.
+    #
+    # You must have the **`'update'`** permission on a variable to call this method.
+    #
+    # @example Use ActiveSupport to set the expiration for a variable to tomorrow
+    #   require 'active_support/all'
+    #   var = api.variable 'my-secret'
+    #   var.expire 1.day
+    # @param seconds the number of seconds before the variable xpires
+    # @return [Hash] description of the variable's expiration, including the (Conjur server) time when it expires
+    def expire seconds
+      JSON::parse(self['expiration'].post(duration: "PT#{seconds.to_i}S").body)
+    end
+
   end
 end

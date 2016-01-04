@@ -82,6 +82,19 @@ module Conjur
       audit_event_feed "resources/#{CGI.escape cast(resource, :resourceid)}", options, &block
     end
 
+    # Send custom audit event
+    # @param input [String|Hash|Array] event or array of events (optionally serialized to JSON)
+    def audit_send input 
+      json = if input.kind_of? String
+                input
+             elsif input.kind_of? Array or input.kind_of? Hash
+                input.to_json
+             else
+                raise ArgumentError, "Parameter should be either String, Hash or Array"
+             end
+      rest_api = RestClient::Resource.new(Conjur::Authz::API.host, credentials)["audit"]
+      rest_api.post json, content_type: "text/plain"
+    end
     #@!endgroup
 
     private
