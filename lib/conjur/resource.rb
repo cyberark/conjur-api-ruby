@@ -97,7 +97,7 @@ module Conjur
     #   resource.permit 'execute', api.user('jon')
     #   resource.permitted_roles 'execute' # => ['conjur:user:admin', 'conjur:user:jon']
     #
-    # @param permission [String] the permission``
+    # @param permission [String] the permission
     # @param options [Hash, nil] extra options to pass to RestClient::Resource#get
     # @return [Array<String>] the ids of roles that have `permission` on this resource.
     def permitted_roles(permission, options = {})
