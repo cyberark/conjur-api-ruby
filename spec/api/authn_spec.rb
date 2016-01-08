@@ -65,4 +65,17 @@ describe Conjur::API do
       expect(Conjur::API.update_password(user, password, 'new-password')).to eq(:response)
     end
   end
+
+  describe '::rotate_api_key' do
+    it 'puts with basic auth' do
+      expect_request(
+          method: :put,
+          url: 'http://authn.example.com/users/api_key',
+          user: user,
+          password: password,
+          headers: { }
+      ).and_return double('response', body: 'new api key')
+      expect(Conjur::API.rotate_api_key user, password).to eq('new api key')
+    end
+  end
 end

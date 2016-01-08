@@ -86,6 +86,7 @@ module Conjur
         JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
       end
 
+
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
       #   api keys.  However, you *can*  use the user's api key as the *current* password, if the user was not created
       #   with a password.
@@ -99,6 +100,34 @@ module Conjur
           Conjur.log << "Updating password for #{username}\n"
         end
         RestClient::Resource.new(Conjur::Authn::API.host, user: username, password: password)['users/password'].put new_password
+      end
+
+      #@!endgroup
+
+      #@!group Password and API key management
+
+      # Rotate a user's API key by generating and returning a new one.  The old API key is no longer valid after
+      # calling this method.  You must have the user's current API key or password to perform this operation.  This
+      # method *does not* affect the user's password.
+      #
+      # @note If the user does not have a password, the returned API key will be the **only** way to authenticate as
+      #   the user.  Therefore, you'd best save it.
+      #
+      # @note This feature requires version 4.6 of the Conjur appliance.
+      #
+      # @param [String] username the name of the user whose password we want to change
+      # @param [String] password the user's current password *or* api key
+      # @return [String] the new API key for the user
+      def rotate_api_key username, password
+        if Conjur.log
+          Conjur.log << "Rotating API key for #{username}\n"
+        end
+
+        RestClient::Resource.new(
+            Conjur::Authn::API.host,
+            user: username,
+            password: password
+        )['users/api_key'].put('').body
       end
 
       #@!endgroup
