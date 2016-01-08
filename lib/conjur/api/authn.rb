@@ -113,6 +113,8 @@ module Conjur
       # @note If the user does not have a password, the returned API key will be the **only** way to authenticate as
       #   the user.  Therefore, you'd best save it.
       #
+      # @note This feature requires version 4.6 of the Conjur appliance.
+      #
       # @param [String] username the name of the user whose password we want to change
       # @param [String] password the user's current password *or* api key
       # @return [String] the new API key for the user
