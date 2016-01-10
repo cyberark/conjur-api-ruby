@@ -109,7 +109,7 @@ describe Conjur::API, api: :dummy do
       let(:credentials) { { headers: { authorization: "Token token=\"stub\"" } } } #, username: username } }
       
       before do
-        api.stub credentials: credentials
+        allow(api).to receive_messages credentials: credentials
       end
 
       context "valid input" do
@@ -123,14 +123,14 @@ describe Conjur::API, api: :dummy do
         
         it "sends Hash as JSON" do
           event = { action: "login", user: "alice" }
-          RestClient::Request.should_receive(:execute).with(
+          expect(RestClient::Request).to receive(:execute).with(
             http_parameters.merge( payload: event.to_json )
             )
           api.audit_send event
         end
         it "sends array as JSON" do
           events = [ { action: "login", user: "alice" }, { action: "sudo", user: "alice" } ]
-          RestClient::Request.should_receive(:execute).with(
+          expect(RestClient::Request).to receive(:execute).with(
             http_parameters.merge( payload: events.to_json )
             )
           api.audit_send events
@@ -138,7 +138,7 @@ describe Conjur::API, api: :dummy do
         
         it "sends string as is (consider it preformatted JSON)" do
           events_serialized = "this is supposed to be JSON" 
-          RestClient::Request.should_receive(:execute).with(
+          expect(RestClient::Request).to receive(:execute).with(
             http_parameters.merge( payload: events_serialized )
             )
           api.audit_send events_serialized
