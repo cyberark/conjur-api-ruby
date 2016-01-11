@@ -110,16 +110,22 @@ module Conjur
     # no interval is specifed, all variables that are set to expire
     # will be returned.
     #
-    # interval should implement #to_i to return a number of seconds.
+    # interval should either be a String containing an ISO8601
+    # duration, or it should implement #to_i to return a number of
+    # seconds.
+    #
+    # @example Use an ISO8601 duration to return variables expiring in the next month
+    #   expirations = api.variable_expirations('PT1M')
     #
     # @example Use ActiveSupport to return variables expiring in the next month
     #   require 'active_support/all'
     #   expirations = api.variable_expirations(1.month)
 
-    # param [Object #to_i] interval number of seconds 
+    # param interval a String containing an ISO8601 duration , or a number of seconds 
     # return [Hash] variable expirations that occur within the interval
     def variable_expirations(interval = nil)
-      params = {}.tap { |p| p.merge!({:params => {:duration => "PT#{interval.to_i}S"}}) if interval }
+      duration = interval.try { |i| i.instance_of?(String) ? i : "PT#{i.to_i}S" }
+      params = {}.tap { |p| p.merge!({:params => {:duration => duration }}) if duration }
       JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/expirations'].get(params).body)
     end
 

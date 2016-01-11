@@ -47,17 +47,34 @@ describe Conjur::Variable do
   end
 
   describe '#expire' do
-    let (:expiration) { 2.weeks }
-    it 'posts the expiration' do
-      expect_request(
-        :method => :post,
-        :url => "#{url}/expiration",
-        :payload => { :duration => "PT#{expiration.to_i}S" },
-        :headers => {}
-        ).and_return(double('response', :body => '{}'))
-
-      subject.expire expiration
+    context 'when duration is a number of seconds' do
+      let (:expiration) { 2.weeks }
+      it 'posts the expiration' do
+        expect_request(
+          :method => :post,
+          :url => "#{url}/expiration",
+          :payload => { :duration => "PT#{expiration.to_i}S" },
+          :headers => {}
+          ).and_return(double('response', :body => '{}'))
+        
+        subject.expires_in expiration
+      end
     end
+
+    context 'when duration is an ISO8601 duration' do
+      let (:expiration) { "P2W" }
+      it 'posts the expiration' do
+        expect_request(
+          :method => :post,
+          :url => "#{url}/expiration",
+          :payload => { :duration => "P2W" },
+          :headers => {}
+          ).and_return(double('response', :body => '{}'))
+        
+        subject.expires_in expiration
+      end
+    end
+
   end
 
 end

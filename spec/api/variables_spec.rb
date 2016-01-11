@@ -93,10 +93,17 @@ describe Conjur::API, api: :dummy do
       it { is_expected.to eq([]) }
     end
 
-    context "with interval" do
+    context "with Fixnum interval" do
       let (:interval) { 2.weeks }
       let (:expected_headers) { {:params => { :duration => "PT#{interval.to_i}S" } } }
       subject { api.variable_expirations(2.weeks) }
+      it { is_expected.to eq([]) }
+    end
+
+    context "with String interval" do
+      let (:interval) { 'P2W' }
+      let (:expected_headers) { {:params => { :duration => 'P2W' } } }
+      subject { api.variable_expirations('P2W') }
       it { is_expected.to eq([]) }
     end
 
