@@ -115,7 +115,7 @@ module Conjur
     # seconds.
     #
     # @example Use an ISO8601 duration to return variables expiring in the next month
-    #   expirations = api.variable_expirations('PT1M')
+    #   expirations = api.variable_expirations('P1M')
     #
     # @example Use ActiveSupport to return variables expiring in the next month
     #   require 'active_support/all'

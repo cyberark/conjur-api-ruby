@@ -215,7 +215,7 @@ module Conjur
     #
     # @example Use an ISO8601 duration to set the expiration for a variable to tomorrow
     #   var = api.variable 'my-secret'
-    #   var.expire "PT1D"
+    #   var.expire "P1D"
     #
     # @example Use ActiveSupport to set the expiration for a variable to tomorrow
     #   require 'active_support/all'
