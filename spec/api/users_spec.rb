@@ -15,6 +15,20 @@ describe Conjur::API, api: :dummy do
     end
   end
 
+  describe 'user#rotate_api_key' do
+    let(:userid){ 'alice@wonderland' }
+    let(:new_api_key){ 'new api key' }
+    it 'PUTS to /authn/users/api_key?id=:userid' do
+      expect_request(
+          method: :put,
+          url: "#{authn_host}/users/api_key?id=#{api.fully_escape userid}",
+          headers: credentials[:headers],
+          payload: ''
+      ).and_return double('response', body: new_api_key)
+      expect(api.user(userid).rotate_api_key).to eq(new_api_key)
+    end
+  end
+
   describe 'user#update' do
     let(:userid) { "alice@wonderland" }
     it "PUTs to /users/:id?uidnumber=:uidnumber" do
