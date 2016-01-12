@@ -224,7 +224,7 @@ module Conjur
     # @param interval a String containing an ISO8601 duration, otherwise the number of seconds before the variable xpires
     # @return [Hash] description of the variable's expiration, including the (Conjur server) time when it expires
     def expires_in interval
-      duration = interval.instance_of?(String) ? interval : "PT#{interval.to_i}S"
+      duration = interval.respond_to?(:to_str) ? interval : "PT#{interval.to_i}S"
       JSON::parse(self['expiration'].post(duration: duration).body)
     end
 

@@ -124,7 +124,7 @@ module Conjur
     # param interval a String containing an ISO8601 duration , or a number of seconds 
     # return [Hash] variable expirations that occur within the interval
     def variable_expirations(interval = nil)
-      duration = interval.try { |i| i.instance_of?(String) ? i : "PT#{i.to_i}S" }
+      duration = interval.try { |i| i.respond_to?(:to_str) ? i : "PT#{i.to_i}S" }
       params = {}.tap { |p| p.merge!({:params => {:duration => duration }}) if duration }
       JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/expirations'].get(params).body)
     end
