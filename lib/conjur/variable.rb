@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2013-2016 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -215,12 +215,12 @@ module Conjur
     #
     # @example Use an ISO8601 duration to set the expiration for a variable to tomorrow
     #   var = api.variable 'my-secret'
-    #   var.expire "P1D"
+    #   var.expires_in "P1D"
     #
     # @example Use ActiveSupport to set the expiration for a variable to tomorrow
     #   require 'active_support/all'
     #   var = api.variable 'my-secret'
-    #   var.expire 1.day
+    #   var.expires_in 1.day
     # @param interval a String containing an ISO8601 duration, otherwise the number of seconds before the variable xpires
     # @return [Hash] description of the variable's expiration, including the (Conjur server) time when it expires
     def expires_in interval
