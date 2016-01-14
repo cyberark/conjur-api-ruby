@@ -1,3 +1,7 @@
+# v4.20.1
+
+* Support ISO8601 duration strings as arguments in variable expiration methods.
+
 # v4.20.0
 
 * Add support for Host Factory functionality (replaces conjur-asset-host-factory plugin).
