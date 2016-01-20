@@ -44,6 +44,21 @@ module Conjur
       Conjur::API.new_from_key login, api_key
     end
 
+    # Rotate this user's API key.  You must have `update` permission on the user to do so.
+    #
+    # @note You will not be able to access the API key returned by this method later, so you should
+    #   probably hang onto it it.
+    #
+    # @note You cannot rotate your own API key with this method.  To do so, use `Conjur::API.rotate_api_key`
+    #
+    # @note This feature requires a Conjur appliance running version 4.6 or higher.
+    #
+    # @return [String] the new API key for this user.
+    def rotate_api_key
+      path = "users/api_key?id=#{fully_escape login}"
+      RestClient::Resource.new(Conjur::Authn::API.host, options)[path].put('').body
+    end
+
     # Set login network restrictions for the user.
     #
     # @param [Array<String, IPAddr>] networks which allow logging in. Set to empty to remove restrictions

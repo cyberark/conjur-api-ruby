@@ -106,9 +106,9 @@ module Conjur
 
       #@!group Password and API key management
 
-      # Rotate a user's API key by generating and returning a new one.  The old API key is no longer valid after
-      # calling this method.  You must have the user's current API key or password to perform this operation.  This
-      # method *does not* affect the user's password.
+      # Rotate the currently authenticated user's API key by generating and returning a new one.
+      # The old API key is no longer valid after calling this method.  You must have the user's current
+      # API key or password to perform this operation.  This method *does not* affect the user's password.
       #
       # @note If the user does not have a password, the returned API key will be the **only** way to authenticate as
       #   the user.  Therefore, you'd best save it.
@@ -120,13 +120,13 @@ module Conjur
       # @return [String] the new API key for the user
       def rotate_api_key username, password
         if Conjur.log
-          Conjur.log << "Rotating API key for #{username}\n"
+          Conjur.log << "Rotating API key for self (#{username})\n"
         end
 
         RestClient::Resource.new(
-            Conjur::Authn::API.host,
-            user: username,
-            password: password
+              Conjur::Authn::API.host,
+              user: username,
+              password: password
         )['users/api_key'].put('').body
       end
 
