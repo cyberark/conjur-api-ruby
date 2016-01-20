@@ -72,7 +72,6 @@ describe Conjur::API, api: :dummy do
       it 'raises an exception' do
         expect_request(
             method: :get,
-            method: :get,
             url: 'https://example.com/info'
         ).at_least(1).times.and_return response
         expect{ subject }.to raise_error(RuntimeError, /Unknown service/i)
