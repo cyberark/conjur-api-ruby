@@ -1,4 +1,4 @@
 module Conjur
-  class FeatureNotAvailable < Exception
+  class FeatureNotAvailable < StandardError
   end
 end

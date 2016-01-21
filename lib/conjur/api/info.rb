@@ -60,12 +60,13 @@ module Conjur
       #
       # @return [Hash] various information about the Conjur appliance.
       def appliance_info
-          JSON.parse(RestClient::Resource.new(appliance_info_url).get.body)
-        rescue RestClient::ResourceNotFound
-          raise Conjur::FeatureNotAvailable.new('The Evoke version on your appliance does not support appliance_info (you need 4.6 or later)')
+        JSON.parse(RestClient::Resource.new(appliance_info_url).get.body)
+      rescue RestClient::ResourceNotFound
+        raise Conjur::FeatureNotAvailable.new('Your appliance does not support the /info URL needed by Conjur::API#appliance_info (you need 4.6 or later)')
       end
 
       private
+      
       def appliance_info_url
         Conjur.configuration.appliance_url.gsub(%r{/api$}, '/info')
       end
