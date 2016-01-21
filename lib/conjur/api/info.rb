@@ -66,13 +66,58 @@ module Conjur
       def appliance_info
         JSON.parse(RestClient::Resource.new(appliance_info_url).get.body)
       rescue RestClient::ResourceNotFound
-        raise Conjur::FeatureNotAvailable.new('Your appliance does not support the /info URL needed by Conjur::API#appliance_info (you need 4.6 or later)')
+        raise Conjur::FeatureNotAvailable.new('Your appliance does not support the /info URL needed by Conjur::API.appliance_info (you need 4.6 or later)')
+      end
+
+      # Return a Hash containing health information for this appliance, or for another host.
+      #
+      # If the `remote_host` argument is provided, the health of that appliance is reported from
+      # the perspective of the appliance being queried (as specified by the `appliance_url` configuration
+      # variable).
+      #
+      # @note When called without an argument, this method requires a Conjur server running version 4.5 or later.
+      #   When called with an argument, it requires 4.6 or later.
+      #
+      # @param [String, NilClass] remote_host a hostname for a remote host
+      # @return [Hash] the appliance health information.
+      def appliance_health remote_host=nil
+        remote_host.nil? ? own_health : remote_health(remote_host)
       end
 
       private
-      
+
+
+      def remote_health host
+        JSON.parse(RestClient::Resource.new(remote_health_url(host)).get.body)
+      rescue RestClient::ResourceNotFound
+        raise Conjur::FeatureNotAvailable.new('Your appliance does not support the /remote_health/:host URL needed by Conjur::API.appliance_health (you need 4.6 or later)')
+      rescue RestClient::ExceptionWithResponse => ex
+        JSON.parse(ex.response.body)
+      end
+
+
+      def own_health
+        JSON.parse(RestClient::Resource.new(appliance_health_url).get.body)
+      rescue RestClient::ResourceNotFound
+        raise Conjur::FeatureNotAvailable.new('Your appliance does not support the /health URL needed by Conjur::API.appliance_health (you need 4.5 or later)')
+      rescue RestClient::ExceptionWithResponse => ex
+        JSON.parse(ex.response.body)
+      end
+
+      def remote_health_url host
+        raw_appliance_url "/remote_health/#{fully_escape host}"
+      end
+
+      def appliance_health_url
+        raw_appliance_url '/health'
+      end
+
       def appliance_info_url
-        Conjur.configuration.appliance_url.gsub(%r{/api$}, '/info')
+        raw_appliance_url '/info'
+      end
+
+      def raw_appliance_url path
+        Conjur.configuration.appliance_url.gsub(%r{/api$}, path)
       end
     end
   end
