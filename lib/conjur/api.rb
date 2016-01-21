@@ -25,6 +25,7 @@ require 'conjur/cast'
 require 'conjur/configuration'
 require 'conjur/env'
 require 'conjur/base'
+require 'conjur/exceptions'
 require 'conjur/build_from_response'
 require 'conjur/acts_as_resource'
 require 'conjur/acts_as_role'
@@ -42,6 +43,7 @@ require 'conjur/layer-api'
 require 'conjur/pubkeys-api'
 require 'conjur/host-factory-api'
 require 'conjur-api/version'
+require 'conjur/api/info'
 
 # Monkey patch RestClient::Request so it always uses
 # :ssl_cert_store. (RestClient::Resource uses Request to send

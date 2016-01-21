@@ -1,3 +1,7 @@
+# v4.21.0
+
+* Add `Conjur::API` methods to querying service versions : `service_version`, `service_names`, `appliance_info`.
+
 # v4.20.1
 
 * Support ISO8601 duration strings as arguments in variable expiration methods.
