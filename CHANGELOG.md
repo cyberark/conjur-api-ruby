@@ -1,10 +1,7 @@
-# v4.21.3
-
- * Add `Conjur::API` method for querying server health: `appliance_health(remote_host=nil)`
-
-# v4.21.2
+# v4.21.0
 
 * Add `Conjur::API` methods to querying service versions : `service_version`, `service_names`, `appliance_info`.
+* Add `Conjur::API` method for querying server health: `appliance_health(remote_host=nil)`
 
 # v4.20.1
 
