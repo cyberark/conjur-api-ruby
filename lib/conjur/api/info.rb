@@ -26,8 +26,8 @@ module Conjur
       # Return the version of the given service presently running on the Conjur appliance.
       #
       # @example Check that the authn service is at least version 4.6
-      #   if api.service_version('authn') >= '4.6'.to_version
-      #     puts "Authn version is at least 4.6"
+      #   if api.service_version('authn') >= '4.6.0'.to_version
+      #     puts "Authn version is at least 4.6.0"
       #   end
       #
       # This feature is useful for determining whether the Conjur appliance has a particular feature.
@@ -41,7 +41,11 @@ module Conjur
         if (service_info = appliance_info['services'][service]).nil?
           raise "Unknown service #{service} (services are #{service_names.join(', ')}."
         else
-          service_info['version'].to_version
+          # Pre-release versions are discarded, because they make testing harder:
+          # 2.0.0-p598 :004 > Semantic::Version.new("4.5.0") <= Semantic::Version.new("4.5.0-1")
+          # => false
+          major, minor, patch, pre = service_info['version'].split(/[.-]/)[0..3]
+          Semantic::Version.new "#{major}.#{minor}.#{patch}"
         end
       end
 

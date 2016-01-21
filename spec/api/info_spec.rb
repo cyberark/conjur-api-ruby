@@ -7,11 +7,12 @@ describe Conjur::API, api: :dummy do
     allow(Conjur.configuration).to receive(:appliance_url).and_return 'https://example.com/api'
   end
 
+  let(:version_string) { '4.5.0-75-gde404a6' }
   let(:response_json){
     {
         'services' => {
             'authn' => {
-                'version' => '4.5.0-75-gde404a6'
+                'version' => version_string
             }
         }
     }
@@ -57,13 +58,20 @@ describe Conjur::API, api: :dummy do
     subject{ Conjur::API.service_version(service)}
     context 'when the service name is valid' do
       let(:service){'authn'}
-      let(:expected_version){ '4.5.0-75-gde404a6'.to_version }
-      it 'returns the version as a Semantic::Version' do
+      let(:expected_version){ "4.5.0".to_version }
+      before {
         expect_request(
             method: :get,
             url: 'https://example.com/info'
         ).at_least(1).times.and_return response
+      }
+      it 'returns the version as a Semantic::Version' do
         expect(subject).to eq(expected_version)
+      end
+      describe 'can be compared' do
+        it 'returns the version as a Semantic::Version' do
+          expect(subject >= Semantic::Version.new('4.5.0')).to eq(true)
+        end
       end
     end
 
