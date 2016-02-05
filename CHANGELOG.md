@@ -1,20 +1,12 @@
-# v4.21.3
-
- * Add `Conjur::API` method for querying server health: `appliance_health(remote_host=nil)`
-
-# v4.21.2
-
-* Add `Conjur::API` methods to querying service versions : `service_version`, `service_names`, `appliance_info`.
-
-# v4.20.1
-
-* Support ISO8601 duration strings as arguments in variable expiration methods.
-
 # v4.20.0
 
 * Add support for Host Factory functionality (replaces conjur-asset-host-factory plugin).
 * Add support for sending audit events (replaces conjur-asset-audit-send plugin).
 * Add support for variable expiration. Variable expiration is available in version 4.6 of the Conjur server.
+* Add `Conjur::API` methods to querying service versions : `service_version`, `service_names`, `appliance_info`.
+* Add `Conjur::API` method for querying server health: `appliance_health(remote_host=nil)`
+* Support ISO8601 duration strings as arguments in variable expiration methods.
+* Add support for CIDR restrictions
 
 # v4.19.1
 

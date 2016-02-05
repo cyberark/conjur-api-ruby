@@ -23,7 +23,7 @@ module Conjur
     include HasAttributes
     
     def to_json(options = {})
-      { token: token, expiration: expiration }
+      { token: token, expiration: expiration, cidr: cidr }
     end
   
     def token
@@ -39,7 +39,11 @@ module Conjur
     def host_factory
       Conjur::HostFactory.new(Conjur::API.host_factory_asset_host, options)[fully_escape attributes['host_factory']['id']]
     end
-    
+
+    def cidr
+      attributes['cidr']
+    end
+
     def revoke!
       invalidate do
         RestClient::Resource.new(self['revoke'].url, options).post

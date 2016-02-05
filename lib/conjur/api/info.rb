@@ -117,7 +117,9 @@ module Conjur
       end
 
       def raw_appliance_url path
-        Conjur.configuration.appliance_url.gsub(%r{/api$}, path)
+        url = Conjur.configuration.appliance_url
+        raise "Conjur connection is not configured" unless url
+        url.gsub(%r{/api$}, path)
       end
     end
   end
