@@ -3,8 +3,9 @@ require 'helpers/request_helpers'
 
 describe Conjur::Annotations do
   include RequestHelpers
+  include Conjur::Escape
 
-  let(:identifier){ 'the-resource-id' }
+  let(:identifier){ 'the-r{source}&^-id' }
   let(:kind){ 'some-kind' }
   let(:account){ 'the-account' }
   let(:resourceid){ [account, kind, identifier].join ':'}
@@ -23,7 +24,7 @@ describe Conjur::Annotations do
   
   subject { annotations }
 
-  let(:url){ "#{Conjur::Authz::API.host}/#{account}/annotations/#{kind}/#{identifier}" }
+  let(:url){ "#{Conjur::Authz::API.host}/#{account}/annotations/#{kind}/#{fully_escape identifier}" }
 
   def expect_put_request url, payload
     expect_request(

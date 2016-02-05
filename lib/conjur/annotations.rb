@@ -33,7 +33,7 @@ module Conjur
   #
   class Annotations
     include Enumerable
-
+    include Conjur::Escape
     # Create an `Annotations` instance for the given {Conjur::Resource}.
     #
     # Note that you will generally use the {Conjur::Resource#annotations} method to get
@@ -161,7 +161,9 @@ module Conjur
     def update_annotation name, value
       @resource.invalidate do
         @annotations_hash = nil
-        path = [@resource.account,'annotations', @resource.kind, @resource.identifier].join '/'
+        path = [@resource.account,'annotations', @resource.kind, @resource.identifier].map do |seg|
+          fully_escape(seg)
+        end.join('/')
         RestClient::Resource.new(Conjur::Authz::API.host, @resource.options)[path].put name: name, value: value
       end
     end
