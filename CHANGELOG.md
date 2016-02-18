@@ -1,3 +1,7 @@
+# v4.20.1
+
+* BUGFIX: Better handling for unicode and special characters in user ids.
+
 # v4.20.0
 
 * Add support for Host Factory functionality (replaces conjur-asset-host-factory plugin).
