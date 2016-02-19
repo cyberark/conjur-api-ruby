@@ -24,6 +24,8 @@ else
 	cid=${CONJUR_CONTAINER}
 fi
 
+bundle
+
 debify clean
 
 docker exec -i ${cid} /src/conjur-api/ci/test.sh
