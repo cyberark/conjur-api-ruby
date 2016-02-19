@@ -14,10 +14,12 @@ task :jenkins => ['ci:setup:rspec', :spec] do
   if ENV['BUILD_NUMBER']
     File.write('build_number', ENV['BUILD_NUMBER'])
   end
-  Rake::Task["yard"].invoke
+  require 'fileutils'
+  FileUtils.rm_rf 'features/reports'
   Cucumber::Rake::Task.new do |t|
     t.cucumber_opts = "--tags ~@real-api --format pretty --format junit --out features/reports"
   end.runner.run
+  Rake::Task["yard"].invoke
 end
 
 task default: [:spec, :features]
