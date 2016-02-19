@@ -186,6 +186,15 @@ module Conjur
     def username
       @username || @token['data']
     end
+    
+    # Perform all commands in Conjur::Bootstrap::Command.
+    def bootstrap listener
+        Conjur::Bootstrap::Command.constants.map{|c| Conjur::Bootstrap::Command.const_get(c)}.each do |cls|
+        next unless cls.is_a?(Class)
+        next unless cls.superclass == Conjur::Bootstrap::Command::Base
+        cls.new(self, listener).perform
+      end
+    end
 
     # @api private
     # used to delegate to host providing subclasses.

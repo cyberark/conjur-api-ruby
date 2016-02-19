@@ -45,7 +45,7 @@ module Conjur
         logger << "Creating #{type}"
         logger << " #{id}" if id
         unless options.blank?
-          logger << " with options #{options.inspect}"
+          logger << " with options #{options.to_json}"
         end
       end
       options ||= {}

@@ -56,7 +56,7 @@ module Conjur
       log do |logger|
         logger << "Creating host_factory #{id}"
         unless options.blank?
-          logger << " with options #{options.inspect}"
+          logger << " with options #{options.to_json}"
         end
       end
       options ||= {}
