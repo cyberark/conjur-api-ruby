@@ -83,7 +83,14 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
-        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
+        rsrc = "users/#{fully_escape username}/authenticate"
+        body = unless Conjur.configuration.authn_local
+                 RestClient::Resource.new(Conjur::Authn::API.host)[rsrc].post password, content_type: 'text/plain'
+               else
+                 require 'net_http_unix'
+                 client = NetX::HTTPUnix.new('unix:///run/authn-local/.socket')
+                 client.request(New::HTTP::Post.new(rsrc)).body
+               end
       end
 
 

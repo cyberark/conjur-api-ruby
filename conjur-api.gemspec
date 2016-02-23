@@ -22,7 +22,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'rest-client', '~> 1.7', '>= 1.7.3'
   gem.add_dependency 'activesupport'
   gem.add_dependency 'semantic'
-  
+  gem.add_dependency 'net_http_unix', '~> 0.2'
+
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'spork'
   gem.add_development_dependency 'rspec', '~> 3'
