@@ -79,7 +79,7 @@ module Conjur
       # @param [String] username The username or host id for which we want a token
       # @param [String] password The password or api key
       # @return [String] A JSON formatted authentication token.
-      def authenticate username, password
+      def authenticate username, password = nil
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
