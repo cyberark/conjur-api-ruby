@@ -79,19 +79,21 @@ module Conjur
       # @param [String] username The username or host id for which we want a token
       # @param [String] password The password or api key
       # @return [String] A JSON formatted authentication token.
-      def authenticate username, password = nil
+      def authenticate username, password
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
-        rsrc = "users/#{fully_escape username}/authenticate"
-        body = unless Conjur.configuration.authn_local
-                 RestClient::Resource.new(Conjur::Authn::API.host)[rsrc].post password, content_type: 'text/plain'
-               else
-                 require 'net_http_unix'
-                 client = NetX::HTTPUnix.new('unix:///run/authn-local/.socket')
-                 client.request(Net::HTTP::Post.new(rsrc)).body
-               end
-        JSON.parse(body)
+        JSON.parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
+      end
+
+      def authenticate_local username
+        if Conjur.log
+          Conjur.log << "Authenticating #{username} with authn-local\n"
+        end
+        require 'net_http_unix'
+        client = NetX::HTTPUnix.new('unix:///run/authn-local/.socket')
+        resp = client.request(Net::HTTP::Post.new("/users/#{fully_escape username}/authenticate"))
+        JSON.parse(resp.body)
       end
 
 
