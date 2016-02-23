@@ -89,8 +89,9 @@ module Conjur
                else
                  require 'net_http_unix'
                  client = NetX::HTTPUnix.new('unix:///run/authn-local/.socket')
-                 client.request(New::HTTP::Post.new(rsrc)).body
+                 client.request(Net::HTTP::Post.new(rsrc)).body
                end
+        JSON.parse(body)
       end
 
 
