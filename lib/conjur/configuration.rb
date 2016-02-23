@@ -403,7 +403,6 @@ module Conjur
     # @see cert_file
     add_option :ssl_certificate
 
-    add_option :authn_local, :default => false
 
 
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
