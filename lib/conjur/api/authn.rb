@@ -79,7 +79,7 @@ module Conjur
       # @param [String] username The username or host id for which we want a token
       # @param [String] password The password or api key
       # @return [String] A JSON formatted authentication token.
-      def authenticate username, password
+      def authenticate_remote username, password
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
@@ -96,6 +96,13 @@ module Conjur
         JSON.parse(resp.body)
       end
 
+      def authenticate username, password=nil
+        if Conjur.configuration.authn_local
+          authenticate_local username
+        else
+          authenticate_remote username, password
+        end
+      end
 
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
       #   api keys.  However, you *can*  use the user's api key as the *current* password, if the user was not created
