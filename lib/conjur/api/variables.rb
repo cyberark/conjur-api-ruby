@@ -125,8 +125,9 @@ module Conjur
     # return [Hash] variable expirations that occur within the interval
     def variable_expirations(interval = nil)
       duration = interval.try { |i| i.respond_to?(:to_str) ? i : "PT#{i.to_i}S" }
-      params = {}.tap { |p| p.merge!({:params => {:duration => duration }}) if duration }
-      JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/expirations'].get(params)).collect do |item|
+      params = {}
+      params[:params] = {:duration => duration} if duration
+      JSON.parse(RestClient::Resource.new(Conjur::Core::API.host, self.credentials)['variables/expirations'].get(params).body).collect do |item|
         # the JSON objects from /variable/expirations look like
         # resources rather than variables, so their ids are
         # fully-qualified.
