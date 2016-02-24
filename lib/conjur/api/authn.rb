@@ -97,7 +97,7 @@ module Conjur
       end
 
       def authenticate username, password=nil
-        if Conjur.configuration.authn_local
+        if authenticate_locally?
           authenticate_local username
         else
           authenticate_remote username, password
@@ -159,5 +159,12 @@ module Conjur
       end
       JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['users'].post(options.merge(login: login))
     end
+
+    private
+    def authenticate_locally?
+      # XXX add check for authn-local's socket
+      Conjur.configuration.use_authn_local
+    end
+
   end
 end

@@ -403,7 +403,12 @@ module Conjur
     # @see cert_file
     add_option :ssl_certificate
 
-    add_option :authn_local, :default => false
+    # NB: use_authn_local doesn't need external documentation
+    #
+    # If true (the default), use authn-local if it's available
+    # (indicated by the existence of its socket). Otherwise,
+    # authenticate with authn.
+    add_option :use_authn_local, :default => true
 
 
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
