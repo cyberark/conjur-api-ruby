@@ -90,10 +90,8 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username} with authn-local\n"
         end
-        require 'net_http_unix'
-        client = NetX::HTTPUnix.new('unix:///run/authn-local/.socket')
-        resp = client.request(Net::HTTP::Post.new("/users/#{fully_escape username}/authenticate"))
-        JSON.parse(resp.body)
+        require 'socket'
+        JSON.parse(UNIXSocket.open('/run/authn-local/.socket') {|s| s.puts username; s.gets })
       end
 
       def authenticate username, password=nil
@@ -148,6 +146,12 @@ module Conjur
       end
 
       #@!endgroup
+
+      private
+      def authenticate_locally?
+        File.exist?('/run/authn-local/.socket') &&  Conjur.configuration.use_authn_local
+      end
+      
     end
 
     # @api private
@@ -158,12 +162,6 @@ module Conjur
         logger << "Creating authn user #{login}"
       end
       JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['users'].post(options.merge(login: login))
-    end
-
-    private
-    def authenticate_locally?
-      # XXX add check for authn-local's socket
-      Conjur.configuration.use_authn_local
     end
 
   end
