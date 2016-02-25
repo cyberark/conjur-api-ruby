@@ -10,7 +10,7 @@ if [ -z "$CONJUR_CONTAINER" ]; then
 	    docker pull $DOCKER_IMAGE
 	fi
 	
-	cid=$(docker run -d -v ${PWD}:/src/conjur-api registry.tld/conjur-appliance-cuke-master:4.6-stable)
+	cid=$(docker run -d -v ${PWD}:/src/conjur-api $DOCKER_IMAGE)
 	function finish {
     	if [ "$NOKILL" != "1" ]; then
 			docker rm -f ${cid}
