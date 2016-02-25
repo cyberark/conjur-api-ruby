@@ -25,18 +25,20 @@ describe 'SSL connection' do
       expect { Conjur::API.login 'foo', 'bar' }.to raise_error RestClient::ResourceNotFound
     end
   end
-
-  let(:port) { 54_128 }
+  
+  let(:server) do
+    server = WEBrick::HTTPServer.new \
+        Port: 0, SSLEnable: true,
+        AccessLog: [], Logger: Logger.new('/dev/null'), # shut up, WEBrick
+        SSLCertificate: cert, SSLPrivateKey: key
+  end
+  let(:port) { server.config[:Port] }
 
   before do
     allow(Conjur::Authn::API).to receive(:host).and_return "https://localhost:#{port}"
   end
 
   around do |example|
-    server = WEBrick::HTTPServer.new \
-        Port: port, SSLEnable: true,
-        AccessLog: [], Logger: Logger.new('/dev/null'), # shut up, WEBrick
-        SSLCertificate: cert, SSLPrivateKey: key
     server_thread = Thread.new do
       server.start
     end
