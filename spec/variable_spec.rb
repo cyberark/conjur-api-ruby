@@ -36,7 +36,7 @@ describe Conjur::Variable do
       expect(subject.value).to eq("the-value")
     end
 
-    it "parametrizes the request with a version" do
+    it "parameterizes the request with a version" do
       allow_request(
         method: :get,
         url: "#{url}/value?version=42",
@@ -44,6 +44,27 @@ describe Conjur::Variable do
       ).and_return(double "response", body: "the-value")
       expect(subject.value(42)).to eq("the-value")
     end
+
+    it 'will show the latest expired version' do
+      allow_request(
+        :method => :get,
+        :url => "#{url}/value?show_expired=true",
+        :headers => {}
+        ).and_return(double('response', :body => 'the-value'))
+      expect(subject.value(nil, true)).to eq('the-value')
+    end
+    
+    it 'will show some other version, even if expired' do
+      allow_request(
+        :method => :get,
+        # Hash.to_query (used to build the query string for this
+        # request) sorts the params into lexicographic order
+        :url => "#{url}/value?show_expired=true&version=42",
+        :headers => {}
+        ).and_return(double('response', :body => 'the-value'))
+      expect(subject.value(42, true)).to eq('the-value')
+    end
+
   end
 
   describe '#expire' do

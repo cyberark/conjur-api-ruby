@@ -79,13 +79,28 @@ module Conjur
       # @param [String] username The username or host id for which we want a token
       # @param [String] password The password or api key
       # @return [String] A JSON formatted authentication token.
-      def authenticate username, password
+      def authenticate_remote username, password
         if Conjur.log
           Conjur.log << "Authenticating #{username}\n"
         end
-        JSON::parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
+        JSON.parse(RestClient::Resource.new(Conjur::Authn::API.host)["users/#{fully_escape username}/authenticate"].post password, content_type: 'text/plain')
       end
 
+      def authenticate_local username
+        if Conjur.log
+          Conjur.log << "Authenticating #{username} with authn-local\n"
+        end
+        require 'socket'
+        JSON.parse(UNIXSocket.open('/run/authn-local/.socket') {|s| s.puts username; s.gets })
+      end
+
+      def authenticate username, password=nil
+        if authenticate_locally?
+          authenticate_local username
+        else
+          authenticate_remote username, password
+        end
+      end
 
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
       #   api keys.  However, you *can*  use the user's api key as the *current* password, if the user was not created
@@ -131,6 +146,12 @@ module Conjur
       end
 
       #@!endgroup
+
+      private
+      def authenticate_locally?
+        File.exist?('/run/authn-local/.socket') &&  Conjur.configuration.use_authn_local
+      end
+      
     end
 
     # @api private
@@ -142,5 +163,6 @@ module Conjur
       end
       JSON.parse RestClient::Resource.new(Conjur::Authn::API.host, credentials)['users'].post(options.merge(login: login))
     end
+
   end
 end
