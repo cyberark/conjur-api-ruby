@@ -1,3 +1,9 @@
+# v4.20.2
+
+* `Conjur::Variable#value` now accepts a `show_expired` option. When `show_expired` is `true`, the variable's value will be returned, even if the variable has expired. Requires v4.6.2(?) of the expiration service.
+* (should we document authentication using authn-local?)
+* `Conjur::API#variable_expirations` now correctly returns a collection of Variables, rather than a Hash
+
 # v4.20.1
 
 * BUGFIX: Better handling for unicode and special characters in user ids.
