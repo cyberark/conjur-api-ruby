@@ -42,6 +42,7 @@ require 'conjur/core-api'
 require 'conjur/layer-api'
 require 'conjur/pubkeys-api'
 require 'conjur/host-factory-api'
+require 'conjur/bootstrap'
 require 'conjur-api/version'
 require 'conjur/api/info'
 

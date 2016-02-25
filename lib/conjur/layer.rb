@@ -77,7 +77,7 @@ module Conjur
     # @return [Array<Conjur::Host>] the hosts in the layer.
     def hosts
       self.attributes['hosts'].collect do |id|
-        Conjur::Host.new(Conjur::API.core_asset_host, options)["hosts/#{fully_escape id}"]
+        Conjur::Host.new(Conjur::API.core_asset_host, options)["hosts/#{fully_escape id.split(':', 3)[-1]}"]
       end
     end
   end

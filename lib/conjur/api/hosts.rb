@@ -25,7 +25,7 @@ module Conjur
   class API
     class << self
       # @api private
-      # TODO WTF does this do!
+      # deprecated
       def enroll_host(url)
         if Conjur.log
           Conjur.log << "Enrolling host with URL #{url}\n"

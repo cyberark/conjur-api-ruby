@@ -34,6 +34,8 @@ module Conjur
     include PathBased
     include Exists
 
+    alias resource_kind kind
+    
     # The identifier part of the `resource_id` for this resource.  The identifier
     # is the resource id without the `account` and `kind` parts.
     #
