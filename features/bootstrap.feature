@@ -10,9 +10,10 @@ Feature: conjur bootstrap
 		Then expressions "$conjur.resource('webservice:conjur/authn-tv').exists?" and "true" are equal
 		Then expressions "$conjur.host('conjur/policy-loader').exists?" and "true" are equal
 		Then expressions "$conjur.host('conjur/secrets-rotator').exists?" and "true" are equal
+		Then expressions "$conjur.host('conjur/ldap-sync').exists?" and "true" are equal
 		
 	Scenario: security_admin group has the expected members
-		Then expressions "$conjur.role('group:security_admin').members.map(&:member).map(&:roleid).sort.join(',')" and "'cucumber:host:conjur/policy-loader,cucumber:host:conjur/secrets-rotator,cucumber:user:admin'" are equal
+		Then expressions "$conjur.role('group:security_admin').members.map(&:member).map(&:roleid).sort.join(',')" and "'cucumber:host:conjur/ldap-sync,cucumber:host:conjur/policy-loader,cucumber:host:conjur/secrets-rotator,cucumber:user:admin'" are equal
 
 	Scenario: security_admin can 'elevate' and 'reveal'
 		Then expression "$conjur.resource('!:!:conjur').permitted_roles('elevate')" includes "$conjur.group('security_admin').roleid"

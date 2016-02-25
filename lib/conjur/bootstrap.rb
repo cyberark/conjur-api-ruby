@@ -130,33 +130,17 @@ module Conjur
         end
       end
       
-      class PolicyLoader < Base
+      # Create a set of hosts that have security_admin privilege.
+      class SystemAccounts < Base
         def perform
-          find_or_create_record policy_loader, security_admin do |record, options|
-            api.create_host(id: record.id, ownerid: security_admin.roleid).tap do |host|
-              host.role.revoke_from security_admin
-              security_admin.add_member host
+          for hostname in %w(conjur/secrets-rotator conjur/policy-loader conjur/ldap-sync)
+            find_or_create_record api.host(hostname), security_admin do |record, options|
+              api.create_host(id: record.id, ownerid: security_admin.roleid).tap do |host|
+                host.role.revoke_from security_admin
+                security_admin.add_member host
+              end
             end
           end
-        end
-        
-        def policy_loader
-          api.host("conjur/policy-loader")
-        end
-      end
-      
-      class Rotator < Base
-        def perform
-          find_or_create_record rotator_host, security_admin do |record, options|
-            api.create_host(id: record.id, ownerid: security_admin.roleid).tap do |host|
-              host.role.revoke_from security_admin
-              security_admin.add_member host
-            end
-          end
-        end
-        
-        def rotator_host
-          api.host("conjur/secrets-rotator")
         end
       end
       
