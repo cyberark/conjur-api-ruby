@@ -1,3 +1,10 @@
+# v4.21.0
+
+* Add extensible Bootstrap commands as API methods.
+* `bootstrap` grants `reveal` and `elevate` to the `security_admin` group.
+* `bootstrap` creates `webservice:authn-tv`.
+* `bootstrap` creates an `auditors` group and gives `reveal` privilege to it.
+
 # v4.20.1
 
 * BUGFIX: Better handling for unicode and special characters in user ids.
