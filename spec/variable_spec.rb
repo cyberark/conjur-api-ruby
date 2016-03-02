@@ -51,7 +51,7 @@ describe Conjur::Variable do
         :url => "#{url}/value?show_expired=true",
         :headers => {}
         ).and_return(double('response', :body => 'the-value'))
-      expect(subject.value(nil, true)).to eq('the-value')
+      expect(subject.value(nil, :show_expired => true)).to eq('the-value')
     end
     
     it 'will show some other version, even if expired' do
@@ -62,7 +62,7 @@ describe Conjur::Variable do
         :url => "#{url}/value?show_expired=true&version=42",
         :headers => {}
         ).and_return(double('response', :body => 'the-value'))
-      expect(subject.value(42, true)).to eq('the-value')
+      expect(subject.value(42, :show_expired => true)).to eq('the-value')
     end
 
   end
