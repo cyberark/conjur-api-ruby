@@ -200,9 +200,13 @@ module Conjur
     #
     # @param [Integer] version the **1 based** version.
     # @return [String] the value of the variable
-    def value(version = nil)
+    def value(version = nil, show_expired = false)
       url = 'value'
-      url << "?version=#{version}" if version
+      params = {}.tap {|h|
+        h['version'] = version if version
+        h['show_expired'] = show_expired if show_expired
+      }
+      url << '?' + params.to_query unless params.empty?
       self[url].get.body
     end
 
