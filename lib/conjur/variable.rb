@@ -199,7 +199,7 @@ module Conjur
     #   var.value var.version_count
     #
     # @example Get the value of an expired variable
-    #   var.value, nil, show_expired: true
+    #   var.value nil, show_expired: true
     #
     # @param [Integer] version the **1 based** version.
     # @param options [Hash]
