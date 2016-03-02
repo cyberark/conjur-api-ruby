@@ -1,4 +1,4 @@
-# v4.21.1 (unreleased)
+# v4.22.0 (unreleased)
 
 * Add `show_expired` argument to `Conjur::Variable#value` to allow
   retrieval of values of expired variables.

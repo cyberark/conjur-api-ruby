@@ -198,15 +198,17 @@ module Conjur
     #   var.value 0
     #   var.value var.version_count
     #
+    # @example Get the value of an expired variable
+    #   var.value, nil, show_expired: true
+    #
     # @param [Integer] version the **1 based** version.
+    # @param options [Hash]
+    # @option options [Boolean, false] :show_expired show value even if variable has expired
     # @return [String] the value of the variable
-    def value(version = nil, show_expired = false)
+    def value(version = nil, options = {})
       url = 'value'
-      params = {}.tap {|h|
-        h['version'] = version if version
-        h['show_expired'] = show_expired if show_expired
-      }
-      url << '?' + params.to_query unless params.empty?
+      options['version'] = version if version
+      url << '?' + options.to_query unless options.empty?
       self[url].get.body
     end
 
