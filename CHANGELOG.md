@@ -1,3 +1,10 @@
+# v4.21.1 (unreleased)
+
+* Add `show_expired` argument to `Conjur::Variable#value` to allow
+  retrieval of values of expired variables.
+* Fix `Conjur::API#variable_expirations` so it returns an array of
+  `Conjur::Variable`, rather than a `Hash`.
+
 # v4.21.0
 
 * Add extensible Bootstrap commands as API methods.
