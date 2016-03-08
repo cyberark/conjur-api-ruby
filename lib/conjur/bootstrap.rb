@@ -35,10 +35,15 @@ module Conjur
         def find_or_create_resource resource, owner = nil
           if resource.exists?
             echo "#{resource.resource_kind.capitalize} '#{resource.identifier}' already exists"
+            # v4.21.0 incorrectly assigned these resources to the admin user
+            if resource.ownerid == "#{Conjur.configuration.account}:user:admin"
+              echo "Giving '#{resource.identifier}' to the security_admin group"
+              resource.give_to 'group:security_admin'
+            end
           else
             echo "Creating #{resource.resource_kind} '#{resource.identifier}'"
             options = {}
-            options[:ownerid] = owner.roleid if owner
+            options[:acting_as] = owner.roleid if owner
             api.create_resource resource.resourceid, options
           end
         end

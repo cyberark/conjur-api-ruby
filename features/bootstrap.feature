@@ -9,6 +9,7 @@ Feature: conjur bootstrap
 		Then expressions "$conjur.group('pubkeys-1.0/key-managers').exists?" and "true" are equal
 		Then expressions "$conjur.resource('webservice:conjur/authn-tv').exists?" and "true" are equal
 		Then expressions "$conjur.resource('webservice:conjur/policy-loader').exists?" and "true" are equal
+		Then expressions "$conjur.resource('webservice:conjur/policy-loader').ownerid" and "'cucumber:group:security_admin'" are equal
 		Then expressions "$conjur.host('conjur/policy-loader').exists?" and "true" are equal
 		Then expressions "$conjur.host('conjur/secrets-rotator').exists?" and "true" are equal
 		Then expressions "$conjur.host('conjur/ldap-sync').exists?" and "true" are equal

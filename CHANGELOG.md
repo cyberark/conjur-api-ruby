@@ -2,6 +2,7 @@
 
 * Add `show_expired` argument to `Conjur::Variable#value` to allow
   retrieval of values of expired variables.
+* Properly assign ownership of bootstrap-created webservice resources to the `security_admin` group.
 
 # v4.21.0
 
