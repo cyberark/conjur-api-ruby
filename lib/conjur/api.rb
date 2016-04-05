@@ -97,11 +97,10 @@ class RestClient::Resource
   # @return {Conjur::API} the new api
   def conjur_api
     api = Conjur::API.new_from_token token, remote_ip
-    if conjur_privilege
-      api.with_privilege conjur_privilege
-    else
-      api
-    end
+    api = api.with_privilege(conjur_privilege) if conjur_privilege
+    api = api.with_audit_roles(audit_roles) if audit_roles
+    api = api.with_audit_resources(audit_resources) if audit_resources
+    api
   end
 
   # Get an authentication token from the clients Authorization header.
@@ -127,6 +126,14 @@ class RestClient::Resource
   
   def conjur_privilege
     options[:headers][:x_conjur_privilege]
+  end
+
+  def audit_roles
+    options[:headers][:conjur_audit_roles].try { |r| Base64.decode64(r).split("\n") }
+  end
+
+  def audit_resources
+    options[:headers][:conjur_audit_resources].try { |r| Base64.decode64(r).split("\n") }
   end
 
   # The username this resource authenticates as.

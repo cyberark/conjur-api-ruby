@@ -260,6 +260,7 @@ describe Conjur::API do
         end
       end
     end
+      
 
     context "from api key", logged_in: true do
       let(:api_key) { "theapikey" }
@@ -299,38 +300,57 @@ describe Conjur::API do
     end
 
     context "from logged-in RestClient::Resource" do
+      let (:authz_header) { %Q{Token token="#{token_encoded}"} }
+      let (:priv_header) { nil }
+      let (:forwarded_for_header) { nil }
+      let (:audit_resources_header) { nil }
+      let (:username) { 'bob' }
+      subject { resource.conjur_api }
+
+      shared_examples "it can clone itself" do
+        it "has the authz header" do
+          expect(subject.credentials[:headers][:authorization]).to eq(authz_header)
+        end
+        it "has the conjur privilege header" do
+          expect(subject.credentials[:headers][:x_conjur_privilege]).to eq(priv_header)
+        end
+        it "has the forwarded for header" do
+          expect(subject.credentials[:headers][:x_forwarded_for]).to eq(forwarded_for_header)
+        end
+        it "has the audit_resources header" do
+          expect(subject.credentials[:headers][:conjur_audit_resources].try {|r| r.split(',')}).to eq(audit_resources_header)
+        end
+        it "has the username" do
+          expect(subject.credentials[:username]).to eq(username)
+        end
+      end
+
       let(:token_encoded) { Base64.strict_encode64(token.to_json) }
-      let(:headers) { { authorization: "Token token=\"#{token_encoded}\"" } }
+      let(:base_headers) { { authorization: authz_header } }
+      let(:headers) { base_headers }
       let(:resource) { RestClient::Resource.new("http://example.com", { headers: headers })}
-      it "can construct a new API instance" do
-        api = resource.conjur_api
-        expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
-        expect(api.credentials[:headers][:x_conjur_privilege]).to be_nil
-        expect(api.credentials[:headers][:x_forwarded_for]).to be_nil
-        expect(api.credentials[:username]).to eq("bob")
+      context 'basic functioning' do
+        it_behaves_like 'it can clone itself'
       end
       
       context "privileged" do
-        let(:headers) { { authorization: "Token token=\"#{token_encoded}\"", x_conjur_privilege: "elevate" } }
-        it "can clone itself" do
-          api = resource.conjur_api
-          expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
-          expect(api.credentials[:headers][:x_conjur_privilege]).to eq("elevate")
-          expect(api.credentials[:headers][:x_forwarded_for]).to be_nil
-          expect(api.credentials[:username]).to eq("bob")
-        end
+        let(:priv_header) { 'elevate' }
+        let(:headers) { base_headers.merge(x_conjur_privilege: priv_header) }
+        it_behaves_like "it can clone itself"
       end
       
-      context "privileged" do
-        let(:headers) { { authorization: "Token token=\"#{token_encoded}\"", x_forwarded_for: "66.0.0.1" } }
-        it "can clone itself" do
-          api = resource.conjur_api
-          expect(api.credentials[:headers][:authorization]).to eq("Token token=\"#{token_encoded}\"")
-          expect(api.credentials[:headers][:x_conjur_privilege]).to be_nil
-          expect(api.credentials[:headers][:x_forwarded_for]).to eq("66.0.0.1")
-          expect(api.credentials[:username]).to eq("bob")
-        end
+      context "forwarded for" do
+        let(:forwarded_for_header) { "66.0.0.1" }
+        let(:headers) { base_headers.merge(x_forwarded_for: forwarded_for_header) }
+        it_behaves_like 'it can clone itself'
       end
+
+      context "audit resources" do
+        let(:audit_resources_header) { ['account:kind:resource1', 'account:kind:resource2'] }
+        let(:headers) { base_headers.merge(:conjur_audit_resources => audit_resources_header) }
+        it_behaves_like 'it can clone itself'
+      end
+
     end
   end
 
