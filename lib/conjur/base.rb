@@ -261,14 +261,16 @@ module Conjur
     def with_audit_roles role_ids
       role_ids = Array(role_ids)
       self.class.new(username, api_key, token, remote_ip).tap do |api|
-        api.audit_roles = role_ids
+        # Ensure that all role ids are fully qualified
+        api.audit_roles = role_ids.collect { |id| api.role(id).roleid }
       end
     end
 
     def with_audit_resources resource_ids
       resource_ids = Array(resource_ids)
       self.class.new(username, api_key, token, remote_ip).tap do |api|
-        api.audit_resources = resource_ids
+        # Ensure that all resource ids are fully qualified
+        api.audit_resources = resource_ids.collect { |id| api.resource(id).resourceid }
       end
     end
 
