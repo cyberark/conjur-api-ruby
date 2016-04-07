@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-CONJUR_VERSION=${CONJUR_VERSION:-"4.6"}
+CONJUR_VERSION=${CONJUR_VERSION:-"5.0"}
 DOCKER_IMAGE=${DOCKER_IMAGE:-"registry.tld/conjur-appliance-cuke-master:$CONJUR_VERSION-stable"}
 NOKILL=${NOKILL:-"0"}
 PULL=${PULL:-"1"}
