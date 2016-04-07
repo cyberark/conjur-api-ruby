@@ -303,6 +303,7 @@ describe Conjur::API do
       let (:authz_header) { %Q{Token token="#{token_encoded}"} }
       let (:priv_header) { nil }
       let (:forwarded_for_header) { nil }
+      let (:audit_roles_header) { nil }
       let (:audit_resources_header) { nil }
       let (:username) { 'bob' }
       subject { resource.conjur_api }
@@ -317,8 +318,11 @@ describe Conjur::API do
         it "has the forwarded for header" do
           expect(subject.credentials[:headers][:x_forwarded_for]).to eq(forwarded_for_header)
         end
+        it "has the audit_roles header" do
+          expect(subject.credentials[:headers][:conjur_audit_roles]).to eq(audit_roles_header)
+        end
         it "has the audit_resources header" do
-          expect(subject.credentials[:headers][:conjur_audit_resources].try {|r| r.split(',')}).to eq(audit_resources_header)
+          expect(subject.credentials[:headers][:conjur_audit_resources]).to eq(audit_resources_header)
         end
         it "has the username" do
           expect(subject.credentials[:username]).to eq(username)
@@ -345,8 +349,14 @@ describe Conjur::API do
         it_behaves_like 'it can clone itself'
       end
 
+      context "audit roles" do
+        let(:audit_roles_header) { Base64.strict_encode64(['account:kind:role1', 'account:kind:role2'].join("\n")) }
+        let(:headers) { base_headers.merge(:conjur_audit_roles => audit_roles_header) }
+        it_behaves_like 'it can clone itself'
+      end
+
       context "audit resources" do
-        let(:audit_resources_header) { ['account:kind:resource1', 'account:kind:resource2'] }
+        let(:audit_resources_header) { Base64.strict_encode64(['account:kind:resource1', 'account:kind:resource2'].join("\n")) }
         let(:headers) { base_headers.merge(:conjur_audit_resources => audit_resources_header) }
         it_behaves_like 'it can clone itself'
       end
