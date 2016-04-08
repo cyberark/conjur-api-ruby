@@ -129,11 +129,11 @@ class RestClient::Resource
   end
 
   def audit_roles
-    options[:headers][:conjur_audit_roles].try { |r| Base64.decode64(r).split("\n") }
+    options[:headers][:conjur_audit_roles].try { |r| Conjur::API.decode_audit_ids(r) }
   end
 
   def audit_resources
-    options[:headers][:conjur_audit_resources].try { |r| Base64.decode64(r).split("\n") }
+    options[:headers][:conjur_audit_resources].try { |r| Conjur::API.decode_audit_ids(r) }
   end
 
   # The username this resource authenticates as.

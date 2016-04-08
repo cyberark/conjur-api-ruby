@@ -350,13 +350,13 @@ describe Conjur::API do
       end
 
       context "audit roles" do
-        let(:audit_roles_header) { Base64.strict_encode64(['account:kind:role1', 'account:kind:role2'].join("\n")) }
+        let(:audit_roles_header) { Conjur::API.encode_audit_ids(['account:kind:role1', 'account:kind:role2']) }
         let(:headers) { base_headers.merge(:conjur_audit_roles => audit_roles_header) }
         it_behaves_like 'it can clone itself'
       end
 
       context "audit resources" do
-        let(:audit_resources_header) { Base64.strict_encode64(['account:kind:resource1', 'account:kind:resource2'].join("\n")) }
+        let(:audit_resources_header) { Conjur::API.encode_audit_ids(['account:kind:resource1', 'account:kind:resource2']) }
         let(:headers) { base_headers.merge(:conjur_audit_resources => audit_resources_header) }
         it_behaves_like 'it can clone itself'
       end

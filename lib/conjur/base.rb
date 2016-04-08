@@ -141,6 +141,15 @@ module Conjur
       def new_from_token(token, remote_ip = nil)
         self.new nil, nil, token, remote_ip
       end
+      
+      def encode_audit_ids(ids)
+        ids.collect{|id| CGI::escape(id)}.join('&')
+      end
+
+      def decode_audit_ids(ids)
+        ids.split('&').collect{|id| CGI::unescape(id)}
+      end
+
     end
     
     # Create a new instance from a username and api key or a token.
@@ -243,8 +252,8 @@ module Conjur
         h[:authorization] = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
         h[:x_conjur_privilege] = @privilege if @privilege
         h[:x_forwarded_for] = @remote_ip if @remote_ip
-        h[:conjur_audit_roles] = Base64.strict_encode64(@audit_roles.join("\n")) if @audit_roles
-        h[:conjur_audit_resources] = Base64.strict_encode64(@audit_resources.join("\n")) if @audit_resources
+        h[:conjur_audit_roles] = Conjur::API.encode_audit_ids(@audit_roles) if @audit_roles
+        h[:conjur_audit_resources] = Conjur::API.encode_audit_ids(@audit_resources) if @audit_resources
       end
       { headers: headers, username: username }
     end
