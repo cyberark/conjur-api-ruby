@@ -32,6 +32,26 @@ Then(/^I evaluate the expression "([^"]*)"$/) do |code|
 end
 
 Then(/^I evaluate the expression$/) do |code|
-  #eval(code.gsub('$ns', namespace))
   step %Q{I evaluate the expression "#{code}"}
+end
+
+Then(/^I create the variable "(.*?)"$/) do |var|
+  api.create_variable('text/plain', 'secret', :id => var)
+end
+
+Then(/^I create an api with the additional audit (role|resource)[s]* "(.*?)"$/) do |type, things|
+  @api = api.send("with_audit_#{type}s", things.split(','))
+end
+
+Then(/^I check to see if I'm permitted to "(.*?)" variable "(.*?)"$/) do |priv, var|
+  api.variable(var).resource.permitted?(priv)
+end
+
+Then(/^an audit event for variable "(.*?)" with action "(.*?)" and (role|resource)[s]* "(.*?)" is generated$/) do |var, action, type, things|
+  resource_ids = things.split(',').collect {|id| api.resource(id).resourceid }
+  event_found = api.audit_resource(api.resource("variable:#{var}")).any? do |e|
+    e['action'] == action &&
+      Set.new(e["#{type}s"]).superset?(Set.new(resource_ids))
+  end
+  expect(event_found).to be true
 end

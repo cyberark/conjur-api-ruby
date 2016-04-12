@@ -1,36 +1,15 @@
 Feature: audit with additional resources
 
+  Background:
+    Given I create the variable "$ns_foo"
+
   Scenario: with one additional resource
-    Given I successfully run `conjur variable create $ns_foo bar`
-
-    When I evaluate the expression
-    """
-    $conjur.with_audit_resources('webservice:ws1').resource('variable:$ns_foo').permitted?('read')
-    """
-
-    Then expression "true" is equal to
-    """
-    $conjur.audit_resource($conjur.resource('variable:$ns_foo')).any? do |e|
-      e['action'] == 'check' && 
-         e['resources'].include?('cucumber:webservice:ws1')
-    end
-    """
+    When I create an api with the additional audit resource "webservice:ws1"
+    And I check to see if I'm permitted to "read" variable "$ns_foo"
+    Then an audit event for variable "$ns_foo" with action "check" and resource "webservice:ws1" is generated
 
   Scenario: with more than one additional resource
-    Given I successfully run `conjur variable create $ns_foo bar`
+    When I create an api with the additional audit resources "webservice:ws1, webservice:ws2"
+    And I check to see if I'm permitted to "read" variable "$ns_foo"
+    Then an audit event for variable "$ns_foo" with action "check" and resources "webservice:ws1, webservice:ws2" is generated
 
-    When I evaluate the expression 
-    """
-    $conjur.with_audit_resources(['webservice:ws1','webservice:ws2'])
-      .resource('variable:$ns_foo')
-      .permitted?('read')
-    """
-
-    Then expression "true" is equal to 
-    """
-    $conjur.audit_resource($conjur.resource('variable:$ns_foo'))
-      .any? do |e|
-        e['action'] == 'check' && 
-          Set.new(e['resources']).superset?(Set.new(['cucumber:webservice:ws1','cucumber:webservice:ws2']))
-      end
-    """

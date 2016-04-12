@@ -1,36 +1,15 @@
-Feature: audit with additional roles
+Feature: audit with additional resources
 
-  Scenario: with one additional role
-    Given I successfully run `conjur variable create $ns_foo bar`
+  Background:
+    Given I create the variable "$ns_foo"
 
-    When I evaluate the expression
-    """
-    $conjur.with_audit_roles('user:auditor1').resource('variable:$ns_foo').permitted?('read')
-    """
+  Scenario: with one additional resource
+    When I create an api with the additional audit role "user:auditor1"
+    And I check to see if I'm permitted to "read" variable "$ns_foo"
+    Then an audit event for variable "$ns_foo" with action "check" and role "user:auditor1" is generated
 
-    Then expression "true" is equal to
-    """
-    $conjur.audit_resource($conjur.resource('variable:$ns_foo')).any? do |e|
-      e['action'] == 'check' && 
-        e['roles'].include?('cucumber:user:auditor1')
-    end
-    """
+  Scenario: with more than one additional resource
+    When I create an api with the additional audit roles "user:auditor2,group:auditors"
+    And I check to see if I'm permitted to "read" variable "$ns_foo"
+    Then an audit event for variable "$ns_foo" with action "check" and roles "user:auditor2,group:auditors" is generated
 
-
-  Scenario: with more than one additional role
-    Given I successfully run `conjur variable create $ns_foo bar`
-
-    When I evaluate the expression 
-    """
-    $conjur.with_audit_roles(['user:auditor2','group:auditors'])
-      .resource('variable:$ns_foo')
-      .permitted?('read')
-    """
-
-    Then expression "true" is equal to 
-    """
-    $conjur.audit_resource($conjur.resource('variable:$ns_foo')).any? do |e|
-      e['action'] == 'check' && 
-        Set.new(e['roles']).superset?(Set.new(['cucumber:user:auditor2','cucumber:group:auditors']))
-    end
-    """

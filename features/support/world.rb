@@ -1,7 +1,11 @@
 module ApiWorld
 
+  def api
+    @api ||= Conjur::Authn.connect(nil, :noask => true)
+  end
+
   def namespace
-    @namespace ||= $conjur.create_variable('text/plain', 'id').id.tap {|ns| puts "namespace: #{ns}"}
+    @namespace ||= api.create_variable('text/plain', 'id').id.tap {|ns| puts "namespace: #{ns}"}
   end
 
 end
