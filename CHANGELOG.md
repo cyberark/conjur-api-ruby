@@ -1,3 +1,7 @@
+# v4.22.1
+
+* `bootstrap` creates host and webservice `conjur/expiration`.
+
 # v4.22.0
 
 * Add `show_expired` argument to `Conjur::Variable#value` to allow
