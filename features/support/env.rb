@@ -1,3 +1,4 @@
+require 'aruba/cucumber'
 require 'conjur/cli'
 
 Conjur::Config.load
