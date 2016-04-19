@@ -34,9 +34,9 @@ module Conjur
       # @param [String] str the string to escape
       # @return [String] the escaped string
       def fully_escape(str)
-        require 'cgi'
-        CGI.escape(str.to_s)
+	CGI.escape str	
       end
+
 
       # Escape a URI path component.
       #
