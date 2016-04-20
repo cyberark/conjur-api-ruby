@@ -31,10 +31,19 @@ module Conjur
       #   fully_escape 'foo/bar@baz'
       #   # => "foo%2Fbar%40baz"
       #
+      # @example
+      #   fully_escape 'test/Domain Controllers'
+      #   # => "test%2FDomain%20Controllers"
+      #
       # @param [String] str the string to escape
       # @return [String] the escaped string
       def fully_escape(str)
-	CGI.escape str	
+        # This is copied from CGI.escape - the difference is that
+        # here we sub spaces to '%20'.
+        encoding = str.encoding
+        str.b.gsub(/([ ]|[^ a-zA-Z0-9_.-]+)/) do |m|
+          '%' + m.unpack('H2' * m.bytesize).join('%').upcase
+        end.force_encoding(encoding)
       end
 
 

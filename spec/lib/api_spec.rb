@@ -390,4 +390,21 @@ describe Conjur::API do
       end
     end
   end
+
+  describe 'url escapes' do
+    let(:urls){[
+        'foo/bar@baz',
+        '/test/some group with spaces'
+    ]}
+
+    describe '#fully_escape' do
+      let(:expected){[
+        'foo%2Fbar%40baz',
+        '%2Ftest%2Fsome%20group%20with%20spaces'
+      ]}
+      it 'escapes the urls correctly' do
+        expect(urls.map{|u| Conjur::API.fully_escape u}).to eq(expected)
+      end
+    end
+  end
 end
