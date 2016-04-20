@@ -38,12 +38,9 @@ module Conjur
       # @param [String] str the string to escape
       # @return [String] the escaped string
       def fully_escape(str)
-        # This is copied from CGI.escape - the difference is that
-        # here we sub spaces to '%20'.
-        encoding = str.encoding
-        str.b.gsub(/([ ]|[^ a-zA-Z0-9_.-]+)/) do |m|
-          '%' + m.unpack('H2' * m.bytesize).join('%').upcase
-        end.force_encoding(encoding)
+        # CGI escape uses + for spaces, which our services don't support :-(
+        # We just gsub it.
+        CGI.escape(str).gsub('+', '%20')
       end
 
 
