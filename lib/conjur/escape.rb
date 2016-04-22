@@ -40,7 +40,7 @@ module Conjur
       def fully_escape(str)
         # CGI escape uses + for spaces, which our services don't support :-(
         # We just gsub it.
-        CGI.escape(str).gsub('+', '%20')
+        CGI.escape(str.to_s).gsub('+', '%20')
       end
 
 
