@@ -31,12 +31,18 @@ module Conjur
       #   fully_escape 'foo/bar@baz'
       #   # => "foo%2Fbar%40baz"
       #
+      # @example
+      #   fully_escape 'test/Domain Controllers'
+      #   # => "test%2FDomain%20Controllers"
+      #
       # @param [String] str the string to escape
       # @return [String] the escaped string
       def fully_escape(str)
-        require 'cgi'
-        CGI.escape(str.to_s)
+        # CGI escape uses + for spaces, which our services don't support :-(
+        # We just gsub it.
+        CGI.escape(str.to_s).gsub('+', '%20')
       end
+
 
       # Escape a URI path component.
       #
