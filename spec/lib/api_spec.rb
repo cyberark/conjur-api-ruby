@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'timecop'
 
 shared_examples_for "API endpoint" do
   before { Conjur.configuration = Conjur::Configuration.new }
@@ -239,6 +238,12 @@ describe Conjur::API do
     subject(:api) { Conjur::API.new_from_key(*api_args) }
   end
 
+  def time_travel delta
+    allow(api).to receive(:gettime).and_wrap_original do |m|
+      m[] + delta
+    end
+  end
+
   describe '#token' do
     context 'with API key available', logged_in: :api_key do
       it "authenticates to get a token" do
@@ -249,19 +254,11 @@ describe Conjur::API do
         expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
       end
 
-      it "checks if the token is fresh" do
-        expired_token = token.merge 'timestamp' => 10.minutes.ago.to_s
-        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return expired_token
-
-        expect(api.instance_variable_get("@token")).to eq(nil)
-        expect { api.token }.to raise_error /obtained token is invalid/
-      end
-
       it "fetches a new token if old" do
         allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
         expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
 
-        Timecop.travel Time.now + 6.minutes
+        time_travel 6.minutes
         new_token = token.merge "timestamp" => Time.now.to_s
 
         expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return new_token
@@ -276,16 +273,9 @@ describe Conjur::API do
 
       it "doesn't try to refresh an old token" do
         token # vivify
-        Timecop.travel Time.now + 6.minutes
+        time_travel 6.minutes
         expect(Conjur::API).not_to receive :authenticate
         expect { api.token }.not_to raise_error
-      end
-
-      it "raises an error if the token has expired" do
-        token # vivify
-        Timecop.travel Time.now + 10.minutes
-        expect(Conjur::API).not_to receive :authenticate
-        expect { api.token }.to raise_error Conjur::InvalidTokenError
       end
     end
   end

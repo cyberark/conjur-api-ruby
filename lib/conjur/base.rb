@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2014 Conjur Inc
+# Copyright (C) 2013-2016 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -22,7 +22,6 @@ require 'rest-client'
 require 'json'
 require 'base64'
 
-require 'conjur/error'
 require 'conjur/exists'
 require 'conjur/has_attributes'
 require 'conjur/has_owner'
@@ -229,10 +228,8 @@ module Conjur
     #
     # @return [Hash] the authentication token as a Hash
     # @raise [RestClient::Unauthorized] if the username and api key are invalid.
-    # @raise [InvalidTokenError] if the token is invalid and cannot be refreshed.
     def token
       refresh_token if needs_token_refresh?
-      validate_token
       return @token
     end
     # Credentials that can be merged with options to be passed to `RestClient::Resource` HTTP request methods.
@@ -286,6 +283,7 @@ module Conjur
     # unavailable API key; otherwise, the new token.
     def refresh_token
       return false unless @api_key
+      @token_born = gettime
       @token = Conjur::API.authenticate(@username, @api_key)
     end
 
@@ -295,34 +293,15 @@ module Conjur
     #
     # @return [Boolean]
     def needs_token_refresh?
-      !@token || (token_age > TOKEN_STALE)
+      !@token || ((token_age || 0) > TOKEN_STALE)
+    end
+
+    def gettime
+      Process.clock_gettime Process::CLOCK_MONOTONIC
     end
 
     def token_age
-      @token && (Time.now - Time.parse(@token['timestamp']))
-    end
-
-    def token_valid?
-      begin
-        validate_token
-        return true
-      rescue Exception
-        return false
-      end
-    end
-
-    TOKEN_EXPIRATION = 8.minutes
-
-    # Check to see if @token is defined, and whether it's expired
-    #
-    # @raise [InvalidTokenError] if the token is invalid
-    def validate_token
-      fail InvalidTokenError, "token not present" unless @token
-      
-      unless token_age < TOKEN_EXPIRATION
-        fail InvalidTokenError, "obtained token is invalid: "\
-            "token timestamp is #{@token['timestamp']}, #{token_age} seconds ago"
-      end
+      @token_born && (gettime - @token_born)
     end
   end
 end
