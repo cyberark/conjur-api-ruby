@@ -1,6 +1,10 @@
 # v4.24.0
 
 * Add `Conjur::API#ldap_sync_now` (requires Conjur 4.7 or later).
+* Don't trust the system clock and don't check token validity. Rely on the
+  server to verify the token instead, and only try to refresh if enough time
+  has passed locally (using monotonic clock for reference where available).
+* Don't try refreshing the token if the required credentials are not available.
 
 # v4.23.0
 

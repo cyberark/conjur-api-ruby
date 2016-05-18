@@ -272,9 +272,9 @@ describe Conjur::API do
       end
 
       it "doesn't try to refresh an old token" do
-        token # vivify
-        time_travel 6.minutes
         expect(Conjur::API).not_to receive :authenticate
+        api.token # vivify
+        time_travel 6.minutes
         expect { api.token }.not_to raise_error
       end
     end

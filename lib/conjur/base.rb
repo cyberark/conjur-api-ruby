@@ -232,6 +232,7 @@ module Conjur
       refresh_token if needs_token_refresh?
       return @token
     end
+
     # Credentials that can be merged with options to be passed to `RestClient::Resource` HTTP request methods.
     # These include a username and an Authorization header containing the authentication token.
     #
