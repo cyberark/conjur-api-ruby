@@ -222,24 +222,76 @@ describe Conjur::API do
     end    
   end
 
-  shared_context logged_in: true do
+  shared_context "logged in", logged_in: true do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => Time.now.to_s } }
-    subject { api }
     let(:remote_ip) { nil }
     let(:api_args) { [ token, remote_ip ].compact }
-    let(:api) { Conjur::API.new_from_token(*api_args) }
+    subject(:api) { Conjur::API.new_from_token(*api_args) }
     let(:account) { 'some-account' }
     before { allow(Conjur::Core::API).to receive_messages conjur_account: account }
   end
 
-  context "credential handling", logged_in: true do
-    context "from token" do
-      describe '#token' do
-        subject { super().token }
-        it { is_expected.to eq(token) }
+  shared_context "logged in with an API key", logged_in: :api_key do
+    include_context "logged in"
+    let(:api_key) { "theapikey" }
+    let(:api_args) { [ login, api_key, remote_ip ].compact }
+    subject(:api) { Conjur::API.new_from_key(*api_args) }
+  end
+
+  describe '#token' do
+    context 'with API key available', logged_in: :api_key do
+      it "authenticates to get a token" do
+        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
+
+        expect(api.instance_variable_get("@token")).to eq(nil)
+        expect(api.token).to eq(token)
+        expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
       end
 
+      it "checks if the token is fresh" do
+        expired_token = token.merge 'timestamp' => 10.minutes.ago.to_s
+        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return expired_token
+
+        expect(api.instance_variable_get("@token")).to eq(nil)
+        expect { api.token }.to raise_error /obtained token is invalid/
+      end
+
+      it "fetches a new token if old" do
+        allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
+        expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
+
+        Timecop.travel Time.now + 6.minutes
+        new_token = token.merge "timestamp" => Time.now.to_s
+
+        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return new_token
+        expect(api.token).to eq(new_token)
+      end
+    end
+
+    context 'with no API key available', logged_in: true do
+      it "returns the token used to create it" do
+        expect(api.token).to eq token
+      end
+
+      it "doesn't try to refresh an old token" do
+        token # vivify
+        Timecop.travel Time.now + 6.minutes
+        expect(Conjur::API).not_to receive :authenticate
+        expect { api.token }.not_to raise_error
+      end
+
+      it "raises an error if the token has expired" do
+        token # vivify
+        Timecop.travel Time.now + 10.minutes
+        expect(Conjur::API).not_to receive :authenticate
+        expect { api.token }.to raise_error Conjur::InvalidTokenError
+      end
+    end
+  end
+
+  context "credential handling", logged_in: true do
+    context "from token" do
       describe '#credentials' do
         subject { super().credentials }
         it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }) }
@@ -257,44 +309,6 @@ describe Conjur::API do
         describe '#credentials' do
           subject { super().credentials }
           it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"", :x_forwarded_for=>"66.0.0.1" }, username: login }) }
-        end
-      end
-    end
-      
-
-    context "from api key", logged_in: true do
-      let(:api_key) { "theapikey" }
-      let(:api_args) { [ login, api_key, remote_ip ].compact }
-      let(:api) { Conjur::API.new_from_key(*api_args) }
-      let(:remote_ip) { nil }
-      subject { api }
-
-      it("should authenticate to get a token") do
-        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
-        
-        expect(api.instance_variable_get("@token")).to eq(nil)
-        expect(api.token).to eq(token)
-        expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
-      end
-
-      it("checks if the token is fresh") do
-        expired_token = token.merge 'timestamp' => 10.minutes.ago.to_s
-        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return expired_token
-
-        expect(api.instance_variable_get("@token")).to eq(nil)
-        expect { api.token }.to raise_error /obtained token is invalid/
-      end
-
-      context "with an expired token" do
-        it "fetches a new one" do
-          allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
-          expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
-
-          Timecop.travel Time.now + 6.minutes
-          new_token = token.merge "timestamp" => Time.now.to_s
-
-          expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return new_token
-          expect(api.token).to eq(new_token)
         end
       end
     end
