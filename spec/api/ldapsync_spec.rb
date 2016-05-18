@@ -18,26 +18,37 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'spec_helper'
 
-module Conjur
-  class API
-  # @!group LDAP Sync Service
+describe Conjur::API, api: :dummy do
+  let(:appliance_url){ "http://example.com/api" }
+  let(:ldapsync_url){ "#{appliance_url}/ldap-sync/sync" }
+  let(:response_json){
+    {
+        :okay => true,
+        :result => {
+            :actions => [
+                "Create user 'Guest'\n  Set annotation 'ldap-sync/source'\n  Set annotation 'ldap-sync/upstream-dn'"
+            ]
+        }
+    }
+  }
+  let(:response){ double('response', body: response_json.to_json) }
 
-    # Trigger a LDAP sync with a given profile.
+  before do
+    allow(Conjur.configuration).to receive(:appliance_url).and_return appliance_url
+    allow(Conjur::API).to receive_messages(ldap_sync_now: ldapsync_url)
+  end
 
-    # @param [String] config_name Saved profile to run sync with
-    # @param [Boolean] dry_run Don't actually run sync, report actions to be performed
-    # @param [String] format Output format to return, 'text' or 'json'
-    # @return [Hash] a hash mapping with keys 'ok' and 'result[:actions]'
-    def ldap_sync_now(config_name, dry_run, format)
-      resp = RestClient::Resource.new("#{Conjur.configuration.appliance_url}/ldap-sync/sync", credentials).post({
-        config_name: config_name,
-        dry_run: dry_run,
-        format: format
-      }.to_json)
-      JSON.parse(resp.body)
+  describe "#ldap_sync_now" do
+    it "POSTs /sync" do
+      expect_request(
+          url: ldapsync_url,
+          method: :post,
+          headers: credentials[:headers],
+          payload: {config_name: 'default', dry_run: true, format: 'text'}.to_json
+      ).and_return response
+      api.ldap_sync_now('default', true, 'text')
     end
-
-  # @!endgroup
   end
 end
