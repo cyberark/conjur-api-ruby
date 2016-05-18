@@ -298,6 +298,9 @@ module Conjur
 
     def gettime
       Process.clock_gettime Process::CLOCK_MONOTONIC
+    rescue
+      # fall back to normal clock if there's no CLOCK_MONOTONIC
+      Time.now.to_f
     end
 
     def token_age
