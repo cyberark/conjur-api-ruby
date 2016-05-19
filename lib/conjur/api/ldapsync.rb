@@ -41,7 +41,11 @@ module Conjur
         dry_run: dry_run
       }.to_json)
 
-      resp.body
+      if format == 'text/yaml'
+        YAML.load(resp.body)
+      elsif format == 'application/json'
+        JSON.parse(resp.body)
+      end
     end
 
   # @!endgroup
