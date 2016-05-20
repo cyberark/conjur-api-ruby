@@ -46,9 +46,9 @@ describe Conjur::API, api: :dummy do
           url: ldapsync_url,
           method: :post,
           headers: credentials[:headers],
-          payload: {config_name: 'default', dry_run: true, format: 'text'}.to_json
+          payload: {config_name: 'default', dry_run: true}.to_json
       ).and_return response
-      api.ldap_sync_now('default', true, 'text')
+      api.ldap_sync_now('default', 'application/json', true)
     end
   end
 end
