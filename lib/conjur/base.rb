@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2014 Conjur Inc
+# Copyright (C) 2013-2016 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -222,22 +222,14 @@ module Conjur
       self.class.host
     end
 
-    # The token used to authenticate requests made with the api.  The token will be fetched
-    # if it hasn't already, or if it has expired.  Accordingly, this method may raise a RestClient::Unauthorized
-    # exception if the credentials are invalid.
-    #
-    # @note calling this method on an {Conjur::API} instance created with {Conjur::API.new_from_token} will have
-    # undefined behavior if the token is expired.
+    # The token used to authenticate requests made with the api.  The token will be fetched,
+    # if possible, when not present or about to expire.  Accordingly, this
+    # method may raise a RestClient::Unauthorized exception if the credentials are invalid.
     #
     # @return [Hash] the authentication token as a Hash
     # @raise [RestClient::Unauthorized] if the username and api key are invalid.
     def token
-      @token = nil unless token_valid?
-
-      @token ||= Conjur::API.authenticate(@username, @api_key)
-
-      validate_token
-
+      refresh_token if needs_token_refresh?
       return @token
     end
 
@@ -285,28 +277,35 @@ module Conjur
 
     private
 
-    def token_valid?
-      begin
-        validate_token
-        return true
-      rescue Exception
-        return false
-      end
+
+    # Tries to refresh the token if possible.
+    #
+    # @return [Hash, false] false if the token couldn't be refreshed due to
+    # unavailable API key; otherwise, the new token.
+    def refresh_token
+      return false unless @api_key
+      @token_born = gettime
+      @token = Conjur::API.authenticate(@username, @api_key)
     end
 
-    # Check to see if @token is defined, and whether it's expired
+    TOKEN_STALE = 5.minutes
+
+    # Checks if the token is old (or not present).
     #
-    # @raise [Exception] if the token is invalid
-    def validate_token
-      fail "token not present" unless @token
-      
-      # Actual token expiration is 8 minutes, but why cut it so close
-      expiration = 5.minutes
-      lag = Time.now - Time.parse(@token['timestamp'])
-      unless lag < expiration
-        fail "obtained token is invalid: "\
-            "token timestamp is #{@token['timestamp']}, #{lag} seconds ago"
-      end
+    # @return [Boolean]
+    def needs_token_refresh?
+      !@token || ((token_age || 0) > TOKEN_STALE)
+    end
+
+    def gettime
+      Process.clock_gettime Process::CLOCK_MONOTONIC
+    rescue
+      # fall back to normal clock if there's no CLOCK_MONOTONIC
+      Time.now.to_f
+    end
+
+    def token_age
+      @token_born && (gettime - @token_born)
     end
   end
 end

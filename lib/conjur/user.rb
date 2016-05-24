@@ -19,9 +19,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  class InvalidToken < Exception
-  end
-
   # This class represents a {http://developer.conjur.net/reference/services/directory/user Conjur User}.
   class User < RestClient::Resource
     include ActsAsAsset
