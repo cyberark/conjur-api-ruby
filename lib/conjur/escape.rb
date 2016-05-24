@@ -25,7 +25,8 @@ module Conjur
   # The helpers are added as both class and isntance methods.
   module Escape
     module ClassMethods
-      # URL escape the entire string.  This is essentially the same as calling `CGI.escape str`.
+      # URL escape the entire string.  This is essentially the same as calling `CGI.escape str`,
+      # and then substituting `%20` for `+`.
       #
       # @example
       #   fully_escape 'foo/bar@baz'
