@@ -26,23 +26,21 @@ module Conjur
     # Trigger a LDAP sync with a given profile.
 
     # @param [String] config_name Saved profile to run sync with
-    # @param [Boolean] dry_run Don't actually run sync, report actions to be performed
-    # @param [String] format Output format to return, 'text/yaml' or 'application/json'
+    # @param [Boolean] dry_run Don't actually run sync, instead just report the state of the upstream LDAP.
+    # @param [String] format Requested MIME type of the response, either 'text/yaml' or 'application/json'
     # @return [Hash] a hash mapping with keys 'ok' and 'result[:actions]'
     def ldap_sync_now(config_name, format, dry_run)
-      url = "#{Conjur.configuration.appliance_url}/ldap-sync/sync"
       opts = credentials.dup.tap{ |h|
-        h[:headers][:content_type] = 'application/json'
         h[:headers][:accept] = format
       }
-
-      resp = RestClient::Resource.new(url, opts).post({
+      
+      resp = RestClient::Resource.new(Conjur.configuration.appliance_url, opts)['ldap-sync']['sync'].post({
         config_name: config_name,
         dry_run: dry_run
-      }.to_json)
-
+      })
+      
       if format == 'text/yaml'
-        YAML.load(resp.body)
+        resp.body
       elsif format == 'application/json'
         JSON.parse(resp.body)
       end
