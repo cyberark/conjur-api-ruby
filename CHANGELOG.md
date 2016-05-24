@@ -1,3 +1,7 @@
+# v4.24.0
+
+* Add `Conjur::API#ldap_sync_now` (requires Conjur 4.7 or later).
+
 # v4.23.0
 
 * Add `with_audit_roles` and `with_audit_resources` to `Conjur::API`

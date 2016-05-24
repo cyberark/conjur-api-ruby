@@ -1,4 +1,5 @@
-# Copyright (C) 2013-2016 Conjur Inc.
+#
+# Copyright (C) 2016 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -16,9 +17,35 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
 
 module Conjur
   class API
-    VERSION = "4.24.0"
+  # @!group LDAP Sync Service
+
+    # Trigger a LDAP sync with a given profile.
+
+    # @param [String] config_name Saved profile to run sync with
+    # @param [Boolean] dry_run Don't actually run sync, instead just report the state of the upstream LDAP.
+    # @param [String] format Requested MIME type of the response, either 'text/yaml' or 'application/json'
+    # @return [Hash] a hash mapping with keys 'ok' and 'result[:actions]'
+    def ldap_sync_now(config_name, format, dry_run)
+      opts = credentials.dup.tap{ |h|
+        h[:headers][:accept] = format
+      }
+      
+      resp = RestClient::Resource.new(Conjur.configuration.appliance_url, opts)['ldap-sync']['sync'].post({
+        config_name: config_name,
+        dry_run: dry_run
+      })
+      
+      if format == 'text/yaml'
+        resp.body
+      elsif format == 'application/json'
+        JSON.parse(resp.body)
+      end
+    end
+
+  # @!endgroup
   end
 end

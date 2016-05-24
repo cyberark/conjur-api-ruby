@@ -45,6 +45,7 @@ require 'conjur/host-factory-api'
 require 'conjur/bootstrap'
 require 'conjur-api/version'
 require 'conjur/api/info'
+require 'conjur/api/ldapsync'
 
 # Monkey patch RestClient::Request so it always uses
 # :ssl_cert_store. (RestClient::Resource uses Request to send
@@ -57,14 +58,14 @@ class RestClient::Request
       ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
     }
   end
-  
+
   def initialize args
     initialize_without_defaults default_args.merge(args)
   end
-  
+
 end
 
-    
+
 class RestClient::Resource
   include Conjur::Escape
   include Conjur::LogSource
@@ -119,11 +120,11 @@ class RestClient::Resource
       raise AuthorizationError.new("Authorization missing")
     end
   end
-  
+
   def remote_ip
     options[:headers][:x_forwarded_for]
   end
-  
+
   def conjur_privilege
     options[:headers][:x_conjur_privilege]
   end
