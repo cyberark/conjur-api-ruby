@@ -33,7 +33,9 @@ module Conjur
       opts = credentials.dup.tap{ |h|
         h[:headers][:accept] = format
       }
-      
+
+      dry_run = !!dry_run
+
       resp = RestClient::Resource.new(Conjur.configuration.appliance_url, opts)['ldap-sync']['sync'].post({
         config_name: config_name,
         dry_run: dry_run
