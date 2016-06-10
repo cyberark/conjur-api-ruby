@@ -1,3 +1,7 @@
+# v4.24.1
+
+* Clarify the handling of the dry-run argument to `Conjur::API#ldap_sync_now`.
+
 # v4.24.0
 
 * Add `Conjur::API#ldap_sync_now` (requires Conjur 4.7 or later).
