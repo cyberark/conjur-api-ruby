@@ -288,7 +288,9 @@ module Conjur
       @token = Conjur::API.authenticate(@username, @api_key)
     end
 
-    TOKEN_STALE = 5.minutes
+    # The four minutes is to work around a bug in Conjur < 4.7 causing a 404 on 
+    # long-running operations (when the token is used right around the 5 minute mark).
+    TOKEN_STALE = 4.minutes
 
     # Checks if the token is old (or not present).
     #
