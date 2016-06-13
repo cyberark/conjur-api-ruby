@@ -1,3 +1,8 @@
+# v4.25.0
+
+* Add a workaround for a bug in Conjur <4.7 where long-running operations
+  (such as policy load) would sometimes fail with 404 after five minutes.
+
 # v4.24.1
 
 * Clarify the handling of the dry-run argument to `Conjur::API#ldap_sync_now`.
