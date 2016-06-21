@@ -169,6 +169,13 @@ module Conjur
       @username = username
       @api_key = api_key
       @token = token
+      
+      # Assume that the token was recently minted, log a warning if not
+      @token_born = gettime   
+      if token && (delta = Time.now - Time.parse(token['timestamp'])) > 10
+        $stderr.puts "WARNING: token timestamp offset by #{delta.to_i} seconds"
+      end
+
       @remote_ip = remote_ip
 
       raise "Expecting ( username and api_key ) or token" unless ( username && api_key ) || token
