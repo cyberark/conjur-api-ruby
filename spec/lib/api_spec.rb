@@ -254,15 +254,38 @@ describe Conjur::API do
         expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
       end
 
-      it "fetches a new token if old" do
-        allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
-        expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
+      context "after expiration" do
 
-        time_travel 6.minutes
-        new_token = token.merge "timestamp" => Time.now.to_s
+        shared_examples "it gets a new token" do
+          it 'by refreshing' do
+            allow(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
+            expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
+            
+            time_travel 6.minutes
+            new_token = token.merge "timestamp" => Time.now.to_s
+            
+            expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return new_token
+            expect(api.token).to eq(new_token)
+          end
+        end
 
-        expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return new_token
-        expect(api.token).to eq(new_token)
+        it_should_behave_like "it gets a new token"
+        
+        context "with elevated privilege" do
+          subject(:api) { Conjur::API.new_from_key(*api_args).with_privilege('reveal') }
+          it_should_behave_like "it gets a new token"
+        end
+
+        context "with audit roles" do
+          subject(:api) { Conjur::API.new_from_key(*api_args).with_audit_roles('account:host:host1') }
+          it_should_behave_like "it gets a new token"
+        end
+
+        context "with audit resources" do
+          subject(:api) { Conjur::API.new_from_key(*api_args).with_audit_resources('account:webservice:service1') }
+          it_should_behave_like "it gets a new token"
+        end
+
       end
     end
 

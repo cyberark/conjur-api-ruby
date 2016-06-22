@@ -256,14 +256,14 @@ module Conjur
     # 
     # @return The API instance.
     def with_privilege privilege
-      self.class.new(username, api_key, token, remote_ip, @token_born).tap do |api|
+      self.class.new(username, api_key, token, remote_ip, token_born).tap do |api|
         api.privilege = privilege
       end
     end
 
     def with_audit_roles role_ids
       role_ids = Array(role_ids)
-      self.class.new(username, api_key, token, remote_ip, @token_born).tap do |api|
+      self.class.new(username, api_key, token, remote_ip, token_born).tap do |api|
         # Ensure that all role ids are fully qualified
         api.audit_roles = role_ids.collect { |id| api.role(id).roleid }
       end
@@ -271,14 +271,14 @@ module Conjur
 
     def with_audit_resources resource_ids
       resource_ids = Array(resource_ids)
-      self.class.new(username, api_key, token, remote_ip, @token_born).tap do |api|
+      self.class.new(username, api_key, token, remote_ip, token_born).tap do |api|
         # Ensure that all resource ids are fully qualified
         api.audit_resources = resource_ids.collect { |id| api.resource(id).resourceid }
       end
     end
 
     private
-
+    attr_accessor :token_born
 
     # Tries to refresh the token if possible.
     #
@@ -286,7 +286,7 @@ module Conjur
     # unavailable API key; otherwise, the new token.
     def refresh_token
       return false unless @api_key
-      @token_born = gettime
+      self.token_born = gettime
       @token = Conjur::API.authenticate(@username, @api_key)
     end
 
@@ -309,7 +309,7 @@ module Conjur
     end
 
     def token_age
-      @token_born && (gettime - @token_born)
+      token_born && (gettime - token_born)
     end
   end
 end
