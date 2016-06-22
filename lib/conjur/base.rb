@@ -152,16 +152,20 @@ module Conjur
 
     end
     
-    # Create a new instance from a username and api key or a token.
+    # Create a new instance of a Conjur API. 
+    #
+    # You may pass either a username and api key, or just a token. If
+    # you pass a username and api key, the API will authenticate with
+    # Conjur and refresh the token automatically. If you pass only a
+    # token, you are responsible for ensuring that the token has the
+    # appropriate lifetime.
     #
     # @note You should use {Conjur::API.new_from_token} or {Conjur::API.new_from_key} instead of calling this method
     #   directly.
     #
-    # This method requires that you pass **either** a username and api_key **or** a token Hash.
-    #
     # @param [String] username the username to authenticate as
     # @param [String] api_key the api key or password to use when authenticating
-    # @param [Hash] token the token to use when making authenticated requuests.
+    # @param [Hash] token the token to use when making authenticated requests.
     # @param [String] remote_ip the optional IP address to be recorded in the audit record.
     # @param [Float] token_born the time when the token was minted
     #
@@ -173,7 +177,13 @@ module Conjur
       @token_born = token_born
       @remote_ip = remote_ip
 
-      raise "Expecting ( username and api_key ) or token" unless ( username && api_key ) || token
+      if username || api_key
+        raise "You must provide both username and password" unless username && api_key
+        raise "Only provide ( username and api_key ) or token" if token
+      elsif !token
+        raise "You must provide either ( username and api_key ) or token"
+      end
+
     end
 
     #@!attribute [r] api_key
