@@ -104,7 +104,7 @@ module Conjur
       # @param [String] remote_ip the optional IP address to be recorded in the audit record.
       # @return [Conjur::API] an api that will authenticate with the given username and api key.
       def new_from_key(username, api_key, remote_ip = nil)
-        self.new username, api_key, nil, remote_ip
+        self.new.init_from_key username, api_key, remote_ip
       end
 
 
@@ -139,7 +139,7 @@ module Conjur
       # @param [String] remote_ip the optional IP address to be recorded in the audit record.
       # @return [Conjur::API] an api that will authenticate with the token
       def new_from_token(token, remote_ip = nil)
-        self.new nil, nil, token, remote_ip
+        self.new.init_from_token token, remote_ip
       end
       
       def encode_audit_ids(ids)
@@ -148,40 +148,6 @@ module Conjur
 
       def decode_audit_ids(ids)
         ids.split('&').collect{|id| CGI::unescape(id)}
-      end
-
-    end
-    
-    # Create a new instance of a Conjur API. 
-    #
-    # You may pass either a username and api key, or just a token. If
-    # you pass a username and api key, the API will authenticate with
-    # Conjur and refresh the token automatically. If you pass only a
-    # token, you are responsible for ensuring that the token has the
-    # appropriate lifetime.
-    #
-    # @note You should use {Conjur::API.new_from_token} or {Conjur::API.new_from_key} instead of calling this method
-    #   directly.
-    #
-    # @param [String] username the username to authenticate as
-    # @param [String] api_key the api key or password to use when authenticating
-    # @param [Hash] token the token to use when making authenticated requests.
-    # @param [String] remote_ip the optional IP address to be recorded in the audit record.
-    # @param [Float] token_born the time when the token was minted
-    #
-    # @api internal
-    def initialize username, api_key, token, remote_ip = nil, token_born = nil
-      @username = username
-      @api_key = api_key
-      @token = token
-      @token_born = token_born
-      @remote_ip = remote_ip
-
-      if username || api_key
-        raise "You must provide both username and password" unless username && api_key
-        raise "Only provide ( username and api_key ) or token" if token
-      elsif !token
-        raise "You must provide either ( username and api_key ) or token"
       end
 
     end
@@ -266,14 +232,14 @@ module Conjur
     # 
     # @return The API instance.
     def with_privilege privilege
-      self.class.new(username, api_key, token, remote_ip, token_born).tap do |api|
+      self.clone.tap do |api|
         api.privilege = privilege
       end
     end
 
     def with_audit_roles role_ids
       role_ids = Array(role_ids)
-      self.class.new(username, api_key, token, remote_ip, token_born).tap do |api|
+      self.clone.tap do |api|
         # Ensure that all role ids are fully qualified
         api.audit_roles = role_ids.collect { |id| api.role(id).roleid }
       end
@@ -281,10 +247,23 @@ module Conjur
 
     def with_audit_resources resource_ids
       resource_ids = Array(resource_ids)
-      self.class.new(username, api_key, token, remote_ip, token_born).tap do |api|
+      self.clone.tap do |api|
         # Ensure that all resource ids are fully qualified
         api.audit_resources = resource_ids.collect { |id| api.resource(id).resourceid }
       end
+    end
+
+    def init_from_key username, api_key, remote_ip = nil
+      @username = username
+      @api_key = api_key
+      @remote_ip = remote_ip
+      self
+    end
+
+    def init_from_token token, remote_ip = nil
+      @token = token
+      @remote_ip = remote_ip
+      self
     end
 
     private
