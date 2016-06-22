@@ -163,12 +163,14 @@ module Conjur
     # @param [String] api_key the api key or password to use when authenticating
     # @param [Hash] token the token to use when making authenticated requuests.
     # @param [String] remote_ip the optional IP address to be recorded in the audit record.
+    # @param [Float] token_born the time when the token was minted
     #
     # @api internal
-    def initialize username, api_key, token, remote_ip = nil
+    def initialize username, api_key, token, remote_ip = nil, token_born = nil
       @username = username
       @api_key = api_key
       @token = token
+      @token_born = token_born
       @remote_ip = remote_ip
 
       raise "Expecting ( username and api_key ) or token" unless ( username && api_key ) || token
@@ -254,14 +256,14 @@ module Conjur
     # 
     # @return The API instance.
     def with_privilege privilege
-      self.class.new(username, api_key, token, remote_ip).tap do |api|
+      self.class.new(username, api_key, token, remote_ip, @token_born).tap do |api|
         api.privilege = privilege
       end
     end
 
     def with_audit_roles role_ids
       role_ids = Array(role_ids)
-      self.class.new(username, api_key, token, remote_ip).tap do |api|
+      self.class.new(username, api_key, token, remote_ip, @token_born).tap do |api|
         # Ensure that all role ids are fully qualified
         api.audit_roles = role_ids.collect { |id| api.role(id).roleid }
       end
@@ -269,7 +271,7 @@ module Conjur
 
     def with_audit_resources resource_ids
       resource_ids = Array(resource_ids)
-      self.class.new(username, api_key, token, remote_ip).tap do |api|
+      self.class.new(username, api_key, token, remote_ip, @token_born).tap do |api|
         # Ensure that all resource ids are fully qualified
         api.audit_resources = resource_ids.collect { |id| api.resource(id).resourceid }
       end

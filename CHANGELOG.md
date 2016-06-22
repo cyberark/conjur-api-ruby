@@ -1,3 +1,8 @@
+# v4.25.1
+
+* Fix token refresh when using `with_privilege`, `with_audit_roles`,
+  and `with_audit_resources`.
+
 # v4.25.0
 
 * Add a workaround for a bug in Conjur <4.7 where long-running operations
