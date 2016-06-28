@@ -1,3 +1,7 @@
+# v4.26.0
+
+* expose admin_option in the role graph
+
 # v4.25.1
 
 * Fix token refresh when using `with_privilege`, `with_audit_roles`,

@@ -212,13 +212,18 @@ module Conjur
       # @return [Conjur::Role] the child role
       attr_reader :child
 
+      # Was the role granted with admin_option
+      attr_reader :admin_option
+      alias :admin_option? :admin_option
+
       # Create a directed edge with a parent and child
       #
       # @param [Conjur::Role] parent the parent or source of this edge
       # @param  [Conjur::Role] child the child or destination of this edge
-      def initialize parent, child
+      def initialize parent, child, admin_option
         @parent = parent
         @child = child
+        @admin_option = admin_option
       end
 
       # Serialize this edge as JSON.
@@ -248,20 +253,20 @@ module Conjur
       # @return [Hash] a Hash representing this edge
       def to_h
         # return string keys to make testing less brittle
-        {'parent' => @parent, 'child' => @child}
+        {'parent' => @parent, 'child' => @child, 'admin_option' => @admin_option}
       end
 
       # Return this edge as an Array like ["parent", "child"]
       #
       # @return [Array<String>] the edge as an Array
       def to_a
-        [@parent, @child]
+        [@parent, @child, @admin_option]
       end
 
       # @api private
       # :nodoc:
       def to_s
-        "<Edge #{parent.id} --> #{child.id}>"
+        "<Edge #{parent.id} --> #{child.id} (admin? #{@admin_option?})>"
       end
 
       # Support using edges as hash keys
