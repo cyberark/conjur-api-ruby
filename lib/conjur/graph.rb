@@ -212,7 +212,8 @@ module Conjur
       # @return [Conjur::Role] the child role
       attr_reader :child
 
-      # Was the role granted with admin_option
+      # Was the role granted with admin_option? May be nil if unknown
+      # (e.g. if the server doesn't return it).
       attr_reader :admin_option
       alias :admin_option? :admin_option
 
@@ -220,7 +221,7 @@ module Conjur
       #
       # @param [Conjur::Role] parent the parent or source of this edge
       # @param  [Conjur::Role] child the child or destination of this edge
-      def initialize parent, child, admin_option
+      def initialize parent, child, admin_option = nil
         @parent = parent
         @child = child
         @admin_option = admin_option
@@ -253,20 +254,20 @@ module Conjur
       # @return [Hash] a Hash representing this edge
       def to_h
         # return string keys to make testing less brittle
-        {'parent' => @parent, 'child' => @child, 'admin_option' => @admin_option}
+        {'parent' => @parent, 'child' => @child}.tap {|h| h['admin_option'] = @admin_option unless @admin_option.nil?}
       end
 
       # Return this edge as an Array like ["parent", "child"]
       #
       # @return [Array<String>] the edge as an Array
       def to_a
-        [@parent, @child, @admin_option]
+        [@parent, @child].tap {|a| a.push(@admin_option) unless @admin_option.nil?}
       end
 
       # @api private
       # :nodoc:
       def to_s
-        "<Edge #{parent.id} --> #{child.id} (admin? #{@admin_option?})>"
+        "<Edge #{parent.id} --> #{child.id} (admin? #{@admin_option})>"
       end
 
       # Support using edges as hash keys
