@@ -11,13 +11,12 @@ describe Conjur::Graph do
     ['o', 'q'],
     ['x', 'o']
   ]}
-  let(:hash_graph){ {'graph' => edges} }
-  let(:json_graph){ hash_graph.to_json }
+  let(:edges_with_admin) { edges.each {|e| e.push(false)} }
+
   let(:short_json_graph){ edges.to_json }
   let(:long_edges){ edges.map{|e| {'parent' => e[0], 'child' => e[1]}} }
   let(:long_hash_graph){ {'graph' => long_edges} }
   let(:long_json_graph){ long_hash_graph.to_json }
-  let(:edge_objects){ edges.map{|e| Conjur::Graph::Edge.new(*e) }}
 
   describe "json methods" do
     subject{described_class.new edges}
@@ -77,9 +76,12 @@ describe Conjur::Graph do
     end
   end
 
-  describe "Graph.new" do
-    let(:arg){ edges }
+  shared_examples "it creates a new Graph" do
+    let(:arg) { graph_edges }
+    let(:edge_objects){ graph_edges.map{|e| Conjur::Graph::Edge.new(*e) }}
+
     subject{ described_class.new arg }
+
     def self.it_accepts_the_argument
       it "accepts the argument" do
         expect(subject.edges.to_set).to eq(edge_objects.to_set)
@@ -90,13 +92,26 @@ describe Conjur::Graph do
     end
 
     describe "given a hash of {'graph' => <array of edges>}" do
-      let(:arg){ hash_graph }
+      let(:arg){ {'graph' => graph_edges} }
       it_accepts_the_argument
     end
 
     describe "given a JSON string" do
-      let(:arg){ json_graph }
+      let(:arg){ {'graph' => graph_edges}.to_json }
       it_accepts_the_argument
     end
   end
+
+  describe "Graph.new" do
+    it_should_behave_like "it creates a new Graph" do
+      let(:graph_edges) { edges }
+    end
+  end
+
+  describe "Graph.new with admin_option present" do
+    it_should_behave_like "it creates a new Graph" do
+      let(:graph_edges) { edges_with_admin }
+    end
+  end
+
 end
