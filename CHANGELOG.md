@@ -1,6 +1,6 @@
 # v4.26.0
 
-* expose admin_option in the role graph
+* expose admin_option in the role graph (only populated by Conjur 4.8 and later)
 
 # v4.25.1
 
