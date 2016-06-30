@@ -267,7 +267,7 @@ module Conjur
       # @api private
       # :nodoc:
       def to_s
-        "<Edge #{parent.id} --> #{child.id} (admin? #{@admin_option})>"
+        "<Edge #{parent.id} --> #{child.id} (admin: #{@admin_option.inspect})>"
       end
 
       # Support using edges as hash keys
