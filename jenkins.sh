@@ -10,7 +10,7 @@ if [ -z "$CONJUR_CONTAINER" ]; then
 	    docker pull $DOCKER_IMAGE
 	fi
 	
-	cid=$(docker run --security-opt seccomp:unconfined -d -v ${PWD}:/src/conjur-api $DOCKER_IMAGE)
+	cid=$(docker run --security-opt seccomp=unconfined -d -v ${PWD}:/src/conjur-api $DOCKER_IMAGE)
 	function finish {
     	if [ "$NOKILL" != "1" ]; then
 			docker rm -f ${cid}
