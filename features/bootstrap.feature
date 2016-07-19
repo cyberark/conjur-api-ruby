@@ -17,6 +17,9 @@ Feature: conjur bootstrap
 	Scenario: security_admin group has the expected members
 		Then expressions "$conjur.role('group:security_admin').members.map(&:member).map(&:roleid).sort.join(',')" and "'cucumber:host:conjur/authn-tv,cucumber:host:conjur/expiration,cucumber:host:conjur/ldap-sync,cucumber:host:conjur/policy-loader,cucumber:host:conjur/secrets-rotator,cucumber:user:admin'" are equal
 
+	Scenario: security_admin group can update public keys
+		Then expression "$conjur.resource('service:pubkeys-1.0/public-keys').permitted_roles('update')" includes "$conjur.group('security_admin').roleid"
+
 	Scenario: security_admin can 'elevate' and 'reveal'
 		Then expression "$conjur.resource('!:!:conjur').permitted_roles('elevate')" includes "$conjur.group('security_admin').roleid"
 		Then expression "$conjur.resource('!:!:conjur').permitted_roles('reveal')" includes "$conjur.group('security_admin').roleid"
