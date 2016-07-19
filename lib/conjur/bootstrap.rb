@@ -84,6 +84,7 @@ module Conjur
       class Pubkeys < Base
         def perform
           find_or_create_record key_managers, security_admin
+
           find_or_create_record pubkeys_layer, security_admin
           find_or_create_record pubkeys_host, security_admin do |record, options|
             api.create_host(id: record.id, ownerid: security_admin.roleid)
@@ -91,7 +92,11 @@ module Conjur
           pubkeys_layer.add_host pubkeys_host unless pubkeys_layer.hosts.map(&:roleid).member?(pubkeys_host.roleid)
           
           find_or_create_resource pubkeys_service, security_admin
+
           permit pubkeys_service, 'update', key_managers
+
+          # also permit security_admin to update public keys
+          permit pubkeys_service, 'update', security_admin
         end
         
         def pubkeys_layer
