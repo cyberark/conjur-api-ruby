@@ -1,3 +1,9 @@
+# v4.26.1
+
+* `Conjur::Api#resources` now supports `:has_annotation` for
+  retrieving Conjur resources that have an annotation with the given
+  name.
+
 # v4.26.0
 
 * expose admin_option in the role graph (only populated by Conjur 4.8 and later)
