@@ -23,8 +23,8 @@ Or install it yourself as:
 ```ruby
 require 'possum'
 
-possum = Possum.connect url: "http://possum.example.org"
-possum.authenticate 'org/alice', 'secret'
+possum = Possum::Client.new url: "http://possum.example.org"
+possum.login 'org/alice', 'secret-password'
 
 possum.get '/resources/org/chunky/bacon'
 ```

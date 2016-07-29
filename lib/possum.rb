@@ -1,4 +1,3 @@
 require 'possum/version'
-
-module Possum
-end
+require 'possum/client'
+require 'possum/error'
