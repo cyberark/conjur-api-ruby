@@ -24,7 +24,7 @@ module Conjur
   # @!group LDAP Sync Service
 
     # Trigger a LDAP sync with a given profile.
-
+    #
     # @param [String] config_name Saved profile to run sync with
     # @param [Boolean] dry_run Don't actually run sync, instead just report the state of the upstream LDAP.
     # @param [String] format Requested MIME type of the response, either 'text/yaml' or 'application/json'
@@ -47,6 +47,18 @@ module Conjur
         JSON.parse(resp.body)
       end
     end
+
+    # Return a list of detached ldap sync jobs
+    def ldap_sync_jobs
+      resource = RestClient::Resource.new(Conjur.configuration.appliance_url, credentials)
+      response = resource['ldap-sync']['jobs'].get
+
+      JSON.parse(response.body).map do |job_hash|
+        LdapSyncJob.new_from_json(self, job_hash)
+      end
+    end
+
+
 
   # @!endgroup
   end
