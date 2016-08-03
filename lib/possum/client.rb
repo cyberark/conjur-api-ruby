@@ -11,6 +11,9 @@ module Possum
       @options = options
     end
 
+    # @return [String] account name for the Possum service
+    attr_reader :account
+
     # @return [String, nil] API key for the Possum service
     # @see login
     attr_reader :api_key
@@ -19,7 +22,7 @@ module Possum
     # @see #login
     def api_key= api_key
       @api_key = api_key
-      authenticator = ApiKeyAuthenticator.new client, @username, api_key
+      authenticator = ApiKeyAuthenticator.new client, @account, @username, api_key
       @client = Faraday.new @options do |client|
         client.request :possum_authenticator, authenticator
         client.adapter Faraday.default_adapter
@@ -30,14 +33,16 @@ module Possum
     # The API key is stored in this client instance and will be used on
     # any further requests.
     #
+    # @param [String] account  the account
     # @param [String] username the user name
     # @param [String] password the password
     # @return [String] API key
     # @raise [CredentialError] username or password is incorrect
     # @raise [UnexpectedResponseError] the server has returned an unexpected response
-    def login username, password
+    def login account, username, password
+      @account  = account
       @username = username
-      res = client.get '/authn/login' do |req|
+      res = client.get "/authn/#{account}/login" do |req|
         req.headers['Authorization'] =
             Faraday::Request::BasicAuthentication.header username, password
       end

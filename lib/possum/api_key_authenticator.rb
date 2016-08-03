@@ -6,11 +6,12 @@ module Possum
   class ApiKeyAuthenticator < Authenticator
     # Create a new ApiKeyAuthenticator.
     # @param [Faraday::Connection] connection The connection to use to fetch tokens.
+    # @param [String] the account in which to login
     # @param [String] username The username to authenticate as.
     # @param [String] api_key The API key to use for authentication.
-    def initialize connection, username, api_key
+    def initialize connection, account, username, api_key
       @connection = connection.dup
-      @connection.url_prefix += "/authn/#{Faraday::Utils.escape username}/authenticate"
+      @connection.url_prefix += "/authn/#{account}/#{Faraday::Utils.escape username}/authenticate"
       @api_key = api_key
     end
 

@@ -7,26 +7,26 @@ describe Possum::Client do
 
   describe '#login' do
     it "fetches the API key" do
-      stub_request(:get, 'http://possum.test/authn/login')
+      stub_request(:get, 'http://possum.test/authn/my-account/login')
         .with(basic_auth: %w(alice secret))
         .to_return(body: 'api-key')
 
-      client.login 'alice', 'secret'
+      client.login 'my-account', 'alice', 'secret'
       expect(client.api_key).to eq 'api-key'
     end
 
     it "errors out on bad password" do
-      stub_request(:get, 'http://possum.test/authn/login')
+      stub_request(:get, 'http://possum.test/authn/my-account/login')
         .to_return(status: 401)
 
-      expect { client.login 'alice', 'secret' }.to raise_error Possum::CredentialError
+      expect { client.login 'my-account', 'alice', 'secret' }.to raise_error Possum::CredentialError
     end
 
     it "errors out on unexpected response" do
-      stub_request(:get, 'http://possum.test/authn/login')
+      stub_request(:get, 'http://possum.test/authn/my-account/login')
         .to_return(status: 418, body: "I'm a teapot")
 
-      expect { client.login 'alice', 'secret' }.to raise_error Possum::UnexpectedResponseError
+      expect { client.login 'my-account', 'alice', 'secret' }.to raise_error Possum::UnexpectedResponseError
     end
   end
 end
