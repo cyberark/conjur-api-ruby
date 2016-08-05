@@ -11,7 +11,7 @@ module Possum
       @options = options
     end
 
-    # @return [String] account name for the Possum service
+    # @return [String, nil] account name for the Possum service
     attr_reader :account
 
     # @return [String, nil] API key for the Possum service
