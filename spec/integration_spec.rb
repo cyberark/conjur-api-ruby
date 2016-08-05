@@ -12,7 +12,10 @@ describe Possum do
 
     stub_request(:get, 'http://possum.test/resources/my-account/test/chunky/bacon')
       .with(headers: { 'Authorization' => 'Token token="dGhlIHRva2Vu"' })
-      .to_return(body: { kind: 'chunky', id: 'bacon' }.to_json)
+      .to_return(
+        body: { kind: 'chunky', id: 'bacon' }.to_json,
+        headers: {'Content-Type' => 'application/json'}
+      )
   end
 
   it 'can be created, authenticated and used' do

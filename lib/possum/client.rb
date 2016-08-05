@@ -1,4 +1,5 @@
 require 'faraday'
+require 'faraday_middleware'
 
 module Possum
   # Possum client object.
@@ -22,9 +23,16 @@ module Possum
     # @see #login
     def api_key= api_key
       @api_key = api_key
-      authenticator = ApiKeyAuthenticator.new client, @account, @username, api_key
+      self.authenticator = ApiKeyAuthenticator.new client, @account, @username, api_key
+    end
+
+    # @return [Possum::Authenticator, nil] authenticator in use by this Client
+    attr_reader :authenticator
+
+    def authenticator= authenticator
       @client = Faraday.new @options do |client|
         client.request :possum_authenticator, authenticator
+        client.response :json, content_type: /\bjson\b/
         client.adapter Faraday.default_adapter
       end
     end
@@ -50,19 +58,32 @@ module Possum
     end
 
     # Call Possum using HTTP GET.
+    # @note This is a convenience method. If you anticipate non-OK
+    #   responses you're encouraged to use {#client} directly.
     #
     # @param [String] path Path to the resource.
     # @param [Hash] params Query parameters.
-    # @return [Object] Parsed JSON response.
+    # @return [Object, String] Raw or parsed JSON response
+    #   (depending on content type).
+    # @raise [UnexpectedResponseError] the server has returned a non-2xx response.
     def get path, params = {}
-      JSON.load client.send(:get, path, params).body
+      response = client.send(:get, path, params)
+      if response.success?
+        return response.body
+      else
+        raise UnexpectedResponseError.new response
+      end
     end
 
-    private
-
+    # @return [Faraday::Client] HTTP client used by this instance.
+    # It's already configured with server base url.
+    # If a user has been authenticated (see {#login}) the HTTP client
+    # will automatically attach authentication headers.
     def client
       @client ||= Faraday.new @options
     end
+
+    private
 
     def parse_login_response res
       if res.success?
