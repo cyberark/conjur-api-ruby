@@ -75,6 +75,42 @@ module Possum
       end
     end
 
+    # Call Possum using HTTP PUT.
+    # @note This is a convenience method. If you anticipate non-OK
+    #   responses you're encouraged to use {#client} directly.
+    #
+    # @param [String] path Path to the resource.
+    # @param [String, nil] body Body of the request
+    # @return [Object, String, nil] Raw or parsed JSON response
+    #   (depending on content type).
+    # @raise [UnexpectedResponseError] the server has returned a non-2xx response.
+    def put path, body = nil
+      response = client.send(:put, path, body)
+      if response.success?
+        return response.body
+      else
+        raise UnexpectedResponseError.new response
+      end
+    end
+
+    # Call Possum using HTTP POST.
+    # @note This is a convenience method. If you anticipate non-OK
+    #   responses you're encouraged to use {#client} directly.
+    #
+    # @param [String] path Path to the resource.
+    # @param [String, nil] body Body of the request
+    # @return [Object, String, nil] Raw or parsed JSON response
+    #   (depending on content type).
+    # @raise [UnexpectedResponseError] the server has returned a non-2xx response.
+    def post path, body = nil
+      response = client.send(:post, path, body)
+      if response.success?
+        return response.body
+      else
+        raise UnexpectedResponseError.new response
+      end
+    end
+
     # @return [Faraday::Client] HTTP client used by this instance.
     # It's already configured with server base url.
     # If a user has been authenticated (see {#login}) the HTTP client
