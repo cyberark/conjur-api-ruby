@@ -7,11 +7,7 @@ module Conjur
     # Creates a new `LdapSyncJob` from a Hash as returned
     # by the LDAP sync service's `GET /jobs` route.
     def self.new_from_json api, hash
-      @api = api
-
-      %w(id type state exclusive).each do |k|
-        instance_variable_set "@#{k}", hash[k]
-      end
+      new(api, hash['id'], hash['type'], hash['state'], hash['exclusive'])
     end
 
     def initialize api, id, type, state, exclusive

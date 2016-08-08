@@ -14,6 +14,39 @@ describe Conjur::API, api: :dummy do
   include RequestHelpers
   describe 'LDAP Sync methods' do
     let(:appliance_url){ "http://example.com/api" }
+    before do
+      allow(Conjur.configuration).to receive(:appliance_url).and_return appliance_url
+    end
+
+    describe '#ldap_sync_jobs' do
+      let(:url){ "#{appliance_url}/ldap-sync/jobs" }
+      let(:response_json){
+        [
+            { 'id' => 'job-1', 'exclusive' => false, 'type' => 'connect', 'state' => 'success'},
+            { 'id' => 'job-2', 'exclusive' => true, 'type' => 'sync', 'state' => 'running'},
+            { 'id' => 'job-3', 'exclusive' => false, 'type' => 'search', 'state' => 'success'}
+        ]
+      }
+
+      let(:response){ double('response', body: response_json.to_json) }
+      subject{ api.ldap_sync_jobs }
+      before do
+        expect_request(
+            url: url,
+            method: :get,
+            headers: credentials[:headers]
+        ).and_return response
+      end
+
+      it 'returns an Array of LdapSyncJob objects with the appropriate fields' do
+        expect(subject).to be_kind_of Array
+        expect(subject.length).to eq(response_json.length)
+        expect(subject[0].id).to eq('job-1')
+        expect(subject[1].exclusive?).to be(true)
+        expect(subject[2].type).to eq('search')
+        expect(subject[0].state).to eq('success')
+      end
+    end
 
     describe '#ldap_sync_now' do
       let(:ldapsync_url){ "#{appliance_url}/ldap-sync/sync" }
@@ -31,7 +64,6 @@ describe Conjur::API, api: :dummy do
       let(:dry_run) { true }
 
       before do
-        allow(Conjur.configuration).to receive(:appliance_url).and_return appliance_url
         allow(Conjur::API).to receive_messages(ldap_sync_now: ldapsync_url)
         expect_request(
             url: ldapsync_url,

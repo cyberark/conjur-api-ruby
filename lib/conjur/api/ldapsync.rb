@@ -18,6 +18,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'conjur/ldap_sync_job'
 
 module Conjur
   class API
@@ -54,7 +55,7 @@ module Conjur
       response = resource['ldap-sync']['jobs'].get
 
       JSON.parse(response.body).map do |job_hash|
-        LdapSyncJob.new_from_json(self, job_hash)
+        Conjur::LdapSyncJob.new_from_json(self, job_hash)
       end
     end
 
