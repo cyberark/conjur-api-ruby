@@ -28,10 +28,6 @@ module Conjur
       raise "not implemented"
     end
 
-    def == o
-      o.kind_of?(self.class) and o.id == self.id
-    end
-
     def to_s
       "<LdapSyncJob #{id} type=#{type} state=#{state}#{exclusive? ? ' exclusive' : ''}>"
     end
@@ -39,7 +35,7 @@ module Conjur
     private
 
     def job_resource
-      RestClient::Resource.new(Conjur.configuration.account, @api.credentials)['ldap-sync']['jobs'][id]
+      RestClient::Resource.new(Conjur.configuration.appliance_url, @api.credentials)['ldap-sync']['jobs'][id]
     end
   end
 end

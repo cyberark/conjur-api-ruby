@@ -48,6 +48,21 @@ describe Conjur::API, api: :dummy do
       end
     end
 
+    describe 'LdapSyncJob#delete' do
+      let(:job){ Conjur::LdapSyncJob.new(api, 'job-id', false, 'connect', 'running') }
+      let(:url){ "#{appliance_url}/ldap-sync/jobs/#{job.id}" }
+
+      it 'calls delete on the job resource' do
+        expect_request(
+            url: url,
+            method: :delete,
+            headers: credentials[:headers]
+        )
+        job.delete
+      end
+
+    end
+
     describe '#ldap_sync_now' do
       let(:ldapsync_url){ "#{appliance_url}/ldap-sync/sync" }
       let(:response_json){
