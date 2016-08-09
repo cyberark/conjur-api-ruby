@@ -4,7 +4,7 @@
   retrieving Conjur resources that have an annotation with the given
   name.
 
-* pin activesupport to v4
+* pin activesupport to < v5
 
 # v4.26.0
 
