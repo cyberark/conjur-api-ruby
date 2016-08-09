@@ -63,6 +63,71 @@ describe Conjur::API, api: :dummy do
 
     end
 
+    describe 'LdapSyncJob#output' do
+
+      let(:response){ double('response', code: response_status.to_s) }
+
+      let(:chunks){[
+          'id:', " 0\n",
+          "event: foo\ndata: {\"message\": \"hello\"",  "}\n\n",
+          'id: 1', "\nevent: result\ndata: {\"ok\":false,\"error\":{\"message\":\"Cannot resolve host ldapserver\"}}\n\n"
+      ]}
+
+      let(:job){
+        Conjur::LdapSyncJob.new(api, 'job-id', false, 'connect', 'running')
+      }
+
+      let(:url){ "#{appliance_url}/ldap-sync/jobs/#{job.id}/output" }
+
+      before do
+        expect_request(
+            url: url,
+            method: :get,
+            headers: credentials[:headers].dup.merge(accept: 'text/event-stream'),
+            block_response: instance_of(Proc)
+        ) do |opts|
+          opts[:block_response].call response
+        end
+        expect(response).to receive(:read_body) do |&blk|
+          chunks.each{ |c| blk[c] }
+        end
+      end
+
+      context 'when the request succeeds' do
+
+        let(:response_status){ 200 }
+
+        context 'when given a block' do
+          it 'is called with each event' do
+            blocked = []
+            events = job.output do |event|
+              blocked << event
+            end
+            expect(blocked.length).to eq(2)
+            expect(blocked).to eq(events)
+          end
+        end
+
+        context 'when not given a block' do
+          it 'returns the event data' do
+            events = job.output
+            expect(events[0]['message']).to eq('hello')
+            expect(events[1]['ok']).to be_falsey
+            expect(events[1]['error']['message']).to eq('Cannot resolve host ldapserver')
+          end
+        end
+      end
+
+      context 'when the request fails' do
+        let(:response_status){ 422 }
+
+        it 'calls response.error!' do
+          expect(response).to receive(:error!)
+          job.output
+        end
+      end
+    end
+
     describe '#ldap_sync_now' do
       let(:ldapsync_url){ "#{appliance_url}/ldap-sync/sync" }
       let(:response_json){

@@ -48,7 +48,7 @@ module Conjur
       options = @api.credentials.dup.tap{|h| h[:headers][:accept] = 'text/event-stream'}
 
       handle_response = lambda do |response|
-        response.error! unless response.code == "200"
+        response.error! unless response.code == '200'
         es = EventSource.new
         es.message{ |e| block[e.data] }
 
