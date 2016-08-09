@@ -1,3 +1,5 @@
+require 'conjur/event_source'
+
 module Conjur
   class LdapSyncJob
     attr_reader :id, :type, :state, :exclusive
@@ -25,7 +27,15 @@ module Conjur
 
     # Receive output from this job and pass them to the given block.
     def output &block
-      raise "not implemented"
+      events = []
+      wrapper = lambda do |e|
+        events << e
+        block[e] if block
+      end
+
+      follow_job_output(&wrapper)
+
+      events
     end
 
     def to_s
@@ -33,6 +43,27 @@ module Conjur
     end
 
     private
+
+    def follow_job_output &block
+      options = @api.credentials.dup.tap{|h| h[:headers][:accept] = 'text/event-stream'}
+
+      handle_response = lambda do |response|
+        response.error! unless response.code == "200"
+        es = EventSource.new
+        es.message{ |e| block[e.data] }
+
+        response.read_body do |chunk|
+          es.feed chunk
+        end
+      end
+
+      RestClient::Request.execute(
+          url: "#{job_resource['output'].url}",
+          headers: options[:headers],
+          method: :get,
+          block_response: handle_response
+      )
+    end
 
     def job_resource
       RestClient::Resource.new(Conjur.configuration.appliance_url, @api.credentials)['ldap-sync']['jobs'][id]
