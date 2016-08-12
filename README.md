@@ -24,7 +24,7 @@ Or install it yourself as:
 require 'possum'
 
 possum = Possum::Client.new url: "http://possum.example.org"
-possum.login 'org/alice', 'secret-password'
+possum.login 'example', 'admin', 'secret'
 
 possum.get '/resources/org/chunky/bacon'
 ```
