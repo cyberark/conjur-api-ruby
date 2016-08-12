@@ -1,0 +1,28 @@
+pg:
+  image: postgres:9.3
+
+example:
+  image: conjurinc/possum-example
+  entrypoint: /bin/sh
+
+possum:
+  image: conjurinc/possum
+  command: server -a example -f /var/lib/possum-example/policy/conjur.yml
+  environment:
+    DATABASE_URL: postgres://postgres@pg/postgres
+    POSSUM_ADMIN_PASSWORD: secret
+    POSSUM_DATA_KEY:
+  volumes_from:
+  - example
+  links:
+  - pg:pg
+
+client:
+  image: ruby:2.2.5
+  entrypoint: bash
+  environment:
+    CONJUR_APPLIANCE_URL: http://possum
+  volumes:
+  - ..:/app
+  links:
+  - possum:conjur
