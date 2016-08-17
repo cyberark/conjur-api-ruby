@@ -4,8 +4,6 @@
   retrieving Conjur resources that have an annotation with the given
   name.
 
-* pin activesupport to v4
-
 # v4.26.0
 
 * expose admin_option in the role graph (only populated by Conjur 4.8 and later)
