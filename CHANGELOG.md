@@ -1,3 +1,9 @@
+# v4.26.2
+
+* `Conjur::API#ldap_sync_now` now accepts an options Hash which will
+  be passed on to the `/sync` entrypoint. The old argument list is
+  maintained for backwards compatibility.
+
 # v4.26.1
 
 * `Conjur::Api#resources` now supports `:has_annotation` for
