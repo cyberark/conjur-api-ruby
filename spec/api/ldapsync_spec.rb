@@ -49,7 +49,7 @@ describe Conjur::API, api: :dummy do
     end
 
     describe 'LdapSyncJob#delete' do
-      let(:job){ Conjur::LdapSyncJob.new(api, 'job-id', false, 'connect', 'running') }
+      let(:job){ Conjur::LdapSyncJob.new(api, :id => 'job-id', :exclusive => false, :type => 'connect', :state => 'running') }
       let(:url){ "#{appliance_url}/ldap-sync/jobs/#{job.id}" }
 
       it 'calls delete on the job resource' do
@@ -74,7 +74,7 @@ describe Conjur::API, api: :dummy do
       ]}
 
       let(:job){
-        Conjur::LdapSyncJob.new(api, 'job-id', false, 'connect', 'running')
+        Conjur::LdapSyncJob.new(api, :id => 'job-id', :exclusive => false, :type => 'connect', :state => 'running')
       }
 
       let(:url){ "#{appliance_url}/ldap-sync/jobs/#{job.id}/output" }
@@ -142,6 +142,15 @@ describe Conjur::API, api: :dummy do
       }
       let(:response){ double('response', body: response_json.to_json) }
       let(:dry_run) { true }
+      let(:detach_job) { true }
+      let(:sync_options) { 
+        {
+          :config => 'default', 
+          :format => 'application/json', 
+          :detach_job => detach_job
+        }
+      }
+
 
       before do
         allow(Conjur::API).to receive_messages(ldap_sync_now: ldapsync_url)
@@ -149,20 +158,19 @@ describe Conjur::API, api: :dummy do
             url: ldapsync_url,
             method: :post,
             headers: credentials[:headers],
-            payload: {config_name: 'default', dry_run: dry_run}
+            payload: sync_options.merge(dry_run: dry_run)
         ).and_return response
       end
 
       context 'with dry_run expected to be true' do
         let(:dry_run){ true }
 
-
         it "POSTs /sync" do
-          api.ldap_sync_now('default', 'application/json', true)
+          api.ldap_sync_now(sync_options.merge(:dry_run => true))
         end
 
         it "POSTs /sync with truthy dry_run value" do
-          api.ldap_sync_now('default', 'application/json', 1)
+          api.ldap_sync_now(sync_options.merge(:dry_run => 1))
         end
       end
 
@@ -170,11 +178,18 @@ describe Conjur::API, api: :dummy do
         let(:dry_run){ false }
 
         it "POSTs /sync with dry_run set to false" do
-          api.ldap_sync_now('default', 'application/json', false)
+          api.ldap_sync_now(sync_options.merge(:dry_run => false))
         end
 
         it "POSTs /sync with falsey dry_run value" do
-          api.ldap_sync_now('default', 'application/json', nil)
+          api.ldap_sync_now(sync_options.merge(:dry_run => nil))
+        end
+      end
+      
+      context 'with the old calling convention' do
+        let(:detach_job) { false }
+        it 'still works' do
+          api.ldap_sync_now(sync_options[:config], sync_options[:format], dry_run)
         end
       end
 

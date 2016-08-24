@@ -26,25 +26,34 @@ module Conjur
 
     # Trigger a LDAP sync with a given profile.
     #
-    # @param [String] config_name Saved profile to run sync with
-    # @param [Boolean] dry_run Don't actually run sync, instead just report the state of the upstream LDAP.
-    # @param [String] format Requested MIME type of the response, either 'text/yaml' or 'application/json'
+    # @param [Array] args If first element is a Hash, use it as the parameters for the /sync call. Otherwise, assume the caller is using the old calling convention.
     # @return [Hash] a hash mapping with keys 'ok' and 'result[:actions]'
-    def ldap_sync_now(config_name, format, dry_run)
+    def ldap_sync_now(*args)
+      
+      # Be backward compatible....
+      # This is kind of gross, but changing the interface for this
+      # method didn't seem worth a major version bump.
+      if args[0].instance_of?(Hash)
+        options = args[0]
+      else
+        options = {}
+        options[:config],options[:format],options[:dry_run] = args[0..2]
+        # Old callers expect /sync to be synchronous
+        options[:detach_job] = false
+      end
+
       opts = credentials.dup.tap{ |h|
-        h[:headers][:accept] = format
+        h[:headers][:accept] = options[:format]
       }
 
-      dry_run = !!dry_run
+      options[:dry_run] = !!options[:dry_run]
 
-      resp = RestClient::Resource.new(Conjur.configuration.appliance_url, opts)['ldap-sync']['sync'].post({
-        config_name: config_name,
-        dry_run: dry_run
-      })
-      
-      if format == 'text/yaml'
+      resp = RestClient::Resource.new(Conjur.configuration.appliance_url, opts)['ldap-sync']['sync'].post(options)
+
+      case options[:format]
+      when 'text/yaml'
         resp.body
-      elsif format == 'application/json'
+      when 'application/json'
         JSON.parse(resp.body)
       end
     end
@@ -58,8 +67,6 @@ module Conjur
         Conjur::LdapSyncJob.new_from_json(self, job_hash)
       end
     end
-
-
 
   # @!endgroup
   end

@@ -2,22 +2,30 @@ require 'conjur/event_source'
 
 module Conjur
   class LdapSyncJob
-    attr_reader :id, :type, :state, :exclusive
 
-    alias exclusive? exclusive
+    attr_reader :hash
 
     # Creates a new `LdapSyncJob` from a Hash as returned
     # by the LDAP sync service's `GET /jobs` route.
     def self.new_from_json api, hash
-      new(api, hash['id'], hash['type'], hash['state'], hash['exclusive'])
+      new(api, hash)
     end
 
-    def initialize api, id, type, state, exclusive
+    def initialize api, hash
       @api = api
-      @id = id
-      @type = type
-      @state = state
-      @exclusive = exclusive
+      @hash = hash.with_indifferent_access
+    end
+
+    def exclusive?
+      self.exclusive
+    end
+
+    def [](k)
+      @hash[k]
+    end
+
+    def method_missing(sym, *arguments, &block)
+      @hash[sym]
     end
 
     # Stop this job (if running) and remove it from the list of jobs.
@@ -43,7 +51,7 @@ module Conjur
     end
 
     def to_h
-      {id: id, type: type, state: state, exclusive: exclusive}
+      @hash
     end
 
     alias as_json to_h
