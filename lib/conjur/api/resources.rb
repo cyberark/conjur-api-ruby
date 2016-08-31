@@ -166,5 +166,19 @@ module Conjur
     def global_privilege_permitted? privilege
       resource(GLOBAL_PRIVILEGE_RESOURCE).permitted? privilege
     end
+
+    def resources_permitted? kind, identifiers, privilege
+      options = {
+        privilege: privilege,
+        identifiers: identifiers
+      }
+      resp = RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/resources/#{kind}?check=true"].post(options)
+      if resp.code == 204
+        [true, []]
+      else
+        [false, JSON.parse(resp.body)]
+      end
+    end
+
   end
 end

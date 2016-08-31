@@ -1,10 +1,10 @@
-# v4.26.2
+# v4.27.0
+
+* Add `Conjur::API#resources_permitted?"
 
 * `Conjur::API#ldap_sync_now` now accepts an options Hash which will
   be passed on to the `/sync` entrypoint. The old argument list is
   maintained for backwards compatibility.
-
-# v4.26.1
 
 * `Conjur::Api#resources` now supports `:has_annotation` for
   retrieving Conjur resources that have an annotation with the given
