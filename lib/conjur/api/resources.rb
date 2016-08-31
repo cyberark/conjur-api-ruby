@@ -167,6 +167,19 @@ module Conjur
       resource(GLOBAL_PRIVILEGE_RESOURCE).permitted? privilege
     end
 
+    # Check to see if the logged-in role has the specified +privilege+
+    # on the resources specified by +kind+ and +identifiers+.
+    #
+    # @example
+    #   secret1 = api.create_variable 'text/plain', 'secret1', id: 'secret1', value: 'my_first_secret'
+    #   secret2 = api.create_variable 'text/plain', 'secret2', id: 'secret2', value: 'another_secret'
+    #   all_permitted, results = api.resources_permitted? 'variable', ['secret1', 'secret2'], 'execute'
+
+    # @param [String] kind the kind of resources to check
+    # @param [Array<String>] identifiers the (unqualified) identifiers of the resources
+    # @param [String] privilege the privilege to check for
+    # @return [Array] first element is a Boolean, true if all checks passed, false otherwise. 
+    #                 If some checks fail, second element is the check result for each resource.
     def resources_permitted? kind, identifiers, privilege
       options = {
         privilege: privilege,
