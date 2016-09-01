@@ -44,4 +44,40 @@ describe Conjur::API, api: :dummy do
       expect(api.resources(kind: :chunky).map(&:url)).to eql(ids.map { |id| api.resource(id).url })
     end
   end
+
+  describe '#resources_permitted' do
+    let(:ids) { %w(foo bar baz) }
+    let(:kind) { 'variable' }
+    let(:priv) { 'execute' }
+
+    it 'creates the request correctly' do
+      expect_request(
+        method: :post,
+        url: "#{authz_host}/the-account/resources/#{kind}?check=true",
+        payload: {
+          :privilege => priv,
+          :identifiers => ids
+        }
+      ).and_return(double("response", :code => 204))
+      
+      res = api.resources_permitted?(kind, ids, priv)
+      expect(res[0]).to be(true)
+    end
+
+    it 'signals failure' do
+      expect_request(
+        method: :post,
+        url: "#{authz_host}/the-account/resources/#{kind}?check=true",
+        payload: {
+          :privilege => priv,
+          :identifiers => ids
+        }
+      ).and_return(double("response", :code => 403, :body => '[]'))
+      
+      res = api.resources_permitted?(kind, ids, priv)
+      expect(res[0]).to be(false)
+    end
+
+  end
+  
 end
