@@ -31,8 +31,8 @@ module Conjur
     # @param [Array<Conjur::Role, String>, String, Conjur::Role] roles role or or array of roles
     #   roles whose relationships we're interested in
     # @param [Hash] options options for the request
-    # @option options [Boolean] :ancestors Whether to return ancestors of the given roles (true by default)
-    # @option options [Boolean] :descendants Whether to return descendants of the given roles (true by default)
+    # @option options [Boolean] :ancestors Whether to return ancestors ("roles that your role has") of the given roles (true by default)
+    # @option options [Boolean] :descendants Whether to return descendants ("roles that have your role") of the given roles (true by default)
     # @option options [Conjur::Role, String] :as_role Only roles visible to this role will be included in the graph
     # @return [Conjur::Graph] An object representing the role memberships digraph
     def role_graph roles, options = {}

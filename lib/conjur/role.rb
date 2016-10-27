@@ -76,8 +76,7 @@ module Conjur
     # so if `a` is a member of `b`, and `b` is a member of `c`, `a.all` will include `c`.
     #
     # ### Permissions
-    # You must be a member of the role to call this method (note that the `admin` user is
-    # a member of every role).
+    # You must be a member of the role to call this method.
     #
     # You can restrict the roles returned to one or more role ids.  This feature is mainly useful
     # for checking whether this role is a member of any of a set of roles.
@@ -92,7 +91,7 @@ module Conjur
     #   # => ["conjur:group:pubkeys-1.0/admin", "conjur:user:alice"]
     #
     # @example See if role `"conjur:user:alice"` is a member of either `"conjur:groups:developers"` or `"conjur:group:ops"`
-    #   is_member = not api.role('conjur:user:alice').all(filter: ['conjur:group:developers', 'conjur:group:ops']).empty?
+    #   is_member = api.role('conjur:user:alice').all(filter: ['conjur:group:developers', 'conjur:group:ops']).any?
     #
     # @param [Hash] options options for the request
     # @option options [String, #roleid, Array<String, #roleid>] :filter only return roles in this list
