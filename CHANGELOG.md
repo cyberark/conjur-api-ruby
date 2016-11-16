@@ -1,3 +1,10 @@
+# v4.28.0
+
+* Add `Conjur::API#ldap_sync_policy` to fetch the policy to use to
+  bring Conjur and the LDAP server into sync.
+  
+* Remove `Conjur::API#ldap_sync_now` and `Conjur::API#ldap_sync_jobs`
+
 # v4.27.0
 
 * Add `Conjur::API#resources_permitted?"
