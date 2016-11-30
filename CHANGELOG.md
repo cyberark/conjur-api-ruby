@@ -1,3 +1,8 @@
+# v4.28.1
+
+* `Conjur::API#ldap_sync_policy` now returns log events generated when
+  showing a policy.
+
 # v4.28.0
 
 * Add `Conjur::API#ldap_sync_policy` to fetch the policy to use to
