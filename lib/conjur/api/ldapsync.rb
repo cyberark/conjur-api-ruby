@@ -82,7 +82,7 @@ module Conjur
       }
 
       response = RestClient::Resource.new(Conjur.configuration.appliance_url, headers)['ldap-sync']['search'].post(options.merge(:config_name => profile))
-      JSON.parse(get_json("groups", response))
+      JSON.parse(get_json("groups", response)).merge('events' => find_log_events(response))
     end
 
     # @!endgroup
