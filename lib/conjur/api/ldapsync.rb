@@ -106,7 +106,6 @@ module Conjur
 
     def find_error_events(response)
       find_events(response, "error").join("\n")
-      response.body.lines.collect {|l| l.match(/^data: ({"error":.*)/).try(:[], 1)}.compact.join("\n")
     end
 
     def find_events(response, key)
