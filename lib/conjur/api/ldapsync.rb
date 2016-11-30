@@ -88,15 +88,15 @@ module Conjur
     # @!endgroup
     
     private
-    def get_json(ok_key, response)
+    def get_json(key, response)
       if response.headers[:content_type] == 'text/event-stream'
-        find_ok_event(ok_key, response) || find_error_events(response)
+        find_event_by_key(key, response) || find_error_events(response)
       else
         %Q({"error": {"message": "Unexpected response from server: #{response.body}"}})
       end    
     end
 
-    def find_ok_event(key, response)
+    def find_event_by_key(key, response)
       response.body.lines.find {|l| l =~ %r(^data: {"#{key}":) }.try(:[], 6..-1)
     end
 
