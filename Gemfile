@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-#ruby=ruby-2.1.5
+#ruby=ruby-2.2.4
 #ruby-gemset=conjur-api
 
 # Specify your gem's dependencies in conjur-api.gemspec

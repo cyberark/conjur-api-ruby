@@ -19,6 +19,6 @@
 
 module Conjur
   class API
-    VERSION = "4.28.1"
+    VERSION = "4.28.2"
   end
 end

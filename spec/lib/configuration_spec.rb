@@ -215,6 +215,8 @@ describe Conjur::Configuration do
   end
 
   describe "apply_cert_config!" do
+    let (:cert_exists) { true }
+    let (:cert_readable) { true }
     subject{ Conjur.configuration.apply_cert_config! }
 
     let(:store){ double('default store') }
@@ -223,42 +225,47 @@ describe Conjur::Configuration do
       stub_const 'OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE', store
       allow_any_instance_of(Conjur::Configuration).to receive(:ssl_certificate).and_return ssl_certificate
       allow_any_instance_of(Conjur::Configuration).to receive(:cert_file).and_return cert_file
-    end
-
-    context "when neither cert_file or ssl_certificate is present" do
-      let(:cert_file){ nil }
-      let(:ssl_certificate){ nil }
-
-      it 'does nothing to the store' do
-        expect(store).to_not receive(:add_file)
-        expect(store).to_not receive(:add_cert)
-        expect(subject).to be_falsey
+      allow_any_instance_of(Conjur::Configuration).to receive(:ensure_cert_readable!).with(cert_file) do
+        raise Errno::ENOENT unless cert_exists
+        raise Errno::EPERM unless cert_readable
       end
     end
 
-    context 'when both are given' do
-      let(:cert_file){ '/path/to/cert.pem' }
-      let(:ssl_certificate){ "-----BEGIN CERTIFICATE-----\nfoo\n-----END CERTIFICATE-----\n" }
-      let(:cert){ double('certificate') }
-      it 'calls store.add_cert with a certificate created from ssl_certificate' do
-        expect(OpenSSL::X509::Certificate).to receive(:new).with(ssl_certificate).once.and_return cert
-        expect(store).to receive(:add_cert).once.with(cert)
-        expect(subject).to be_truthy
-      end
-    end
+    context 'when cert file may exist' do
+      context "when neither cert_file or ssl_certificate is present" do
+        let(:cert_file){ nil }
+        let(:ssl_certificate){ nil }
 
-    context 'when cert_file is given and ssl_certificate is not' do
-      let(:cert_file){ '/path/to/cert.pem' }
-      let(:ssl_certificate){ nil }
-      it 'calls store.add_file with cert_file' do
-        expect(store).to receive(:add_file).with(cert_file).once
-        expect(subject).to be_truthy
+        it 'does nothing to the store' do
+          expect(store).to_not receive(:add_file)
+          expect(store).to_not receive(:add_cert)
+          expect(subject).to be_falsey
+        end
       end
-    end
 
-    context 'when ssl_certificate is given' do
-      let(:cert_file){ nil }
-      let(:ssl_certificate){ "-----BEGIN CERTIFICATE----- MIIDUTCCAjmgAwIBAgIJAO4Lf1Rf2cciMA0GCSqGSIb3DQEBBQUAMDMxMTAvBgNV BAMTKGVjMi01NC05MS0yNDYtODQuY29tcHV0ZS0xLmFtYXpvbmF3cy5jb20wHhcN MTQxMDA4MjEwNTA5WhcNMjQxMDA1MjEwNTA5WjAzMTEwLwYDVQQDEyhlYzItNTQt OTEtMjQ2LTg0LmNvbXB1dGUtMS5hbWF6b25hd3MuY29tMIIBIjANBgkqhkiG9w0B AQEFAAOCAQ8AMIIBCgKCAQEAx+OFANXNEYNsMR3Uvg4/72VG3LZO8yxrYaYzc3FZ NN3NpIOCZvRTC5S+OawsdEljHwfhdVoXdWNKgVJakSxsAnnaj11fA6XpfN60o6Fk i4q/BqwqgeNJjKAlElFsNz2scWFWRe49NHlj9qaq/yWZ8Cn0IeHy8j8F+jMek4zt dCSxVEayVG/k8RFmYCcluQc/1LuCjPiFwJU43AGkO+yvmOuYGivsNKY+54yuEZqF VDsjAjMsYXxgLx9y1F7Rq3CfeqY6IajR7pmmRup8/D9NyyyQuIML83mjTSvo0UYu rkdXPObd/m6gumscvXMl6SoJ5IPItvTA42MZqTaNzimF0QIDAQABo2gwZjBkBgNV HREEXTBbgglsb2NhbGhvc3SCBmNvbmp1coIcY29uanVyLW1hc3Rlci5pdHAuY29u anVyLm5ldIIoZWMyLTU0LTkxLTI0Ni04NC5jb21wdXRlLTEuYW1hem9uYXdzLmNv bTANBgkqhkiG9w0BAQUFAAOCAQEANk7P3ZEZHLgiTrLG13VAkm33FAvFzRG6akx1 jgNeRDgSaxRtrfJq3mnhsmD6hdvv+e6prPCFOjeEDheyCZyQDESdVEJBwytHVjnH dbvgMRaPm6OO8CyRyNjg3YcC36T//oQKOdAXXEcrtd0QbelBDYlKA7smJtznfhAb XypVdeS/6I4qvJi3Ckp5sQ1GszYhVXAvEeWeY59WwsTWYHLkzss9QShnigPyo3LY ZA5JVXofYi9DJ6VexP7sJNhCMrY2WnMpPcAOB9T7a6lcoXj6mWxvFys0xDIEOnc6 NGb+d47blphUKRZMAUZgYgFfMfmlyu1IXj03J8AuKtIMEwkXAA== -----END CERTIFICATE----- " }
+      context 'when both are given' do
+        let(:cert_file){ '/path/to/cert.pem' }
+        let(:ssl_certificate){ "-----BEGIN CERTIFICATE-----\nfoo\n-----END CERTIFICATE-----\n" }
+        let(:cert){ double('certificate') }
+        it 'calls store.add_cert with a certificate created from ssl_certificate' do
+          expect(OpenSSL::X509::Certificate).to receive(:new).with(ssl_certificate).once.and_return cert
+          expect(store).to receive(:add_cert).once.with(cert)
+          expect(subject).to be_truthy
+        end
+      end
+
+      context 'when cert_file is given and ssl_certificate is not' do
+        let(:cert_file){ '/path/to/cert.pem' }
+        let(:ssl_certificate){ nil }
+        it 'calls store.add_file with cert_file' do
+          expect(store).to receive(:add_file).with(cert_file).once
+          expect(subject).to be_truthy
+        end
+      end
+
+      context 'when ssl_certificate is given' do
+        let(:cert_file){ nil }
+        let(:ssl_certificate){ "-----BEGIN CERTIFICATE----- MIIDUTCCAjmgAwIBAgIJAO4Lf1Rf2cciMA0GCSqGSIb3DQEBBQUAMDMxMTAvBgNV BAMTKGVjMi01NC05MS0yNDYtODQuY29tcHV0ZS0xLmFtYXpvbmF3cy5jb20wHhcN MTQxMDA4MjEwNTA5WhcNMjQxMDA1MjEwNTA5WjAzMTEwLwYDVQQDEyhlYzItNTQt OTEtMjQ2LTg0LmNvbXB1dGUtMS5hbWF6b25hd3MuY29tMIIBIjANBgkqhkiG9w0B AQEFAAOCAQ8AMIIBCgKCAQEAx+OFANXNEYNsMR3Uvg4/72VG3LZO8yxrYaYzc3FZ NN3NpIOCZvRTC5S+OawsdEljHwfhdVoXdWNKgVJakSxsAnnaj11fA6XpfN60o6Fk i4q/BqwqgeNJjKAlElFsNz2scWFWRe49NHlj9qaq/yWZ8Cn0IeHy8j8F+jMek4zt dCSxVEayVG/k8RFmYCcluQc/1LuCjPiFwJU43AGkO+yvmOuYGivsNKY+54yuEZqF VDsjAjMsYXxgLx9y1F7Rq3CfeqY6IajR7pmmRup8/D9NyyyQuIML83mjTSvo0UYu rkdXPObd/m6gumscvXMl6SoJ5IPItvTA42MZqTaNzimF0QIDAQABo2gwZjBkBgNV HREEXTBbgglsb2NhbGhvc3SCBmNvbmp1coIcY29uanVyLW1hc3Rlci5pdHAuY29u anVyLm5ldIIoZWMyLTU0LTkxLTI0Ni04NC5jb21wdXRlLTEuYW1hem9uYXdzLmNv bTANBgkqhkiG9w0BAQUFAAOCAQEANk7P3ZEZHLgiTrLG13VAkm33FAvFzRG6akx1 jgNeRDgSaxRtrfJq3mnhsmD6hdvv+e6prPCFOjeEDheyCZyQDESdVEJBwytHVjnH dbvgMRaPm6OO8CyRyNjg3YcC36T//oQKOdAXXEcrtd0QbelBDYlKA7smJtznfhAb XypVdeS/6I4qvJi3Ckp5sQ1GszYhVXAvEeWeY59WwsTWYHLkzss9QShnigPyo3LY ZA5JVXofYi9DJ6VexP7sJNhCMrY2WnMpPcAOB9T7a6lcoXj6mWxvFys0xDIEOnc6 NGb+d47blphUKRZMAUZgYgFfMfmlyu1IXj03J8AuKtIMEwkXAA== -----END CERTIFICATE----- " }
         let(:actual_certificate) {
           <<-CERT
 -----BEGIN CERTIFICATE-----
@@ -283,49 +290,49 @@ NGb+d47blphUKRZMAUZgYgFfMfmlyu1IXj03J8AuKtIMEwkXAA==
 -----END CERTIFICATE-----
 CERT
         }
-      let(:cert){ double('cert') }
+        let(:cert){ double('cert') }
 
-      before do
-        expect(OpenSSL::X509::Certificate).to receive(:new).with(actual_certificate).at_least(:once).and_return cert
+        before do
+          expect(OpenSSL::X509::Certificate).to receive(:new).with(actual_certificate).at_least(:once).and_return cert
+        end
+
+        it 'calls store.add_cert with a certificate created from ssl_certificate' do
+          expect(store).to receive(:add_cert).with(cert).once
+          expect(subject).to be_truthy
+        end
+
+        it 'rescues from a StoreError with message "cert already in hash tabble"' do
+          expect(store).to receive(:add_cert).with(cert).once.and_raise(OpenSSL::X509::StoreError.new('cert already in hash table'))
+          expect(subject).to be_truthy
+        end
+
+
+        it 'does not rescue from other exceptions' do
+          exn = OpenSSL::X509::StoreError.new('some other message')
+          expect(store).to receive(:add_cert).with(cert).once.and_raise(exn)
+          expect{subject}.to raise_error exn
+          exn = ArgumentError.new('bad news')
+          expect(store).to receive(:add_cert).with(cert).once.and_raise(exn)
+          expect{subject}.to raise_error exn
+        end
       end
 
-      it 'calls store.add_cert with a certificate created from ssl_certificate' do
-        expect(store).to receive(:add_cert).with(cert).once
-        expect(subject).to be_truthy
+      context 'when given a store argument' do
+        let(:cert_file){ '/path/to/cert.pem' }
+        let(:ssl_certificate){ nil }
+        let(:alt_store){ double('alt store') }
+        subject{ Conjur.configuration.apply_cert_config! alt_store }
+
+        it 'uses that store instead' do
+          expect(alt_store).to receive(:add_file).with(cert_file).once
+          expect(subject).to be_truthy
+        end
       end
 
-      it 'rescues from a StoreError with message "cert already in hash tabble"' do
-        expect(store).to receive(:add_cert).with(cert).once.and_raise(OpenSSL::X509::StoreError.new('cert already in hash table'))
-        expect(subject).to be_truthy
-      end
-
-
-      it 'does not rescue from other exceptions' do
-        exn = OpenSSL::X509::StoreError.new('some other message')
-        expect(store).to receive(:add_cert).with(cert).once.and_raise(exn)
-        expect{subject}.to raise_error exn
-        exn = ArgumentError.new('bad news')
-        expect(store).to receive(:add_cert).with(cert).once.and_raise(exn)
-        expect{subject}.to raise_error exn
-      end
-    end
-
-    context 'when given a store argument' do
-      let(:cert_file){ '/path/to/cert.pem' }
-      let(:ssl_certificate){ nil }
-      let(:alt_store){ double('alt store') }
-      subject{ Conjur.configuration.apply_cert_config! alt_store }
-
-      it 'uses that store instead' do
-        expect(alt_store).to receive(:add_file).with(cert_file).once
-        expect(subject).to be_truthy
-      end
-    end
-
-    context 'with two certificates in a string' do
-      let(:cert_file) { nil }
-      let(:ssl_certificate) do
-        """-----BEGIN CERTIFICATE-----
+      context 'with two certificates in a string' do
+        let(:cert_file) { nil }
+        let(:ssl_certificate) do
+          """-----BEGIN CERTIFICATE-----
 MIIDPjCCAiagAwIBAgIVAKW1gdmOFrXt6xB0iQmYQ4z8Pf+kMA0GCSqGSIb3DQEB
 CwUAMD0xETAPBgNVBAoTCGN1Y3VtYmVyMRIwEAYDVQQLEwlDb25qdXIgQ0ExFDAS
 BgNVBAMTC2N1a2UtbWFzdGVyMB4XDTE1MTAwNzE2MzAwNloXDTI1MTAwNDE2MzAw
@@ -367,12 +374,35 @@ BvYRjnTB2LSxfmSnkrCeFPmhE11bWVtsLIdrGIgtEMX0/s9xg58QuNnva1U3pJsW
 RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
 -----END CERTIFICATE-----
 """
+        end
+
+        it 'adds both to the store' do
+          expect(store).to receive(:add_cert).twice
+          expect(subject).to be_truthy
+        end
+      end
+      
+    end
+
+    context 'when cert file is not readable' do
+      let(:cert_file) { '/path/to/not_cert.pem' }
+      let(:ssl_certificate) { nil }
+
+      context 'raises ENOENT when cert file does not exist' do
+        let(:cert_exists) { false }
+        it 'raises the exception' do
+          expect{subject}.to raise_error(Errno::ENOENT)
+        end
       end
 
-      it 'adds both to the store' do
-        expect(store).to receive(:add_cert).twice
-        expect(subject).to be_truthy
+      context "raises EPERM when cert file does not have read permission" do
+        let(:cert_readable) {false}
+        it 'raises the exception' do
+          expect{subject}.to raise_error(Errno::EPERM)
+        end
       end
+
     end
+
   end
 end

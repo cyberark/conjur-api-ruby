@@ -1,3 +1,7 @@
+# v4.28.2
+
+* Make sure certificate file is readable before trying to use it.
+
 # v4.28.1
 
 * `Conjur::API#ldap_sync_policy` now returns log events generated when
