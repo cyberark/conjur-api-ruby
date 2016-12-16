@@ -420,6 +420,7 @@ module Conjur
           end
         end
       elsif cert_file
+        ensure_cert_readable!(cert_file)
         store.add_file cert_file
       else
         return false
@@ -466,6 +467,13 @@ module Conjur
     # Heroku: Name must start with a letter and can only contain lowercase letters, numbers, and dashes.
     def herokuize name
       name.downcase.gsub(/[^a-z0-9\-]/, '-')
+    end
+
+    def ensure_cert_readable!(path)
+      # Try to open the file to make sure it exists and that it's
+      # readable. Don't rescue exceptions from it, just let them
+      # propagate.
+      File.open(path) {}
     end
 
   end

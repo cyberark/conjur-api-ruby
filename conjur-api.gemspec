@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'activesupport'
   gem.add_dependency 'semantic'
   
-  gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'rake', '~> 10.0'
   gem.add_development_dependency 'spork'
   gem.add_development_dependency 'rspec', '~> 3'
   gem.add_development_dependency 'rspec-expectations', '~> 3.4'
