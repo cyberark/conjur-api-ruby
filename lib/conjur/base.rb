@@ -141,6 +141,24 @@ module Conjur
       def new_from_token(token, remote_ip = nil)
         self.new.init_from_token token, remote_ip
       end
+
+      # Create a new {Conjur::API} instance from a file containing a token issued by the
+      # {http://developer.conjur.net/reference/services/authentication Conjur authentication service}
+      #
+      # This method is useful when an external process, such as a sidecar container, is continuously
+      # obtaining fresh tokens and writing them to a known file.
+      #
+      # Note that Conjur tokens are issued as JSON.  This method expects the token file to contain JSON.
+      # When sending tokens as headers, you will normally use base64 encoded strings.  Authorization headers
+      # used by Conjur have the form `'Token token="#{b64encode token.to_json}"'`, but this format is in no way
+      # required.
+      #
+      # @param [String] token_file the file path containing an authentication token as parsed JSON.
+      # @param [String] remote_ip the optional IP address to be recorded in the audit record.
+      # @return [Conjur::API] an api that will authenticate with the tokens provided in the file.
+      def new_from_token_file(token_file, remote_ip = nil)
+        self.new.init_from_token_file token_file, remote_ip
+      end
       
       def encode_audit_ids(ids)
         ids.collect{|id| CGI::escape(id)}.join('&')
@@ -253,52 +271,139 @@ module Conjur
       end
     end
 
+    module TokenExpiration
+      # The four minutes is to work around a bug in Conjur < 4.7 causing a 404 on 
+      # long-running operations (when the token is used right around the 5 minute mark).
+      TOKEN_STALE = 4.minutes
+
+      attr_accessor :token_born
+
+      def needs_token_refresh?
+        token_age > TOKEN_STALE
+      end
+
+      def token_age
+        gettime - token_born
+      end
+    end
+
+    # When the API is constructed with an API, the token can be refreshed using
+    # the username and API key. This authenticator assumes that the token was
+    # minted immediately before the API instance was created.
+    class APIKeyAuthenticator
+      include TokenExpiration
+
+      attr_reader :username, :api_key
+
+      def initialize username, api_key
+        @username = username
+        @api_key = api_key
+        update_token_born
+      end
+
+      def refresh_token
+        Conjur::API.authenticate(username, api_key).tap do
+          update_token_born
+        end
+      end
+
+      def update_token_born
+        self.token_born = gettime
+      end
+
+      protected
+
+      def gettime
+        Process.clock_gettime Process::CLOCK_MONOTONIC
+      rescue
+        # fall back to normal clock if there's no CLOCK_MONOTONIC
+        Time.now.to_f
+      end
+    end
+
+    # When the API is constructed with a token, the token cannot be refreshed.
+    class UnableAuthenticator
+      def refresh_token
+        raise "Unable to re-authenticate using an access token"
+      end
+
+      def needs_token_refresh?
+        false
+      end
+    end
+
+    # Obtains fresh tokens by reading them from a file. Some other process is assumed
+    # to be acquiring tokens and storing them to the file on a regular basis.
+    # 
+    # This authenticator assumes that the token was created immediately before
+    # it was written to the file.
+    class TokenFileAuthenticator
+      include TokenExpiration
+
+      attr_reader :token_file
+
+      def initialize token_file
+        @token_file = token_file
+        update_token_born
+      end
+
+      def refresh_token
+        JSON.parse(File.read(token_file)).tap do
+          update_token_born
+        end
+      end
+
+      protected
+
+      def update_token_born
+        self.token_born = File.mtime(token_file).to_f
+      end
+
+      def gettime
+        # Need to use the actual time not the process clock because we will compare
+        # with the file mtime.
+        Time.now.to_f
+      end
+    end
+
     def init_from_key username, api_key, remote_ip = nil
       @username = username
       @api_key = api_key
       @remote_ip = remote_ip
+      @authenticator = APIKeyAuthenticator.new(username, api_key)
       self
     end
 
     def init_from_token token, remote_ip = nil
       @token = token
       @remote_ip = remote_ip
+      @authenticator = UnableAuthenticator.new
+      self
+    end
+
+    def init_from_token_file token_file, remote_ip = nil
+      @remote_ip = remote_ip
+      @authenticator = TokenFileAuthenticator.new(token_file)
       self
     end
 
     private
-    attr_accessor :token_born
+
+    attr_reader :authenticator
 
     # Tries to refresh the token if possible.
     #
     # @return [Hash, false] false if the token couldn't be refreshed due to
     # unavailable API key; otherwise, the new token.
     def refresh_token
-      return false unless @api_key
-      self.token_born = gettime
-      @token = Conjur::API.authenticate(@username, @api_key)
+      @token = @authenticator.refresh_token
     end
-
-    # The four minutes is to work around a bug in Conjur < 4.7 causing a 404 on 
-    # long-running operations (when the token is used right around the 5 minute mark).
-    TOKEN_STALE = 4.minutes
 
     # Checks if the token is old (or not present).
     #
     # @return [Boolean]
     def needs_token_refresh?
-      !@token || ((token_age || 0) > TOKEN_STALE)
-    end
-
-    def gettime
-      Process.clock_gettime Process::CLOCK_MONOTONIC
-    rescue
-      # fall back to normal clock if there's no CLOCK_MONOTONIC
-      Time.now.to_f
-    end
-
-    def token_age
-      token_born && (gettime - token_born)
+      !@token || @authenticator.needs_token_refresh?
     end
   end
 end

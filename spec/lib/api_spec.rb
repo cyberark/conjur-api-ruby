@@ -238,13 +238,43 @@ describe Conjur::API do
     subject(:api) { Conjur::API.new_from_key(*api_args) }
   end
 
+  shared_context "logged in with a token file", logged_in: :token_file do
+    include_context "logged in"
+    let(:token_file) { "/path/to/token_file" }
+    let(:api_args) { [ token_file, remote_ip ].compact }
+    subject(:api) { Conjur::API.new_from_token_file(*api_args) }
+  end
+
   def time_travel delta
-    allow(api).to receive(:gettime).and_wrap_original do |m|
+    allow(api.send :authenticator).to receive(:gettime).and_wrap_original do |m|
       m[] + delta
     end
   end
 
   describe '#token' do
+    context 'with token file available', logged_in: :token_file do
+      before {
+        expect(File).to receive(:mtime).at_least(1).and_return(Time.now)
+        expect(File).to receive(:read).at_least(1).and_return(JSON.generate(token))
+      }
+      it "reads the file to get a token" do
+        expect(api.instance_variable_get("@token")).to eq(nil)
+        expect(api.token).to eq(token)
+        expect(api.credentials).to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login })
+      end
+
+      context "after expiration" do
+        it 'it reads a new token' do
+          expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
+          
+          time_travel 6.minutes
+          new_token = token.merge "timestamp" => Time.now.to_s
+          
+          expect(api.token).to eq(new_token)
+        end
+      end
+    end
+
     context 'with API key available', logged_in: :api_key do
       it "authenticates to get a token" do
         expect(Conjur::API).to receive(:authenticate).with(login, api_key).and_return token
