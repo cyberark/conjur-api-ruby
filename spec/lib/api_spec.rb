@@ -246,7 +246,10 @@ describe Conjur::API do
   end
 
   def time_travel delta
-    allow(api.send :authenticator).to receive(:gettime).and_wrap_original do |m|
+    allow(api.authenticator).to receive(:gettime).and_wrap_original do |m|
+      m[] + delta
+    end
+    allow(api.authenticator).to receive(:monotonic_time).and_wrap_original do |m|
       m[] + delta
     end
   end
