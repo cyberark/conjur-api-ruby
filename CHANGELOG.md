@@ -1,3 +1,7 @@
+# v4.29.0
+
+* Add `Conjur::API#new_from_token_file` to create an API instance from a file which contains an access token, which should be periodically updated by another process.
+
 # v4.28.2
 
 * Make sure certificate file is readable before trying to use it.
