@@ -276,6 +276,10 @@ module Conjur
       # long-running operations (when the token is used right around the 5 minute mark).
       TOKEN_STALE = 4.minutes
 
+      # Don't check more often than this whether the token needs refreshing.
+      # It's just a churn to do so.
+      TOKEN_REFRESH_CHECK_THRESHOLD = 10.seconds
+
       attr_accessor :token_born
 
       def needs_token_refresh?
@@ -284,6 +288,13 @@ module Conjur
 
       def token_age
         gettime - token_born
+      end
+
+      def monotonic_time
+        Process.clock_gettime Process::CLOCK_MONOTONIC
+      rescue
+        # fall back to normal clock if there's no CLOCK_MONOTONIC
+        Time.now.to_f
       end
     end
 
@@ -311,13 +322,8 @@ module Conjur
         self.token_born = gettime
       end
 
-      protected
-
       def gettime
-        Process.clock_gettime Process::CLOCK_MONOTONIC
-      rescue
-        # fall back to normal clock if there's no CLOCK_MONOTONIC
-        Time.now.to_f
+        monotonic_time
       end
     end
 
@@ -403,7 +409,14 @@ module Conjur
     #
     # @return [Boolean]
     def needs_token_refresh?
-      !@token || @authenticator.needs_token_refresh?
+      return true if !@token
+
+      # Put some throttling on how often we make the authenticator check if the 
+      # token needs refreshing.
+      return false if @last_refresh_check && ( @authenticator.monotonic_time - @last_refresh_check < TokenExpiration::TOKEN_REFRESH_CHECK_THRESHOLD )
+      @last_refresh_check = @authenticator.monotonic_time
+
+      @authenticator.needs_token_refresh?
     end
   end
 end
