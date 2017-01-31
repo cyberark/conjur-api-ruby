@@ -117,11 +117,6 @@ module Conjur
       # 'super-secret' might get the token from a request header, create an {Conjur::API} instance with this method,
       # and use {Conjur::Resource#permitted?} to decide whether to accept and forward the request.
       #
-      # Note that Conjur tokens are issued as JSON.  This method expects to get the token as a parsed JSON Hash.
-      # When sending tokens as headers, you will normally use base64 encoded strings.  Authorization headers
-      # used by Conjur have the form `'Token token="#{b64encode token.to_json}"'`, but this format is in no way
-      # required.
-      #
       # @example A simple gatekeeper
       #   RESOURCE_NAME = 'protected-service'
       #
@@ -143,15 +138,12 @@ module Conjur
       end
 
       # Create a new {Conjur::API} instance from a file containing a token issued by the
-      # {http://developer.conjur.net/reference/services/authentication Conjur authentication service}
+      # {http://developer.conjur.net/reference/services/authentication Conjur authentication service}.
+      # The file is read the first time that a token is required. It is also re-read 
+      # whenever the API decides that the token it already has is getting close to expiration.
       #
       # This method is useful when an external process, such as a sidecar container, is continuously
       # obtaining fresh tokens and writing them to a known file.
-      #
-      # Note that Conjur tokens are issued as JSON.  This method expects the token file to contain JSON.
-      # When sending tokens as headers, you will normally use base64 encoded strings.  Authorization headers
-      # used by Conjur have the form `'Token token="#{b64encode token.to_json}"'`, but this format is in no way
-      # required.
       #
       # @param [String] token_file the file path containing an authentication token as parsed JSON.
       # @param [String] remote_ip the optional IP address to be recorded in the audit record.
@@ -287,10 +279,6 @@ module Conjur
       # long-running operations (when the token is used right around the 5 minute mark).
       TOKEN_STALE = 4.minutes
 
-      # Don't check more often than this whether the token needs refreshing.
-      # It's just a churn to do so.
-      TOKEN_REFRESH_CHECK_THRESHOLD = 10.seconds
-
       attr_accessor :token_born
 
       def needs_token_refresh?
@@ -302,7 +290,7 @@ module Conjur
       end
     end
 
-    # When the API is constructed with an API, the token can be refreshed using
+    # When the API is constructed with an API key, the token can be refreshed using
     # the username and API key. This authenticator assumes that the token was
     # minted immediately before the API instance was created.
     class APIKeyAuthenticator
@@ -415,14 +403,7 @@ module Conjur
     #
     # @return [Boolean]
     def needs_token_refresh?
-      return true if !@token
-
-      # Put some throttling on how often we make the authenticator check if the 
-      # token needs refreshing.
-      return false if @last_refresh_check && ( @authenticator.monotonic_time - @last_refresh_check < TokenExpiration::TOKEN_REFRESH_CHECK_THRESHOLD )
-      @last_refresh_check = @authenticator.monotonic_time
-
-      @authenticator.needs_token_refresh?
+      !@token || @authenticator.needs_token_refresh?
     end
   end
 end
