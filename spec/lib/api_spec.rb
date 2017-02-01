@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'fakefs/spec_helpers'
 
 shared_examples_for "API endpoint" do
   before { Conjur.configuration = Conjur::Configuration.new }
@@ -239,8 +240,9 @@ describe Conjur::API do
   end
 
   shared_context "logged in with a token file", logged_in: :token_file do
+    include FakeFS::SpecHelpers
     include_context "logged in"
-    let(:token_file) { "/path/to/token_file" }
+    let(:token_file) { "token_file" }
     let(:api_args) { [ token_file, remote_ip ].compact }
     subject(:api) { Conjur::API.new_from_token_file(*api_args) }
   end
@@ -252,14 +254,21 @@ describe Conjur::API do
     allow(api.authenticator).to receive(:monotonic_time).and_wrap_original do |m|
       m[] + delta
     end
+    allow(Time).to receive(:now).and_wrap_original do |m|
+      m[] + delta
+    end
   end
 
   describe '#token' do
     context 'with token file available', logged_in: :token_file do
-      before {
-        expect(File).to receive(:mtime).at_least(1).and_return(Time.now)
-        expect(File).to receive(:read).at_least(1).and_return(JSON.generate(token))
-      }
+      def write_token token
+        File.write token_file, JSON.generate(token)
+      end
+
+      before do
+        write_token token
+      end
+
       it "reads the file to get a token" do
         expect(api.instance_variable_get("@token")).to eq(nil)
         expect(api.token).to eq(token)
@@ -272,6 +281,7 @@ describe Conjur::API do
           
           time_travel 6.minutes
           new_token = token.merge "timestamp" => Time.now.to_s
+          write_token new_token
           
           expect(api.token).to eq(new_token)
         end
