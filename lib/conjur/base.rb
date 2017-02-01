@@ -338,31 +338,26 @@ module Conjur
     # This authenticator assumes that the token was created immediately before
     # it was written to the file.
     class TokenFileAuthenticator
-      include TokenExpiration
-
       attr_reader :token_file
 
       def initialize token_file
         @token_file = token_file
-        update_token_born
+      end
+
+      attr_reader :last_mtime
+
+      def mtime
+        File.mtime token_file
       end
 
       def refresh_token
-        JSON.parse(File.read(token_file)).tap do
-          update_token_born
+        File.open token_file, 'r' do |f|
+          JSON.load(f.read).tap { @last_mtime = f.mtime }
         end
       end
 
-      protected
-
-      def update_token_born
-        self.token_born = File.mtime(token_file).to_f
-      end
-
-      def gettime
-        # Need to use the actual time not the process clock because we will compare
-        # with the file mtime.
-        Time.now.to_f
+      def needs_token_refresh?
+        mtime != last_mtime
       end
     end
 

@@ -40,4 +40,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'redcarpet'
   gem.add_development_dependency 'tins', '~> 1.6', '< 1.7.0'
   gem.add_development_dependency 'inch'
+  gem.add_development_dependency 'fakefs'
 end
