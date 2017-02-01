@@ -351,8 +351,12 @@ module Conjur
       end
 
       def refresh_token
+        # There's a race condition here in which the file could be updated
+        # after we read the mtime but before we read the file contents. So to be
+        # conservative, use the oldest possible mtime.
+        mtime = self.mtime
         File.open token_file, 'r' do |f|
-          JSON.load(f.read).tap { @last_mtime = f.mtime }
+          JSON.load(f.read).tap { @last_mtime = mtime }
         end
       end
 
