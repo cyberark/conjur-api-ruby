@@ -1,3 +1,7 @@
+# v4.29.1
+
+* `Conjur::API#audit` now supports `:has_annotation` to retrieve audit events for resources annotated with the given name.
+
 # v4.29.0
 
 * Add `Conjur::API#new_from_token_file` to create an API instance from a file which contains an access token, which should be periodically updated by another process.
