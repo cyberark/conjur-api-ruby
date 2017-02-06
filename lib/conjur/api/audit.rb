@@ -33,6 +33,7 @@ module Conjur
     # @param options [Hash]
     # @option options [Time, nil] :till only show events before this time
     # @option options [Time, nil] :since only show events after this time
+    # @option options [String, nil] :has_annotation only show events for resources with an annotation with this name
     # @option options [Boolean] :follow block the current thread and call `block` with `Array` of
     #   audit events as the occur.
     #
@@ -74,6 +75,7 @@ module Conjur
     # @param options [Hash]
     # @option options [Time, nil] :till only show events before this time
     # @option options [Time, nil] :since only show events after this time
+    # @option options [String, nil] :has_annotation only show events for resources with an annotation with this name
     # @option options [Boolean] :follow block the current thread and call `block` with `Array` of
     #   audit events as the occur.
     #
@@ -99,7 +101,7 @@ module Conjur
 
     private
     def audit_event_feed path, options={}, &block
-      query = options.slice(:since, :till)
+      query = options.slice(:since, :till, :has_annotation)
       path << "?#{query.to_param}" unless query.empty? 
       if options[:follow]
         follow_events path, &block

@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Conjur::API, api: :dummy do 
   describe "audit API methods" do
     
-    let(:options){ {since:Time.at(0).to_s, till: Time.now.to_s, some_unwanted_option: 'heloo!'} }
-    let(:expected_options){ options.slice(:since, :till) }
+    let(:options){ {since:Time.at(0).to_s, till: Time.now.to_s, :has_annotation => 'puppet', some_unwanted_option: 'heloo!'} }
+    let(:expected_options){ options.slice(:since, :till, :has_annotation) }
     let(:response){ ['some event'] }
     let(:include_options){ false }
     let(:query){ include_options ? '?' + expected_options.to_query : '' }
@@ -37,7 +37,7 @@ describe Conjur::API, api: :dummy do
         it_behaves_like "gets all visible events"
       end
       
-      context "when called with time options" do
+      context "when called with all options" do
         let(:include_options){ true }
         it_behaves_like "gets all visible events"
       end
@@ -66,7 +66,7 @@ describe Conjur::API, api: :dummy do
         it_behaves_like "gets roles feed"
       end
       
-      context "when called with time options" do
+      context "when called with all options" do
         let(:include_options){ true }
         let(:args){ [ role_id ] }
         it_behaves_like  "gets roles feed"
@@ -97,7 +97,7 @@ describe Conjur::API, api: :dummy do
         it_behaves_like "gets the resource feed"
       end
       
-      context "when called with time options" do
+      context "when called with all options" do
         let(:include_options) { true }
         it_behaves_like "gets the resource feed"
       end
