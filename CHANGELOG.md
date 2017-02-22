@@ -1,3 +1,7 @@
+# v4.29.2
+
+* `Conjur::API#resources` now supports `:owner` to retrieve all resources owned (directly or indirectly) by the indicated role. This capability has always been provided by the service, but was not exposed by the Ruby API.
+
 # v4.29.1
 
 * `Conjur::API#audit` now supports `:has_annotation` to retrieve audit events for resources annotated with the given name.

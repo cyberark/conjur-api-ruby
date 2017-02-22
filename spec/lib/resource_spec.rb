@@ -162,6 +162,17 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
       expect(Conjur::Resource.all host: authz_host, account: account).to eql(%w(foo bar))
     end
 
+    it "can filter by owner" do
+      expect_request(
+        method: :get,
+        url: "http://authz.example.com/the-account/resources/chunky?owner=alice",
+        headers: {}
+      ).and_return '["foo", "bar"]'
+
+      expect(Conjur::Resource.all host: authz_host, account: account, kind: :chunky, owner: 'alice')
+        .to eql(%w(foo bar))
+    end
+
     it "can filter by kind" do
       expect_request(
         method: :get,

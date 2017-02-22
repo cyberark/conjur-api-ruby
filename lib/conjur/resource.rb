@@ -270,6 +270,7 @@ module Conjur
     # - host - authz url,
     # - credentials,
     # - account,
+    # - owner (optional),
     # - kind (optional),
     # - search (optional),
     # - limit (optional),
@@ -282,7 +283,7 @@ module Conjur
 
       path = "#{account}/resources" 
       path += "/#{kind}" if kind
-      query = opts.slice(:acting_as, :limit, :offset, :search, :has_annotation)
+      query = opts.slice(:owner, :acting_as, :limit, :offset, :search, :has_annotation)
       path += "?#{query.to_query}" unless query.empty?
       resource = RestClient::Resource.new(host, credentials)[path]
       
