@@ -33,6 +33,7 @@ module Conjur
     include HasAttributes
     include PathBased
     include Exists
+    include QueryString
 
     alias resource_kind kind
     
@@ -89,9 +90,14 @@ module Conjur
       self.put(options)
     end
     
-    # Lists roles that have a specified permission on the resource.
+    # Lists roles that have a specified permission on the resource. 
     #
     # This will return only roles of which api.current_user is a member.
+    #
+    # Options:
+    #
+    # * **offset** Zero-based offset into the result set.
+    # * **limit**  Total number of records returned.
     #
     # @example
     #   resource = api.resource 'conjur:variable:example'
@@ -100,10 +106,11 @@ module Conjur
     #   resource.permitted_roles 'execute' # => ['conjur:user:admin', 'conjur:user:jon']
     #
     # @param permission [String] the permission
-    # @param options [Hash, nil] extra options to pass to RestClient::Resource#get
-    # @return [Array<String>] the ids of roles that have `permission` on this resource.
+    # @param options [Hash, nil] extra parameters to pass to the webservice method.
+    # @return [Array<String>] the ids of roles that have `permission` on this resource, sorted 
+    # alphabetically.
     def permitted_roles(permission, options = {})
-      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}"].get(options)
+      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}#{options_querystring options}"].get
     end
     
     # Changes the owner of a resource.  You must be the owner of the resource
