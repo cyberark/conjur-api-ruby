@@ -110,11 +110,20 @@ module Conjur
       end
       if filter = options.delete(:filter)
         filter = [filter] unless filter.is_a?(Array)
-        filter.map!{ |obj| cast(obj, :roleid) }
-        options["filter"] = filter.to_query unless filter.empty?
+        options["filter"] = filter.map{ |obj| cast(obj, :roleid) }
       end
-      JSON.parse(self[options_querystring options].get).collect do |id|
-        Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
+
+      result = JSON.parse(self[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result.collect do |item|
+          if item.is_a?(String)
+            Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(item).join('/')]
+          else
+            RoleGrant.parse_from_json(item, self.options)
+          end
+        end
       end
     end
     
@@ -319,8 +328,13 @@ module Conjur
     # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
     def members options = {}
       options["members"] = true
-      JSON.parse(self[options_querystring options].get).collect do |json|
-        RoleGrant.parse_from_json(json, self.options)
+      result = JSON.parse(self[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result.collect do |json|
+          RoleGrant.parse_from_json(json, self.options)
+        end
       end
     end
   end

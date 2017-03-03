@@ -34,6 +34,7 @@ module Conjur
     include PathBased
     include Exists
     include QueryString
+    extend QueryString
 
     alias resource_kind kind
     
@@ -110,7 +111,12 @@ module Conjur
     # @return [Array<String>] the ids of roles that have `permission` on this resource, sorted 
     # alphabetically.
     def permitted_roles(permission, options = {})
-      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}#{options_querystring options}"].get
+      result = JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}#{options_querystring options}"].get
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result
+      end
     end
     
     # Changes the owner of a resource.  You must be the owner of the resource
@@ -282,19 +288,22 @@ module Conjur
     # - search (optional),
     # - limit (optional),
     # - offset (optional).
-    def self.all opts = {}
-      host, credentials, account, kind = opts.values_at(*[:host, :credentials, :account, :kind])
+    def self.all options = {}
+      host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
       fail ArgumentError, "host and account are required" unless [host, account].all?
+      %i(host credentials account kind).each do |name|
+        options.delete(name)
+      end
 
       credentials ||= {}
 
       path = "#{account}/resources" 
       path += "/#{kind}" if kind
-      query = opts.slice(:owner, :acting_as, :limit, :offset, :search, :has_annotation)
-      path += "?#{query.to_query}" unless query.empty?
-      resource = RestClient::Resource.new(host, credentials)[path]
-      
-      JSON.parse resource.get
+
+      result = JSON.parse(RestClient::Resource.new(host, credentials)[path][options_querystring options].get)
+
+      result = result['count'] if result.is_a?(Hash)
+      result
     end
 
     protected

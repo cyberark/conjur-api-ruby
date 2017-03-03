@@ -1,6 +1,9 @@
 require 'spec_helper'
+require 'helpers/request_helpers'
 
 describe Conjur::API, api: :dummy do
+  include RequestHelpers
+
   describe '#create_resource' do
     it "passes to resource#create" do
       allow(api).to receive(:resource).with(:id).and_return(resource = double)
@@ -31,6 +34,12 @@ describe Conjur::API, api: :dummy do
         { 'id' => id }
       end
     }
+    it "counts resources" do
+      expect(Conjur::Resource).to receive(:all)
+        .with(host: authz_host, account: account, credentials: api.credentials, count: true).and_return(100)
+
+      expect(api.resources(count: true)).to eq(100)
+    end
     it "lists all resources" do
       expect(Conjur::Resource).to receive(:all)
         .with(host: authz_host, account: account, credentials: api.credentials).and_return(resources)
