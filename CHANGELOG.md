@@ -1,3 +1,13 @@
+# v4.30.0
+
+The following enhancements require Conjur server 4.9.1.0 or later:
+
+* Supports filter and pagination of role-listing methods.
+* Supports non-recursive retrieval of role memberships.
+* Supports the +role+ field on `Conjur::RoleGrant`.
+
+On older server versions, the new options will be ignored by the server.
+
 # v4.29.2
 
 * `Conjur::API#resources` now supports `:owner` to retrieve all resources owned (directly or indirectly) by the indicated role. This capability has always been provided by the service, but was not exposed by the Ruby API.
