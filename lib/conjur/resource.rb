@@ -291,8 +291,8 @@ module Conjur
     def self.all options = {}
       host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
       fail ArgumentError, "host and account are required" unless [host, account].all?
-      %i(host credentials account kind).each do |name|
-        options.delete(name)
+      %w(host credentials account kind).each do |name|
+        options.delete(name.to_sym)
       end
 
       credentials ||= {}
