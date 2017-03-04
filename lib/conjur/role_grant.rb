@@ -59,6 +59,17 @@ module Conjur
       @admin_option = admin_option
     end
 
+    # Representation of the role grant as a hash.
+    def to_h
+      {
+        member: member.roleid,
+        grantor: grantor.roleid,
+        admin_option: admin_option
+      }.tap do |h|
+        h[:role] = role.roleid if role
+      end
+    end
+
     #@!attribute member
     #   The member thing
     #   @return [Conjur::Role] a ret?
@@ -72,7 +83,12 @@ module Conjur
       # @param [Hash] credentials the credentials used to create APIs for the member and grantor role objects
       # @return [Conjur::RoleGrant]
       def parse_from_json(json, credentials)
-        role = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['role']).join('/')]
+        # The 'role' field is introduced after Conjur 4.9.0.0.
+        role = if ( role_json = json['role'] )
+          Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(role_json).join('/')]
+        else
+          nil
+        end
         member = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['member']).join('/')]
         grantor = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['grantor']).join('/')]
         RoleGrant.new(role, member, grantor, json['admin_option'])
