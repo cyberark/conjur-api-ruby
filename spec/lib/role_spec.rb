@@ -93,7 +93,7 @@ describe Conjur::Role, api: :dummy do
       roles = ['foo:k:bar', 'baz:k:xyzzy'] 
       expect_request(
         method: :get,
-        url: role.url + "/?all",
+        url: role.url + "/?all=true",
         headers: {}
       ).and_return roles.to_json
       all = role.all
@@ -101,6 +101,26 @@ describe Conjur::Role, api: :dummy do
       expect(all[0].id).to eq('bar')
       expect(all[1].account).to eq('baz')
       expect(all[1].id).to eq('xyzzy')
+    end
+
+    it "handles 'count' parameter" do
+      expect_request(
+        method: :get,
+        url: role.url + "/?all=true&count=true",
+        headers: {}
+      ).and_return({count: 12}.to_json)
+      expect(role.all(count: true)).to eq(12)
+    end
+
+    describe "direct memberships" do
+      it 'routes to ?memberships' do
+        expect_request(
+          method: :get,
+          url: role.url + "/?memberships=true",
+          headers: {}
+        ).and_return("[]")
+        role.all(recursive: false)
+      end
     end
     
     describe "filter param" do
@@ -115,7 +135,7 @@ describe Conjur::Role, api: :dummy do
         it "calls ?all&#{query_string}" do
           expect_request(
             method: :get,
-            url: role.url + "/?all&#{query_string}",
+            url: role.url + "/?all=true&#{query_string}",
             headers:{}
           ).and_return([].to_json)
           role.all filter: filter
@@ -186,11 +206,20 @@ describe Conjur::Role, api: :dummy do
   end
 
   describe '#members' do
+    it "can count the grants" do
+      expect_request(
+        method: :get,
+        url: role.url + "/?count=true&members=true"
+      ).and_return({count: 12}.to_json)
+
+      expect(subject.members(count: true)).to eq(12)
+    end
+
     it "gets ?members and turns each into RoleGrant" do
       grants = %w(foo bar)
       expect_request(
         method: :get,
-        url: role.url + "/?members"
+        url: role.url + "/?members=true"
       ).and_return grants.to_json
       grants.each do |g|
         expect(Conjur::RoleGrant).to receive(:parse_from_json).with(g, anything).and_return g

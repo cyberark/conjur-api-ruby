@@ -22,6 +22,7 @@ require 'rest-client'
 require 'json'
 require 'base64'
 
+require 'conjur/query_string'
 require 'conjur/exists'
 require 'conjur/has_attributes'
 require 'conjur/has_owner'

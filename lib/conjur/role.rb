@@ -33,6 +33,8 @@ module Conjur
   class Role < RestClient::Resource
     include Exists
     include PathBased
+    include QueryString
+
 
     # The *unqualified* identifier for this role.
     #
@@ -72,7 +74,7 @@ module Conjur
       self.put(options)
     end
 
-    # Find all roles of which this role is a member.  This relationship is recursively expanded,
+    # Find all roles of which this role is a member.  By default, role relationships are recursively expanded,
     # so if `a` is a member of `b`, and `b` is a member of `c`, `a.all` will include `c`.
     #
     # ### Permissions
@@ -80,6 +82,10 @@ module Conjur
     #
     # You can restrict the roles returned to one or more role ids.  This feature is mainly useful
     # for checking whether this role is a member of any of a set of roles.
+    #
+    # ### Options
+    #
+    # * **recursive** Defaults to +true+, performs recursive expansion of the memberships.
     #
     # @example Show all roles of which `"conjur:group:pubkeys-1.0/key-managers"` is a member
     #   # Add alice to the group, so we see something interesting
@@ -94,18 +100,30 @@ module Conjur
     #   is_member = api.role('conjur:user:alice').all(filter: ['conjur:group:developers', 'conjur:group:ops']).any?
     #
     # @param [Hash] options options for the request
-    # @option options [String, #roleid, Array<String, #roleid>] :filter only return roles in this list
+    # @param options [Hash, nil] :filter only return roles in this list. Also, extra parameters to pass to the webservice method.
     # @return [Array<Conjur::Role>] Roles of which this role is a member
     def all(options = {})
-      query_string = "?all"
-      
+      request = if options.delete(:recursive) == false
+        options["memberships"] = true
+      else
+        options["all"] = true
+      end
       if filter = options.delete(:filter)
         filter = [filter] unless filter.is_a?(Array)
-        filter.map!{ |obj| cast(obj, :roleid) }
-        (query_string << "&" << filter.to_query("filter")) unless filter.empty?
+        options["filter"] = filter.map{ |obj| cast(obj, :roleid) }
       end
-      JSON.parse(self[query_string].get(options)).collect do |id|
-        Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(id).join('/')]
+
+      result = JSON.parse(self[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result.collect do |item|
+          if item.is_a?(String)
+            Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(item).join('/')]
+          else
+            RoleGrant.parse_from_json(item, self.options)
+          end
+        end
       end
     end
     
@@ -300,17 +318,23 @@ module Conjur
     end
     
 
-    # Fetch the members of this role. The results are *not* recursively expanded (in contrast to {#memberships}).
+    # Fetch the direct members of this role. The results are *not* recursively expanded).
     #
     # ### Permissions
     # You must be a member of the role to call this method.
     # 
-    # @param [Hash] options unused and included only for backwards compatibility 
+    # @param options [Hash, nil] extra parameters to pass to the webservice method.
     # @return [Array<Conjur::RoleGrant>] the role memberships
     # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
-    def members
-      JSON.parse(self["?members"].get(options)).collect do |json|
-        RoleGrant.parse_from_json(json, self.options)
+    def members options = {}
+      options["members"] = true
+      result = JSON.parse(self[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result.collect do |json|
+          RoleGrant.parse_from_json(json, self.options)
+        end
       end
     end
   end

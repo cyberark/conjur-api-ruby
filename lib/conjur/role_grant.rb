@@ -27,22 +27,23 @@ module Conjur
   #   admin_role.members.map{|grant| grant.member}.include? alice # => true
   #
   class RoleGrant
-
+    # The role which was granted.
+    # @return [Conjur::Role]
+    attr_reader :role
 
     # The member role in the relationship
-    # @return [Conjur::Role] the member
+    # @return [Conjur::Role]
     attr_reader :member
 
     # The role that created this grant.
     #
-    # @return [Conjur::Role] the role that created the grant
+    # @return [Conjur::Role]
     attr_reader :grantor
 
     # When true, the role {#member} is allowed to give this grant to other roles
     #
-    # @return [Boolean] whether the role can grant the role to others
+    # @return [Boolean]
     attr_reader :admin_option
-
 
     # @api private
     #
@@ -51,10 +52,22 @@ module Conjur
     # @param [Conjur::Role] member the member to which the role was granted
     # @param [Conjur::Role] grantor  the role that created this grant
     # @param [Boolean] admin_option whether `member` can give the grant to other roles
-    def initialize member, grantor, admin_option
+    def initialize role, member, grantor, admin_option
+      @role = role
       @member = member
       @grantor = grantor
       @admin_option = admin_option
+    end
+
+    # Representation of the role grant as a hash.
+    def to_h
+      {
+        member: member.roleid,
+        grantor: grantor.roleid,
+        admin_option: admin_option
+      }.tap do |h|
+        h[:role] = role.roleid if role
+      end
     end
 
     #@!attribute member
@@ -70,9 +83,15 @@ module Conjur
       # @param [Hash] credentials the credentials used to create APIs for the member and grantor role objects
       # @return [Conjur::RoleGrant]
       def parse_from_json(json, credentials)
+        # The 'role' field is introduced after Conjur 4.9.0.0.
+        role = if ( role_json = json['role'] )
+          Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(role_json).join('/')]
+        else
+          nil
+        end
         member = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['member']).join('/')]
         grantor = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['grantor']).join('/')]
-        RoleGrant.new(member, grantor, json['admin_option'])
+        RoleGrant.new(role, member, grantor, json['admin_option'])
       end
     end
   end

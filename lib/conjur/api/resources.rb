@@ -141,9 +141,14 @@ module Conjur
       opts = { host: Conjur::Authz::API.host, credentials: credentials }.merge opts
       opts[:account] ||= Conjur.account
       
-      Resource.all(opts).map do |result|
-        resource(result['id']).tap do |r|
-          r.attributes = result
+      result = Resource.all(opts)
+      if result.is_a?(Numeric)
+        result
+      else
+        result.map do |result|
+          resource(result['id']).tap do |r|
+            r.attributes = result
+          end
         end
       end
     end

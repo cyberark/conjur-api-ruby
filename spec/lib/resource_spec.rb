@@ -1,6 +1,9 @@
 require 'spec_helper'
+require 'helpers/request_helpers'
 
 describe Conjur::Resource, api: :dummy, logging: :temp do
+  include RequestHelpers
+
   let(:account) { "the-account" }
   let(:uuid) { "ddd1f59a-494d-48fb-b045-0374c4a6eef9" }
 
@@ -58,6 +61,26 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
       ).and_return '["foo", "bar"]'
 
       expect(subject.permitted_roles("nuke")).to eq(['foo', 'bar'])
+    end
+
+    it 'supports counting' do
+      expect_request(
+        method: :get,
+        url: "http://authz.example.com/some-account/roles/allowed_to/nuke/the-kind/resource-id?count=true",
+        headers: {}
+      ).and_return({count: 12}.to_json)
+
+      expect(subject.permitted_roles("nuke", count: true)).to eq(12)
+    end
+
+    it 'supports filtering' do
+      expect_request(
+        method: :get,
+        url: "http://authz.example.com/some-account/roles/allowed_to/nuke/the-kind/resource-id?search=hamsters",
+        headers: {}
+      ).and_return '["foo", "bar"]'
+
+      expect(subject.permitted_roles("nuke", search: 'hamsters')).to eq(['foo', 'bar'])
     end
   end
 
@@ -155,7 +178,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it "calls /account/resources" do
       expect_request(
         method: :get,
-        url: "http://authz.example.com/the-account/resources",
+        url: "http://authz.example.com/the-account/resources/",
         headers: {}
       ).and_return '["foo", "bar"]'
 
@@ -165,7 +188,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it "can filter by owner" do
       expect_request(
         method: :get,
-        url: "http://authz.example.com/the-account/resources/chunky?owner=alice",
+        url: "http://authz.example.com/the-account/resources/chunky/?owner=alice",
         headers: {}
       ).and_return '["foo", "bar"]'
 
@@ -176,7 +199,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it "can filter by kind" do
       expect_request(
         method: :get,
-        url: "http://authz.example.com/the-account/resources/chunky",
+        url: "http://authz.example.com/the-account/resources/chunky/",
         headers: {}
       ).and_return '["foo", "bar"]'
 
@@ -184,11 +207,21 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
         .to eql(%w(foo bar))
     end
     
+    it "can count" do
+      expect_request(
+        method: :get,
+        url: "http://authz.example.com/the-account/resources/?count=true",
+        headers: {}
+      ).and_return({count: 12}.to_json)
+
+      expect(Conjur::Resource.all host: authz_host, account: account, count: true).to eq(12)
+    end
+
     it "passes search, limit, and offset params" do
       expect_request(
         method: :get,
         # Note that to_query sorts the keys
-        url: "http://authz.example.com/the-account/resources?limit=5&offset=6&search=something",
+        url: "http://authz.example.com/the-account/resources/?limit=5&offset=6&search=something",
         headers: {}
       ).and_return '["foo", "bar"]'
       expect(Conjur::Resource.all(host: authz_host, account: account, search: 'something', limit:5, offset:6)).to eq(%w(foo bar))
@@ -197,7 +230,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
     it "uses the given authz url" do
       expect_request(
         method: :get,
-        url: "http://otherhost.example.com/the-account/resources",
+        url: "http://otherhost.example.com/the-account/resources/",
         headers: {}
       ).and_return '["foo", "bar"]'
 
