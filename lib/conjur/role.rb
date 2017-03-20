@@ -113,21 +113,33 @@ module Conjur
         options["filter"] = filter.map{ |obj| cast(obj, :roleid) }
       end
 
-      result = JSON.parse(self[options_querystring options].get)
+      result = fetch_all(options)
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
+        host = Conjur::Authz::API.host
         result.collect do |item|
           if item.is_a?(String)
-            Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(item).join('/')]
+            Role.new(host, self.options)[Conjur::API.parse_role_id(item).join('/')]
           else
             RoleGrant.parse_from_json(item, self.options)
           end
         end
       end
     end
+
+    protected
+
+    def fetch_all options # :nodoc:
+      JSON.parse(self[options_querystring options].get)
+    end
+
+    public
     
-    alias memberships all
+    # An alias for +all+.
+    def memberships options = {}
+      all(options)
+    end
 
     # Check to see if this role is a member of another role.  Membership is transitive.
     #

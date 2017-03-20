@@ -274,36 +274,44 @@ module Conjur
     end
     alias tags annotations
 
-    # @api private
-    # This is documented by Conjur::API#resources.
-    # Returns all resources (optionally qualified by kind) visible to the user with given credentials.
-    #
-    #
-    # Options are:
-    # - host - authz url,
-    # - credentials,
-    # - account,
-    # - owner (optional),
-    # - kind (optional),
-    # - search (optional),
-    # - limit (optional),
-    # - offset (optional).
-    def self.all options = {}
-      host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
-      fail ArgumentError, "host and account are required" unless [host, account].all?
-      %w(host credentials account kind).each do |name|
-        options.delete(name.to_sym)
+    class << self
+      # @api private
+      # This is documented by Conjur::API#resources.
+      # Returns all resources (optionally qualified by kind) visible to the user with given credentials.
+      #
+      #
+      # Options are:
+      # - host - authz url,
+      # - credentials,
+      # - account,
+      # - owner (optional),
+      # - kind (optional),
+      # - search (optional),
+      # - limit (optional),
+      # - offset (optional).
+      def all options = {}
+        host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
+        fail ArgumentError, "host and account are required" unless [host, account].all?
+        %w(host credentials account kind).each do |name|
+          options.delete(name.to_sym)
+        end
+
+        credentials ||= {}
+
+        path = "#{account}/resources" 
+        path += "/#{kind}" if kind
+
+        result = fetch_all host, credentials, path, options
+
+        result = result['count'] if result.is_a?(Hash)
+        result
       end
 
-      credentials ||= {}
+      protected
 
-      path = "#{account}/resources" 
-      path += "/#{kind}" if kind
-
-      result = JSON.parse(RestClient::Resource.new(host, credentials)[path][options_querystring options].get)
-
-      result = result['count'] if result.is_a?(Hash)
-      result
+      def fetch_all host, credentials, path, options        
+        JSON.parse(RestClient::Resource.new(host, credentials)[path][options_querystring options].get)
+      end
     end
 
     protected

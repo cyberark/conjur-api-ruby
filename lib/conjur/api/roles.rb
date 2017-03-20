@@ -36,6 +36,10 @@ module Conjur
     # @option options [Conjur::Role, String] :as_role Only roles visible to this role will be included in the graph
     # @return [Conjur::Graph] An object representing the role memberships digraph
     def role_graph roles, options = {}
+      Conjur::Graph.new request_role_graph(roles, options)
+    end
+
+    def request_role_graph roles, options #:nodoc:
       roles = [roles] unless roles.kind_of? Array
       roles.map!{|r| normalize_roleid(r) }
       options[:as_role] = normalize_roleid(options[:as_role]) if options.include?(:as_role)
@@ -44,7 +48,7 @@ module Conjur
       query = {from_role: options.delete(:as_role)}
         .merge(options.slice(:ancestors, :descendants))
         .merge(roles: roles).to_query
-      Conjur::Graph.new RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/roles?#{query}"].get
+      String.new(RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/roles?#{query}"].get)
     end
 
     # Create a {Conjur::Role} with the given id.
