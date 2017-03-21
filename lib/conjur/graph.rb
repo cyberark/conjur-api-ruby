@@ -52,7 +52,7 @@ module Conjur
         else raise ArgumentError, "don't know how to turn #{val}:#{val.class} into a Graph"
       end.map{|pair| Edge.new(*pair) }.freeze
       @next_node_id = 0
-      @node_ids = Hash.new{ |h,k| h[k] = next_node_id }
+      @node_ids = Hash.new
     end
 
     # Enumerates the edges of this graph.
@@ -144,7 +144,11 @@ module Conjur
 
     def node_id_for role
       role = role.id if role.respond_to?(:id)
-      @node_ids[role]
+      node_id = @node_ids[role]
+      if node_id.nil?
+        node_id = @node_ids[role] = next_node_id
+      end
+      node_id
     end
 
     def next_node_id

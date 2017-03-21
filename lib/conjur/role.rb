@@ -35,7 +35,6 @@ module Conjur
     include PathBased
     include QueryString
 
-
     # The *unqualified* identifier for this role.
     #
     # @example
@@ -113,7 +112,7 @@ module Conjur
         options["filter"] = filter.map{ |obj| cast(obj, :roleid) }
       end
 
-      result = fetch_all(options)
+      result = fetch_memberships(options)
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
@@ -130,7 +129,8 @@ module Conjur
 
     protected
 
-    def fetch_all options # :nodoc:
+    # Caching hook.
+    def fetch_memberships options
       JSON.parse(self[options_querystring options].get)
     end
 
@@ -340,7 +340,7 @@ module Conjur
     # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
     def members options = {}
       options["members"] = true
-      result = JSON.parse(self[options_querystring options].get)
+      result = fetch_members options
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
@@ -348,6 +348,13 @@ module Conjur
           RoleGrant.parse_from_json(json, self.options)
         end
       end
+    end
+
+    protected
+
+    # Caching hook.
+    def fetch_members options
+       JSON.parse(self[options_querystring options].get)
     end
   end
 end
