@@ -111,19 +111,12 @@ module Conjur
     # @return [Array<String>] the ids of roles that have `privilege` on this resource, sorted 
     # alphabetically.
     def permitted_roles(privilege, options = {})
-      result = fetch_permitted_roles privilege, options
+      result = JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{privilege}/#{path_escape kind}/#{path_escape identifier}#{options_querystring options}"].get
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
         result
       end
-    end
-
-    protected
-
-    # Caching hook.
-    def fetch_permitted_roles privilege, options
-      JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{privilege}/#{path_escape kind}/#{path_escape identifier}#{options_querystring options}"].get
     end
 
     public
@@ -310,17 +303,10 @@ module Conjur
         path = "#{account}/resources" 
         path += "/#{kind}" if kind
 
-        result = fetch_all host, credentials, path, options
+        result = JSON.parse(RestClient::Resource.new(host, credentials)[path][options_querystring options].get)
 
         result = result['count'] if result.is_a?(Hash)
         result
-      end
-
-      protected
-
-      # Caching hook.
-      def fetch_all host, credentials, path, options      
-        JSON.parse(RestClient::Resource.new(host, credentials)[path][options_querystring options].get)
       end
     end
 

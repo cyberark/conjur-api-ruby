@@ -112,7 +112,7 @@ module Conjur
         options["filter"] = filter.map{ |obj| cast(obj, :roleid) }
       end
 
-      result = fetch_memberships(options)
+      result = JSON.parse(self[options_querystring options].get)
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
@@ -127,19 +127,7 @@ module Conjur
       end
     end
 
-    protected
-
-    # Caching hook.
-    def fetch_memberships options
-      JSON.parse(self[options_querystring options].get)
-    end
-
-    public
-    
-    # An alias for +all+.
-    def memberships options = {}
-      all(options)
-    end
+    alias memberships all
 
     # Check to see if this role is a member of another role.  Membership is transitive.
     #
@@ -340,7 +328,7 @@ module Conjur
     # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
     def members options = {}
       options["members"] = true
-      result = fetch_members options
+      result = JSON.parse(self[options_querystring options].get)
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
@@ -348,13 +336,6 @@ module Conjur
           RoleGrant.parse_from_json(json, self.options)
         end
       end
-    end
-
-    protected
-
-    # Caching hook.
-    def fetch_members options
-       JSON.parse(self[options_querystring options].get)
     end
   end
 end
