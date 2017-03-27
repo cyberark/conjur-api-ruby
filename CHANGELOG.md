@@ -1,3 +1,7 @@
+# v4.31.0
+
+* Internal refactor to improve performance and facilitate caching.
+
 # v4.30.0
 
 The following enhancements require Conjur server 4.9.1.0 or later:

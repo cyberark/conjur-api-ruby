@@ -91,7 +91,7 @@ module Conjur
       self.put(options)
     end
     
-    # Lists roles that have a specified permission on the resource. 
+    # Lists roles that have a specified privilege on the resource. 
     #
     # This will return only roles of which api.current_user is a member.
     #
@@ -106,19 +106,19 @@ module Conjur
     #   resource.permit 'execute', api.user('jon')
     #   resource.permitted_roles 'execute' # => ['conjur:user:admin', 'conjur:user:jon']
     #
-    # @param permission [String] the permission
+    # @param privilege [String] the privilege
     # @param options [Hash, nil] extra parameters to pass to the webservice method.
-    # @return [Array<String>] the ids of roles that have `permission` on this resource, sorted 
+    # @return [Array<String>] the ids of roles that have `privilege` on this resource, sorted 
     # alphabetically.
-    def permitted_roles(permission, options = {})
-      result = JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{permission}/#{path_escape kind}/#{path_escape identifier}#{options_querystring options}"].get
+    def permitted_roles(privilege, options = {})
+      result = JSON.parse RestClient::Resource.new(Conjur::Authz::API.host, self.options)["#{account}/roles/allowed_to/#{privilege}/#{path_escape kind}/#{path_escape identifier}#{options_querystring options}"].get
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
         result
       end
     end
-    
+
     # Changes the owner of a resource.  You must be the owner of the resource
     # or a member of the owner role to do this.
     #
@@ -170,7 +170,7 @@ module Conjur
     #   object, in which case the Strings yielded by #each will all be granted
     #
     # @param role [String, #roleid] The role-ish object or full role id
-    #   to which the permission is to be granted/
+    #   to which the privilege is to be granted.
     #
     # @param options [Hash, nil] options to pass through to `RestClient::Resource#post`
     #
@@ -195,7 +195,7 @@ module Conjur
       nil
     end
 
-    # The inverse operation of `#permit`.  Deny permission `privilege` to `role`
+    # The inverse operation of `#permit`.  Deny privilege `privilege` to `role`
     # on this resource.
     #
     # @example
@@ -204,10 +204,10 @@ module Conjur
     #   resource.deny 'execute', 'conjur:user:alice'
     #   resource.permitted_roles 'execute' # =>  ['conjur:user:admin']
     #
-    # @param privilege [String, #each] A permission name or an `Enumerable` of permissions to deny.  In the
-    #   later, all permissions will be denied.
+    # @param privilege [String, #each] A privilege name or an `Enumerable` of privileges to deny.  In the
+    #   later, all privileges will be denied.
     #
-    # @param role [String, :roleid] A full role id or a role-ish object whose permissions we will deny.
+    # @param role [String, :roleid] A full role id or a role-ish object whose privileges we will deny.
     #
     # @return [void]
     def deny(privilege, role, options = {})

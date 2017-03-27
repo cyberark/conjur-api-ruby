@@ -172,6 +172,8 @@ module Conjur
     # @api private
     attr_reader :supplied
 
+    # @api private
+    attr_reader :computed
 
     # Create a new {Conjur::Configuration}, setting initial values from
     # `options`.
@@ -187,6 +189,7 @@ module Conjur
     def initialize options = {}
       @explicit = options.dup
       @supplied = options.dup
+      @computed = Hash.new
     end
     
     class << self
@@ -236,14 +239,20 @@ module Conjur
         end
         
         define_method(name) do
+          value = computed[name]
+          return value unless value.nil?
+
           if supplied.member?(name)
             supplied[name]
           elsif allow_env && ENV.member?(env_var)
             instance_exec(ENV[env_var], &convert)
           else 
             instance_eval(&def_proc)
+          end.tap do |value|
+            computed[name] = value
           end
         end
+
         alias_method("#{name}?", name) if options[:boolean]
       end
     end
@@ -273,6 +282,7 @@ module Conjur
       if self.class.accepted_options.include?(key.to_sym)
         explicit[key.to_sym] = value
         supplied[key.to_sym] = value
+        computed.clear
       end
     end
 

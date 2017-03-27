@@ -131,7 +131,6 @@ module Conjur
       role_from_username username
     end
 
-
     #@!endgroup
 
     # @api private

@@ -107,10 +107,18 @@ module Conjur
     end
 
     protected
+
     # @api private
     # Fetch the attributes, overwriting any current ones.
     def fetch
-      @attributes = JSON.parse(get.body)
+      @attributes ||= fetch_attributes
+    end
+
+    def fetch_attributes # :nodoc:
+      cache_key = Conjur.cache_key self.username, self.url
+      Conjur.cache.fetch_attributes cache_key do
+        JSON.parse(get.body)
+      end
     end
   end
 end
