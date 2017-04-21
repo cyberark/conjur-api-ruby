@@ -31,6 +31,10 @@ module Conjur
     def to_json(options = {})
       attributes
     end
+    
+    def to_s
+      to_json.to_s
+    end
 
     # @api private
     # Set the attributes for this Resource.
@@ -54,45 +58,6 @@ module Conjur
       fetch
     end
 
-
-    # Update this asset's attributes on the server.
-    #
-    #
-    # @note If the objects attributes haven't been fetched (for example, by calling {#attributes}),
-    #   this method is a no-op.
-    #
-    # Although you can manipulate an assets attributes and then call {#save}, the attributes are constrained
-    # by a server side schema, and attempting to set an attribute that doesn't exist will result in
-    # a 422 Unprocessable Entity error.
-    #
-    # If you want to set arbitrary metadata on an asset, you might consider using the {Conjur::Resource#tags}
-    # method instead.
-    #
-    # @return [void]
-    def save
-      if @attributes
-        self.put(attributes.to_json)
-      end
-    end
-    
-    # Reload this asset's attributes. This method can be used to guarantee a current view of the entity in the case
-    # that it has been modified by an update method or by an external party.
-    #
-    # @note any changes to {#attributes} without a call to #save will be overwritten by this method.
-    #
-    # @example
-    #   res = api.resources.firs
-    #   res.attributes # => {  ... }
-    #   res.attributes['hello'] = 'blah'
-    #   res.refresh
-    #   res.attributes['hello'] # => nil
-    #
-    #
-    # @return [Hash] the asset's attributes.
-    def refresh
-      fetch
-    end
-
     # Call a block that will perform actions that might change the asset's attributes.
     # No matter what happens in the block, this method ensures that the cached attributes
     # will be invalidated.
@@ -106,6 +71,7 @@ module Conjur
       @attributes = nil
     end
 
+
     protected
 
     # @api private
@@ -115,9 +81,9 @@ module Conjur
     end
 
     def fetch_attributes # :nodoc:
-      cache_key = Conjur.cache_key self.username, self.url
+      cache_key = Conjur.cache_key username, rbac_resource_resource.url
       Conjur.cache.fetch_attributes cache_key do
-        JSON.parse(get.body)
+        JSON.parse(rbac_resource_resource.get.body)
       end
     end
   end

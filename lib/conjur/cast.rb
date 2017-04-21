@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright (C) 2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,6 +18,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 module Conjur
   module Cast
     protected
@@ -27,9 +28,9 @@ module Conjur
     # @param [String, Array, #roleid, #resourceid] obj the value to cast
     # @param [Symbol] kind must be either `:roleid` or `:resourceid`
     def cast(obj, kind)
-      case kind
-      when :roleid, :resourceid
-        if obj.is_a?(String)
+      result = case kind
+        when :id, :roleid, :resourceid
+        if obj.is_a?(String) || obj.is_a?(Id)
           obj
         elsif obj.is_a?(Array)
           obj.join(':')
@@ -41,6 +42,8 @@ module Conjur
       else
         raise "I don't know how to convert things to a #{kind}"
       end
+      result = Id.new(result) unless result.is_a?(Id)
+      result
     end
   end
 end

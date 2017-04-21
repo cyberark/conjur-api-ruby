@@ -18,21 +18,5 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-module Conjur
-  module Authz
-    class API < Conjur::API
-      class << self
-
-        # The URL for the audit service
-        #
-        # @return [String] the audit service url.
-        def host
-          Conjur.configuration.authz_url
-        end
-      end
-    end
-  end
-end
-
 require 'conjur/api/roles'
 require 'conjur/api/resources'

@@ -27,7 +27,7 @@ describe Conjur::API, api: :dummy do
   end
   
   before do
-    allow(Conjur::API).to receive_messages(pubkeys_asset_host: pubkeys_url)
+    allow(Conjur.configuration).to receive_messages(core_url: pubkeys_url)
   end
   
   describe "#public_keys" do

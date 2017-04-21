@@ -24,17 +24,8 @@ describe Conjur::Annotations do
   
   subject { annotations }
 
-  let(:url){ "#{Conjur::Authz::API.host}/#{account}/annotations/#{kind}/#{fully_escape identifier}" }
+  let(:url){ "#{Conjur.configuration.core_url}/#{account}/annotations/#{kind}/#{fully_escape identifier}" }
 
-  def expect_put_request url, payload
-    expect_request(
-      method: :put,
-      headers: {},
-      url: url,
-      payload: payload
-    )
-  end
-  
   describe '[]' do
     it "returns annotations" do
       expect(subject[:name]).to eq('bar')
@@ -71,39 +62,5 @@ describe Conjur::Annotations do
       expect(subject[:name]).to eq(subject.to_h[:name])
       expect(subject[:name]).to eq("bar")
     end
-  end
-  
-  describe "#merge!" do
-    let(:hash){ {blah: 'blahbah', zelda: 'link'} }
-    
-    it "makes a put request for each pair" do
-      hash.each do |k,v|
-        expect_put_request(url, name: k, value: v)
-      end
-      expect(resource).to receive(:invalidate).exactly(hash.count).times.and_yield
-      subject.merge! hash
-    end
-  end
-  
-  describe '[]=' do
-
-    it "makes a put request" do
-      expect_put_request url, name: :blah, value: 'boo'
-      expect(resource).to receive(:invalidate).and_yield
-      subject[:blah] = 'boo'
-    end
-    
-    it "forces a fresh request for the annotations" do
-      expect_put_request(url, name: :foo, value: 'bar')
-      expect(resource).to receive(:attributes).exactly(2).times.and_return(attributes)
-      expect(resource).to receive(:invalidate).and_yield
-      # One get request
-      expect(subject[:name]).to eq('bar')
-      # Update
-      subject[:foo] = 'bar'
-      # Second get request
-      expect(subject[:name]).to eq('bar')
-    end
-  end
-  
+  end  
 end

@@ -35,11 +35,6 @@ module Conjur
     # @return [Conjur::Role]
     attr_reader :member
 
-    # The role that created this grant.
-    #
-    # @return [Conjur::Role]
-    attr_reader :grantor
-
     # When true, the role {#member} is allowed to give this grant to other roles
     #
     # @return [Boolean]
@@ -50,24 +45,24 @@ module Conjur
     # Create a new RoleGrant instance.
     #
     # @param [Conjur::Role] member the member to which the role was granted
-    # @param [Conjur::Role] grantor  the role that created this grant
     # @param [Boolean] admin_option whether `member` can give the grant to other roles
-    def initialize role, member, grantor, admin_option
+    def initialize role, member, admin_option
       @role = role
       @member = member
-      @grantor = grantor
       @admin_option = admin_option
     end
 
     # Representation of the role grant as a hash.
     def to_h
       {
-        member: member.roleid,
-        grantor: grantor.roleid,
+        role: role.id,
+        member: member.id,
         admin_option: admin_option
-      }.tap do |h|
-        h[:role] = role.roleid if role
-      end
+      }
+    end
+    
+    def to_s
+      to_h.to_s
     end
 
     #@!attribute member
@@ -83,15 +78,9 @@ module Conjur
       # @param [Hash] credentials the credentials used to create APIs for the member and grantor role objects
       # @return [Conjur::RoleGrant]
       def parse_from_json(json, credentials)
-        # The 'role' field is introduced after Conjur 4.9.0.0.
-        role = if ( role_json = json['role'] )
-          Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(role_json).join('/')]
-        else
-          nil
-        end
-        member = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['member']).join('/')]
-        grantor = Role.new(Conjur::Authz::API.host, credentials)[Conjur::API.parse_role_id(json['grantor']).join('/')]
-        RoleGrant.new(role, member, grantor, json['admin_option'])
+        role = Role.new(json['role'], credentials)
+        member = Role.new(json['member'], credentials)
+        RoleGrant.new(role, member, json['admin_option'])
       end
     end
   end

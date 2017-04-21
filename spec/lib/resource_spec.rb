@@ -9,7 +9,7 @@ describe Conjur::Resource, api: :dummy, logging: :temp do
 
   context "identifier" do
     include Conjur::Escape
-    let(:resource) { Conjur::Resource.new("#{Conjur::Authz::API.host}/#{account}/resources/#{kind}/#{path_escape identifier}") }
+    let(:resource) { Conjur::Resource.new("#{Conjur.configuration.core_url}/#{account}/resources/#{kind}/#{path_escape identifier}") }
 
     context "Object with an #id" do
       let(:kind) { "host" }

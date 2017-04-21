@@ -46,7 +46,7 @@ describe Conjur::User do
       require 'conjur/resource'
       expect(Conjur::Core::API).to receive(:conjur_account).and_return 'ci'
       expect(Conjur::Resource).to receive(:new).with(
-        Conjur::Authz::API.host, hash_including(credentials)
+        Conjur.configuration.core_url, hash_including(credentials)
       ).and_return resource = double(:resource)
       expect(resource).to receive(:[]).with("ci/resources/user/the-login")
       
@@ -56,7 +56,7 @@ describe Conjur::User do
       require 'conjur/role'
       expect(Conjur::Core::API).to receive(:conjur_account).and_return 'ci'
       expect(Conjur::Role).to receive(:new).with(
-        Conjur::Authz::API.host, hash_including(credentials)
+        Conjur.configuration.core_url, hash_including(credentials)
       ).and_return role = double(:role)
       expect(role).to receive(:[]).with("ci/roles/user/the-login")
       

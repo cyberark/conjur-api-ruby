@@ -106,9 +106,9 @@ module Conjur
   #   # Notice that version 0 of a variable is always the most recent:
   #   var.value 0 # => 'value 2'
   #
-  class Variable < RestClient::Resource
-    include ActsAsAsset
-
+  class Variable < BaseObject
+    include ActsAsResource
+    
     # The kind of secret represented by this variable,  for example, `'postgres-url'` or
     # `'aws-secret-access-key'`.
     #
@@ -233,6 +233,5 @@ module Conjur
       duration = interval.respond_to?(:to_str) ? interval : "PT#{interval.to_i}S"
       JSON::parse(self['expiration'].post(duration: duration).body)
     end
-
   end
 end

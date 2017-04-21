@@ -95,85 +95,13 @@ module Conjur
       public_keys(username).lines.map{|s| s.split(' ')[-1]}
     end
 
-    # Add an SSH public key for `username`.
-    #
-    # ## Key Format
-    #
-    # This method will raise an exception if `key` is not of the format
-    # `"<algorithm> <data> <name>"` (that is, key.split(\s+\)).length must be 3).  The `<name>` field is used by the service
-    # to identify individual keys for a user.
-    #
-    # ## Permissions
-    #
-    # You must have permission to `'update'` the pubkeys service resource.  When the Conjur appliance
-    # is configured, it creates the pubkeys service resource with this identifier
-    # `'<organizational account>:service:pubkeys-1.0/public-keys'`.
-    #
-    # Rather than granting permissions to this resource directly to user roles, we recommend that you add them to the
-    # 'key-managers' group, whose *unqualified identifier* is 'pubkeys-1.0/key-managers', which has permission to add public
-    # keys.
-    #
-    # ## Hiding Existence
-    #
-    # Because attackers could use this method to determine the existence of Conjur users, it will not
-    # raise an error if the user does not exist.
-    #
-    # @example add a user's public key
-    #   # Check that the user exists so that we can fail when he doesn't.  Otherwise, this method
-    #   # will silently fail.
-    #   raise "No such user!" unless api.user('bob').exists?
-    #
-    #   # Add a key from a file
-    #   key = File.read('/path/to/public/key.pub')
-    #   api.add_public_key('bob', key)
-    #
-    # @param [String] username the name of the Conjur
-    # @param [String] key an SSH formated public key
-    # @return void
-    # @raise RestClient::BadRequest when the key is not in the correct format.
-    def add_public_key username, key
-      public_keys_resource(username).post key
-    end
-
-    # Delete a specific public key for a user.
-    #
-    # ## Permissions
-    # You must have permission to `'update'` the pubkeys service resource.  When the Conjur appliance
-    # is configured, it creates the pubkeys service resource with this identifier
-    # `'<organizational account>:service:pubkeys-1.0/public-keys'`.
-    #
-    # Rather than granting permissions to this resource directly to user roles, we recommend that you add them to the
-    # 'key-managers' group, whose *unqualified identifier* is 'pubkeys-1.0/key-managers', which has permission to add public
-    # keys.
-    #
-    # ## Hiding Existence
-    #
-    # Because attackers could use this method to determine the existence of Conjur users, it will not
-    # raise an error if the user does not exist.
-    #
-    # @example Delete all public keys for 'bob'
-    #
-    #   api.public_key_names('bob').count # => 6
-    #   api.public_key_names('bob').each do |keyname|
-    #     api.delete_public_key 'bob', keyname
-    #   end
-    #   api.public_key_names('bob').count # => 0
-    #
-    #
-    # @param [String] username the Conjur username/login
-    # @param [String] keyname the individual key to delete.
-    # @return [void]
-    def delete_public_key username, keyname
-      public_keys_resource(username, keyname).delete
-    end
-
     #@!endgroup
     
     protected
     # @api private
     # Returns a RestClient::Resource with the pubkeys host and the given path.
     def public_keys_resource *path
-      RestClient::Resource.new(Conjur::API.pubkeys_asset_host, credentials)[public_keys_path *path]
+      RestClient::Resource.new(Conjur.configuration.core_url, credentials)[public_keys_path *path]
     end
 
     # @api private

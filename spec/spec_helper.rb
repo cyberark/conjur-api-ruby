@@ -100,19 +100,15 @@ OPTIONS={}
 shared_context api: :dummy do
   let(:username) { "user" }
   let(:api){ Conjur::API.new_from_key username, 'key' }
-  let(:authz_host) { 'http://authz.example.com' }
-  let(:audit_host) { 'http://audit.example.com' }
   let(:authn_host) { 'http://authn.example.com' }
-  let(:credentials) { { headers: { authorization: "Token token=\"stub\"" } } } #, username: username } }
   let(:core_host) { 'http://core.example.com' }
+  let(:credentials) { { headers: { authorization: "Token token=\"stub\"" } } } #, username: username } }
   let(:account) { 'the-account' }
 
   before do
-    allow(Conjur::Authn::API).to receive_messages host: authn_host
-    allow(Conjur::Authz::API).to receive_messages host: authz_host
-    allow(Conjur::Core::API).to receive_messages host: core_host
+    allow(Conjur.configuration).to receive_messages core_url: core_host
+    allow(Conjur.configuration).to receive_messages authn_url: authn_host
     allow(Conjur::Core::API).to receive_messages conjur_account: account
-    allow(Conjur::Audit::API).to receive_messages host:audit_host
     Conjur.configuration.set :account, account
     allow(api).to receive_messages credentials: credentials
   end

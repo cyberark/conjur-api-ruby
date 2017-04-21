@@ -19,89 +19,169 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-require 'active_support/dependencies/autoload'
-require 'active_support/core_ext'
-
 module Conjur
-
-  # This module is included in asset classes that have an associated resource.
+  # This module is included in object classes that have resource behavior.
   module ActsAsResource
-    # Return the {Conjur::Resource} associated with this asset.
+    include HasAttributes
+
+    # The full role id of the role that owns this resource.
     #
-    # @return [Conjur::Resource] the resource associated with this asset
-    def resource
-      require 'conjur/resource'
-      # NOTE: should we use specific class to build sub-url below?
-      Conjur::Resource.new(Conjur::Authz::API.host, self.options)[[ core_conjur_account, 'resources', path_escape(resource_kind), path_escape(resource_id) ].join('/')]
+    # @example
+    #   api.current_role # => 'conjur:user:jon'
+    #   resource = api.create_resource 'conjur:example:resource-owner'
+    #   resource.owner # => 'conjur:user:jon'
+    #
+    # @return [String] the full role id of this resource's owner.
+    def ownerid
+      attributes['owner']
     end
 
-    # Return the *qualified* id of the resource associated with this asset.
+    # Check whether this asset exists by performing a HEAD request to its URL.
     #
-    # @return [String] the qualified id of the resource associated with this asset.
-    def resourceid
-      [ core_conjur_account, resource_kind, resource_id ].join(':')
+    # This method will return false if the asset doesn't exist.
+    #
+    # @example
+    #   does_not_exist = api.user 'does-not-exist' # This returns without error.
+    #
+    #   # this is wrong!
+    #   owner = does_not_exist.ownerid # raises RestClient::ResourceNotFound
+    #
+    #   # this is right!
+    #   owner = if does_not_exist.exists?
+    #     does_not_exist.ownerid
+    #   else
+    #     nil # or some sensible default
+    #   end
+    #
+    # @return [Boolean] does it exist?
+    def exists?
+      begin
+        rbac_resource_resource.head
+        true
+      rescue RestClient::Forbidden
+        true
+      rescue RestClient::ResourceNotFound
+        false
+      end
     end
 
-    # The kind of resource underlying the asset.  The kind is the second token in
-    # a Conjur id like `"account:kind:id"`.
+    # Lists roles that have a specified privilege on the resource. 
     #
-    # @see Conjur:Resource#kind
-    # @return [String] the resource kind for the underlying resource
-    def resource_kind
-      self.class.name.split("::")[-1].underscore.split('/').join('-')
+    # This will return only roles of which api.current_user is a member.
+    #
+    # Options:
+    #
+    # * **offset** Zero-based offset into the result set.
+    # * **limit**  Total number of records returned.
+    #
+    # @example
+    #   resource = api.resource 'conjur:variable:example'
+    #   resource.permitted_roles 'execute' # => ['conjur:user:admin']
+    #   resource.permit 'execute', api.user('jon')
+    #   resource.permitted_roles 'execute' # => ['conjur:user:admin', 'conjur:user:jon']
+    #
+    # @param privilege [String] the privilege
+    # @param options [Hash, nil] extra parameters to pass to the webservice method.
+    # @return [Array<String>] the ids of roles that have `privilege` on this resource.
+    def permitted_roles privilege, options = {}
+      options[:permitted_roles] = true
+      options[:privilege] = true
+      result = JSON.parse rbac_resource_resource[options_querystring options].get
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result
+      end
     end
+
+    # True if the logged-in role, or a role specified using the :acting_as option, has the
+    # specified +privilege+ on this resource.
+    #
+    # @example
+    #   api.current_role # => 'conjur:cat:mouse'
+    #   resource.permitted_roles 'execute' # => ['conjur:user:admin', 'conjur:cat:mouse']
+    #   resource.permitted_roles 'update', # => ['conjur:user:admin', 'conjur:cat:gino']
+    #
+    #   resource.permitted? 'update' # => false, `mouse` can't update this resource
+    #   resource.permitted? 'execute' # => true, `mouse` can execute it.
+    #   resource.permitted? 'update',acting_as: 'conjur:cat:gino' # => true, `gino` can update it.
+    # @param privilege [String] the privilege to check
+    # @param [Hash, nil] options for the request
+    # @option options [String,nil] :acting_as check whether the role given by this full role id is permitted
+    #   instead of checking +api.current_role+.
+    # @return [Boolean]
+    def permitted? privilege, options = {}
+      options[:check] = true
+      options[:privilege] = privilege
+      rbac_resource_resource[options_querystring options].get
+      true
+    rescue RestClient::Forbidden
+      false
+    rescue RestClient::ResourceNotFound
+      false
+    end
+
+    # Return an {Conjur::Annotations} object to manipulate and view annotations.
+    #
+    # @see Conjur::Annotations
+    # @example
+    #    resource.annotations.count # => 0
+    #    resource.annotations['foo'] = 'bar'
+    #    resource.annotations.each do |k,v|
+    #       puts "#{k}=#{v}"
+    #    end
+    #    # output is
+    #    # foo=bar
+    #
+    #
+    # @return [Conjur::Annotations]
+    def annotations
+      @annotations ||= Conjur::Annotations.new(resource_resource)
+    end
+    alias tags annotations
 
     # @api private
+    # This is documented by Conjur::API#resources.
+    # Returns all resources (optionally qualified by kind) visible to the user with given credentials.
     #
-    # Confusingly, this method returns the *unqualified* resource id, as opposed to the *qualified*
-    # resource id returned by {#resourceid}.
     #
-    # @return [String] the *unqualified* resource id.
-    def resource_id
-      id
+    # Options are:
+    # - host - authz url,
+    # - credentials,
+    # - account,
+    # - owner (optional),
+    # - kind (optional),
+    # - search (optional),
+    # - limit (optional),
+    # - offset (optional).
+    def self.all options = {}
+      host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
+      fail ArgumentError, "host and account are required" unless [host, account].all?
+      %w(host credentials account kind).each do |name|
+        options.delete(name.to_sym)
+      end
+
+      credentials ||= {}
+
+      path = "#{account}/resources" 
+      path += "/#{kind}" if kind
+
+      result = JSON.parse(core_resource[path][options_querystring options].get)
+
+      result = result['count'] if result.is_a?(Hash)
+      result
+    end
+    
+    private
+    
+    # RestClient::Resource for RBAC resource operations.
+    def rbac_resource_resource
+      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['resources'][id.to_url_path]
     end
 
-    # @api private
-    # Delete a resource
-    # This doesn't typically work ;-)
-    # @return [void]
-    def delete
-      resource.delete
-      super
-    end
-
-    # Permit `role` to perform `privilege` on this resource.  A
-    # {http://developer.conjur.net/reference/services/authorization/permission.html permission} represents an ability
-    # to perform certain (application defined) actions on this resource.
-    #
-    # This method is equivalent to calling `resource.permit`.
-    #
-    # @example Allow a group and its members to get the value of a Conjur variable
-    #   group = api.group 'some-project/developers'
-    #   variable = api.variable 'some-project/development/postgres-uri'
-    #   variable.permit 'execute', group
-    #
-    # @see Conjur::Resource#permit
-    # @param [String] privilege the privilege to grant
-    # @param [String, #roleid] role the role to which the privilege is granted
-    # @param options [Hash, nil] options to pass through to `RestClient::Resource#post`
-    # @return [void]
-    # @raise [RestClient::Forbidden] if you don't have permission to perform this operation.
-    def permit(privilege, role, options = {})
-      resource.permit privilege, role, options
-    end
-
-
-    # Deny `role` permission to perform actions corresponding to `privilege` on the underlying resource.
-    #
-    # @see Conjur::Resource#deny
-    # @param privilege [String, #each] A permission name or an `Enumerable` of permissions to deny.  In the
-    #   later, all permissions will be denied.
-    # @param role [String, :roleid] A full role id or a role-ish object whose permissions we will deny.
-    #
-    # @return [void]
-    def deny(privilege, role)
-      resource.deny privilege, role
+    # RestClient::Resource for RBAC role operations.
+    def rbac_role_resource
+      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
     end
   end
 end

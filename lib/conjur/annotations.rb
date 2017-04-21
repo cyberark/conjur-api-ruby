@@ -28,12 +28,12 @@ module Conjur
   #   use.  If you do so, we recommend prefixing your annotations, for example, `'myapp:Name'`, in order to avoid
   #   conflict with annotations used, for example, by the Conjur  UI.
   #
-  # An Annotations instance acts like a Hash: you can fetch an annotation
-  #   with {#[]} and update with {#[]=}, {#each} it, and {#merge!} to do bulk updates.
+  # An Annotations instance acts like a Hash: you can fetch an annotation with {#[]}.
   #
   class Annotations
     include Enumerable
     include Conjur::Escape
+    
     # Create an `Annotations` instance for the given {Conjur::Resource}.
     #
     # Note that you will generally use the {Conjur::Resource#annotations} method to get
@@ -50,18 +50,6 @@ module Conjur
     # a String or Symbol.
     def [] name
       annotations_hash[name.to_sym]
-    end
-    
-    # Set an annotation value.  This will perform an api call to set the annotation
-    #   on the server.
-    #
-    # @param [String, Symbol] name the annotation name
-    # @param [String] value the annotation value
-    #
-    # @return [String] the new annotation value
-    def []= name, value
-      update_annotation name.to_sym, value
-      value
     end
     
     # Enumerate all annotations, yielding key,value pairs.
@@ -112,21 +100,6 @@ module Conjur
     def to_a
       to_h.to_a
     end
-
-
-    # Set annotations from key,value pairs in `hash`.
-    #
-    # @note this is currently no more efficient than setting each
-    #   annotation with {#[]=}.
-    #
-    # @param [Hash, #each] hash
-    # @return [Conjur::Annotations] self
-    def merge! hash
-      hash.each do |k, v|
-        self[k] = v unless self[k] == v
-      end
-      self
-    end
     
     # Return a proper hash containing a **copy** of the annotations.  Note that
     # updates to this hash have no effect on the actual annotations.
@@ -152,21 +125,20 @@ module Conjur
       "<Annotations for #{@resource.resourceid}: #{to_s}>"
     end
     
-    protected
-    #@api private
-    # Update an annotation on the server.
-    # @param name [String]
-    # @param value [String, #to_s]
-    # @return [void]
-    def update_annotation name, value
-      @resource.invalidate do
-        @annotations_hash = nil
-        path = [@resource.account,'annotations', @resource.kind, @resource.identifier].map do |seg|
-          fully_escape(seg)
-        end.join('/')
-        RestClient::Resource.new(Conjur::Authz::API.host, @resource.options)[path].put name: name, value: value
-      end
+    # Set an annotation value.  This will perform an api call to set the annotation
+    #   on the server.
+    #
+    # @param [String, Symbol] name the annotation name
+    # @param [String] value the annotation value
+    #
+    # @return [String] the new annotation value
+    def []= name, value
+      update_annotation name.to_sym, value
+      value
     end
+
+    protected
+
     # @api private
     # Our internal {Hash} of annotations.  Lazily loaded.
     def annotations_hash

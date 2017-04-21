@@ -30,68 +30,156 @@ module Conjur
   # public when added to a Conjur asset class.
   module ActsAsRole
 
-    # The qualified identifier for the role associated with this asset.  A *qualified* identifier
-    # prepends the asset's account and kind, for example, a {Conjur::User} with login `'bob'` in a
-    # system with organizational account `'conjur'` would have a `roleid` of `'conjur:user:bob'`
-    #
-    # @return [String] the qualified role id
-    def roleid
-      [ core_conjur_account, role_kind, id ].join(':')
-    end
-    alias role_id roleid
-
-    # The `kind` of a role.  This may be any value, but standard ones correspond to various high level
-    # Conjur assets, for example, `'user'`, `'group'`, or `'variable'`.
-    #
-    # Note that this method derives the role kind from the asset's class name.
-    #
-    # @return [String] the role kind
-    def role_kind
-      self.class.name.split('::')[-1].underscore
-    end
-
-    # Get a {Conjur::Role} instance corresponding to the `role` associated with this asset.
-    def role
-      require 'conjur/role'
-      Conjur::Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(self.roleid).join('/')]
-    end
-
-    # Permit the asset to perform `privilege` on `resource`.  You can also use this method to control whether the role
-    # is able to grant the privilege on the resource to other roles by passing a `:grant_option` option.
-    #
-    # This method is primarily intended for use in the
-    # {http://developer.conjur.net/reference/tools/utilities/policy-load.html Conjur Policy DSL},
-    # and simply delegates to {Conjur::Resource#permit}.  For code clarity, you might consider using
-    # that method instead.
+    # Find all roles of which this role is a member.  By default, role relationships are recursively expanded,
+    # so if `a` is a member of `b`, and `b` is a member of `c`, `a.all` will include `c`.
     #
     # ### Permissions
+    # You must be a member of the role to call this method.
     #
-    # To call this method, you must *own* the resource, or have the privilege on it with grant option set to true.
+    # You can restrict the roles returned to one or more role ids.  This feature is mainly useful
+    # for checking whether this role is a member of any of a set of roles.
     #
-    # @api dsl
-    # @param [String] privilege the privilege to allow this role to perform, e.g. `'execute'` or `'update'`
-    # @param [Conjur::Resource, #resource_id, String] resource the resource to grant `privilege` on.
-    # @param [Hash] options Options to pass through to RestClient::Resource#post
-    # @option options [Boolean] :grant_option whether this role will be able to grant the privilege to other roles.
-    # @return [void]
-    def can(privilege, resource, options = {})
-      require 'conjur/resource'
-      Conjur::Resource.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_resource_id(resource).join('/')].permit privilege, self.roleid, options
+    # ### Options
+    #
+    # * **recursive** Defaults to +true+, performs recursive expansion of the memberships.
+    #
+    # @example Show all roles of which `"conjur:group:pubkeys-1.0/key-managers"` is a member
+    #   # Add alice to the group, so we see something interesting
+    #   key_managers = api.group('pubkeys-1.0/key-managers')
+    #   key_managers.add_member api.user('alice')
+    #
+    #   # Show the memberships, mapped to the member ids.
+    #   key_managers.role.all.map(&:roleid)
+    #   # => ["conjur:group:pubkeys-1.0/admin", "conjur:user:alice"]
+    #
+    # @example See if role `"conjur:user:alice"` is a member of either `"conjur:groups:developers"` or `"conjur:group:ops"`
+    #   is_member = api.role('conjur:user:alice').all(filter: ['conjur:group:developers', 'conjur:group:ops']).any?
+    #
+    # @param [Hash] options options for the request
+    # @param options [Hash, nil] :filter only return roles in this list. Also, extra parameters to pass to the webservice method.
+    # @return [Array<Conjur::Role>] Roles of which this role is a member
+    def memberships(options = {})
+      request = if options.delete(:recursive) == false
+        options["memberships"] = true
+      else
+        options["all"] = true
+      end
+      if filter = options.delete(:filter)
+        filter = [filter] unless filter.is_a?(Array)
+        options["filter"] = filter.map{ |obj| cast(obj, :roleid) }
+      end
+
+      result = JSON.parse(rbac_role_resource[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        host = Conjur.configuration.core_url
+        result.collect do |item|
+          if item.is_a?(String)
+            build_object item
+          else
+            RoleGrant.parse_from_json(item, self.options)
+          end
+        end
+      end
     end
 
-    # Deny the asset's role the ability to perform `privilege` on `resource`.  This operation is the inverse of {#can}.
+    # Check to see if this role is a member of another role.  Membership is transitive.
     #
-    # This method is primarily intended for use in the
-    # {http://developer.conjur.net/reference/tools/utilities/policy-load.html Conjur Policy DSL},
-    # and simply delegates to {Conjur::Resource#permit}.  For code clarity, you might consider using
-    # that method instead.
+    # ### Permissions
+    # You must be logged in as a member of this role in order to call this method.  Note that if you
+    # pass a role of which you aren't a member to this method, it will return false rather than raising an
+    # exception.
     #
-    # @see Conjur::Resource#deny
+    # @example Permissions
+    #   alice_api = Conjur::API.new_from_key "alice", "alice-password"
+    #   admin_api = Conjur::API.new_from_key "admin", "admin-password"
     #
-    # @api dsl
-    def cannot(privilege, resource, options = {})
-      require 'conjur/resource'
-      Conjur::Resource.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_resource_id(resource).join('/')].deny privilege, self.roleid
+    #   # admin_view is the role as seen by the admin user
+    #   admin_view = admin_api.role('conjur:group:pubkeys-1.0/key-managers')
+    #   admin_view.member_of? alice_api.current_role # => false
+    #   alice_api.current_role.member_of? admin_view # => false
+    #
+    #   # alice_view is the role as seen by alice (who isn't a member of the key-managers group)
+    #   alice_view = alice_api.role('conjur:group:pubkeys-1.0/key-managers')
+    #   alice_view.member_of? alice_api.current_role # raises RestClient::Forbidden
+    #   alice_api.current_role.member_of? alice_view # false
+    #
+    # @param [String, #roleid] other_role the role or role id of which we might be a member
+    # @return [Boolean] whether this role is a member of `other_role`
+    # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
+    def member_of?(other_role)
+      other_role = cast(other_role, :roleid)
+      not all(filter: other_role).empty?
+    end
+
+    # Check to see if this role is allowed to perform `privilege` on `resource`.
+    #
+    # ### Permissions
+    # Any authenticated role may call this method.  However, instead of raising a 404 if a resource
+    # or role doesn't exist, it will return false.  This is to prevent bad guys from finding out which roles
+    # and resources exist.
+    #
+    # @example
+    #   bacon = api.create_resource 'food:bacon'
+    #   eggs  = api.create_resoure 'food:eggs'
+    #   bob = api.create_role 'cook:bob'
+    #
+    #   # Bob can't do anything initially
+    #   bob.permitted? bacon, 'fry' # => false
+    #   bob.permitted? eggs, 'poach' # => false
+    #
+    #   # Let him poach eggs
+    #   eggs.permit 'poach', bob
+    #
+    #   # Now it's permitted
+    #   bob.permitted? eggs, 'poach' # => true
+    #
+    # @example Somethign a bit more realistic
+    #   # Say we have a service layer that needs access to a database connection string.
+    #   # The layer is called 'web', and the connection string is stored in a variable 'mysql-uri'
+    #   web_layer = api.layer 'web'
+    #   mysql_uri = api.variable 'mysql-uri'
+    #
+    #   # The web layer can't see the value of the variable right now:
+    #   web_layer.role.permitted? mysql_uri, 'execute' # => false
+    #
+    #   # Let's permit that
+    #   mysql_uri.permit 'execute', web_layer
+    #
+    #   # Now it's allowed to fetch the connection string
+    #  web_layer.role.permitted? mysql_uri, 'execute' # => true
+    #
+    # @param [#resourceid, String] resource the resource to check the permission against
+    # @param [String] privilege the privilege to check
+    # @return [Boolean] true if this role has the privilege on the resource
+    def permitted?(resource, privilege, options = {})
+      resource = cast(resource, :resourceid)
+      # NOTE: in previous versions there was 'kind' passed separately. Now it is part of id
+      rbac_role_resource["?check&resource_id=#{query_escape resource}&privilege=#{query_escape privilege}"].get(options)
+      true
+    rescue RestClient::ResourceNotFound
+      false
+    end
+    
+    # Fetch the direct members of this role. The results are *not* recursively expanded).
+    #
+    # ### Permissions
+    # You must be a member of the role to call this method.
+    # 
+    # @param options [Hash, nil] extra parameters to pass to the webservice method.
+    # @return [Array<Conjur::RoleGrant>] the role memberships
+    # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
+    def members options = {}
+      options["members"] = true
+      result = JSON.parse(rbac_role_resource[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result['members'].collect do |json|
+          RoleGrant.parse_from_json(json, credentials)
+        end
+      end
     end
   end
 end

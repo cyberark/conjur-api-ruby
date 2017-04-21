@@ -44,42 +44,7 @@ module Conjur
       query = {from_role: options.delete(:as_role)}
         .merge(options.slice(:ancestors, :descendants))
         .merge(roles: roles).to_query
-      Conjur::Graph.new RestClient::Resource.new(Conjur::Authz::API.host, credentials)["#{Conjur.account}/roles?#{query}"].get
-    end
-
-    # Create a {Conjur::Role} with the given id.
-    #
-    # ### Permissions
-    # * All Conjur roles can create new roles.
-    # * The creator role (either the current role or the role given by the `:acting_as` option)
-    #   is made a member of the new role.  The new role is also made a member of itself.
-    # * If you give an `:acting_as` option, you must be a (transitive) member of the `:acting_as`
-    #   role.
-    # * The new role is granted to the creator role with *admin option*: that is, the creator role
-    #   is able to grant the created role to other roles.
-    #
-    # @example Basic role creation
-    #   # Current role is 'user:jon', assume the organizational account is 'conjur'
-    #    api.current_role # => 'conjur:user:jon'
-    #
-    #   # Create a Conjur actor to control the permissions of a chron job (rebuild_indices)
-    #   role = api.create_role 'robot:rebuild_indices'
-    #   role.role_id # => "conjur:robot:rebuild_indices"
-    #   role.members.map{ |grant| grant.member.role_id } # => ['conjur:user:jon', 'conjur:robot:rebuild_indices']
-    #   api.role('user:jon').admin_of?(role) # => true
-    #
-    #
-    # @param [String] role a qualified role identifier for the new role
-    # @param [Hash] options options for the action
-    # @option options [String] :acting_as the resource will effectively be created by this role
-    # @return [Conjur::Role] the created role
-    # @raise [RestClient::MethodNotAllowed] if the role already exists.  Note that this differs from
-    #   the `RestClient::Conflict` exception raised when trying to create existing high level (user, group, etc.)
-    #   Conjur assets.
-    def create_role(role, options = {})
-      role(role).tap do |r|
-        r.create(options)
-      end
+      Conjur::Graph.new RestClient::Resource.new(Conjur.configuration.core_url, credentials)["#{Conjur.account}/roles?#{query}"].get
     end
 
     # Return a {Conjur::Role} representing a role with the given id.  Note that the {Conjur::Role} may or
@@ -108,7 +73,7 @@ module Conjur
     # @param [String] role the id of the role, which must contain at least kind and id tokens (account is optional).
     # @return [Conjur::Role] an object representing the role
     def role role
-      Role.new(Conjur::Authz::API.host, credentials)[self.class.parse_role_id(role).join('/')]
+      Role.new(Conjur.configuration.core_url, credentials)[self.class.parse_role_id(role).join('/')]
     end
 
     # Return a {Conjur::Role} object representing the role (typically a user or host) that this api is authenticated

@@ -22,7 +22,7 @@ module Conjur
   # This module provides methods for things that are like users (specifically, those that have
   # api keys).
   module ActsAsUser
-    include ActsAsRole
+    include ActsAsRolsource
 
     # Returns a newly created user's api_key.
     #
@@ -55,20 +55,8 @@ module Conjur
     #
     # @return [String] the new API key for this user.
     def rotate_api_key
-      path = "users/api_key?id=#{fully_escape login}"
-      RestClient::Resource.new(Conjur::Authn::API.host, options)[path].put('').body
-    end
-
-    # Set login network restrictions for the user.
-    #
-    # @param [Array<String, IPAddr>] networks which allow logging in. Set to empty to remove restrictions
-    def set_cidr_restrictions networks
-      authn_user = RestClient::Resource.new(Conjur::Authn::API.host, options)\
-          ["users?id=#{fully_escape login}"]
-
-      # we need use JSON here to be able to PUT an empty array
-      params = { cidr: [*networks].map(&CIDR.method(:validate)).map(&:to_s) }
-      authn_user.put params.to_json, content_type: :json
+      path = "authn/#{path_escape account}/api_key?role=#{fully_escape login}"
+      core_resource[path].put('').body
     end
   end
 end

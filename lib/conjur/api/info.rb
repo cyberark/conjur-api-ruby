@@ -86,7 +86,6 @@ module Conjur
 
       private
 
-
       def remote_health host
         JSON.parse(RestClient::Resource.new(remote_health_url(host)).get.body)
       rescue RestClient::ResourceNotFound
@@ -94,7 +93,6 @@ module Conjur
       rescue RestClient::ExceptionWithResponse => ex
         JSON.parse(ex.response.body)
       end
-
 
       def own_health
         JSON.parse(RestClient::Resource.new(appliance_health_url).get.body)
@@ -119,7 +117,8 @@ module Conjur
       def raw_appliance_url path
         url = Conjur.configuration.appliance_url
         raise "Conjur connection is not configured" unless url
-        url.gsub(%r{/api$}, path)
+        url = URI.parse(url)
+        "#{url.scheme}://#{url.host}:#{url.port}/#{path}"
       end
     end
   end
