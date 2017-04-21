@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 Conjur Inc
+# Copyright (C) 2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,23 +18,22 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'conjur/host_factory'
+require 'conjur/policy_load_result'
+require 'conjur/policy'
 
 module Conjur
   class API
-    class << self
-      # Creates a host and returns the response Hash.
-      def host_factory_create_host token, id, options = {}
-        token = token.token if token.is_a?(HostFactoryToken)
-        http_options = {
-          headers: { authorization: %Q(Token token="#{token}") }
-        }
-        response = RestClient::Resource.new(Conjur.configuration.core_url, http_options)["host_factories"]["hosts"].post(options.merge(id: id)).body
-        attributes = JSON.parse(response)
-        Host.new(attributes['id'], {}).tap do |host|
-          host.attributes = attributes
-        end
-      end
+    #@!group Directory: Policies
+    
+    POLICY_METHOD_APPEND = :post
+    POLICY_METHOD_UPDATE = :patch
+    POLICY_METHOD_REPLACE = :put
+
+    def load_policy id, policy, account: Conjur.configuration.account, method: POLICY_METHOD_APPEND
+      request = RestClient::Resource.new(Conjur.configuration.core_url, credentials)['policies'][path_escape account]['policy'][path_escape id]
+      PolicyLoadResult.new JSON.parse(request.send(method, policy))
     end
+
+    #@!endgroup
   end
 end

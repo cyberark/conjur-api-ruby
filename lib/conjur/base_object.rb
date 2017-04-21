@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 Conjur Inc
+# Copyright (C) 2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,23 +18,37 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'conjur/host_factory'
+require 'conjur/cast'
 
 module Conjur
-  class API
-    class << self
-      # Creates a host and returns the response Hash.
-      def host_factory_create_host token, id, options = {}
-        token = token.token if token.is_a?(HostFactoryToken)
-        http_options = {
-          headers: { authorization: %Q(Token token="#{token}") }
-        }
-        response = RestClient::Resource.new(Conjur.configuration.core_url, http_options)["host_factories"]["hosts"].post(options.merge(id: id)).body
-        attributes = JSON.parse(response)
-        Host.new(attributes['id'], {}).tap do |host|
-          host.attributes = attributes
-        end
-      end
+  class BaseObject
+    include Cast
+    include QueryString
+    
+    attr_reader :id, :credentials
+    
+    def initialize id, credentials
+      @id = cast(id, :id)
+      @credentials = credentials
+    end
+    
+    def account; id.account; end
+    def kind; id.kind; end
+    def identifier; id.identifier; end
+    
+    def username
+      credentials[:username] or raise "No username found in credentials"
+    end
+    
+    protected
+
+    def core_resource
+      RestClient::Resource.new(Conjur.configuration.core_url, credentials)
+    end
+    
+    def build_object id
+      id = cast(id, :id)
+      Conjur.const_get(id.kind.classify).new(id, credentials)
     end
   end
 end

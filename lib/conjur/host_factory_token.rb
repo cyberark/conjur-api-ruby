@@ -19,45 +19,34 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  class HostFactoryToken < RestClient::Resource
-    include HasAttributes
+  class HostFactoryToken
+    def initialize data, credentials
+      @data = data
+      @credentials = credentials
+    end
     
     def to_json(options = {})
       { token: token, expiration: expiration, cidr: cidr }
     end
   
+    def to_s
+      to_json.to_s
+    end
+  
     def token
-      self.url.split('/')[-1]
+      @data['token']
     end    
     
-    alias id token
-    
     def expiration
-      DateTime.iso8601(attributes['expiration'])
+      DateTime.iso8601(@data['expiration'])
     end
     
-    def host_factory
-      Conjur::HostFactory.new(Conjur::API.host_factory_asset_host, options)[fully_escape attributes['host_factory']['id']]
-    end
-
     def cidr
-      attributes['cidr']
+      @data['cidr']
     end
 
-    def revoke!
-      invalidate do
-        RestClient::Resource.new(self['revoke'].url, options).post
-      end
-    end
-
-    def save
-      raise "HostFactoryToken attributes are not updatable"
-    end
-
-    protected
-    
-    def fetch
-      raise "HostFactoryToken attributes are not fetchable"
+    def revoke
+      RestClient::Resource.new(Conjur.configuration.core_url, @credentials)['host_factory_tokens'][token].delete
     end
   end
 end
