@@ -25,11 +25,14 @@ module Conjur
   class API
     #@!group Directory: Policies
     
-    POLICY_METHOD_APPEND = :post
-    POLICY_METHOD_UPDATE = :patch
-    POLICY_METHOD_REPLACE = :put
+    # Append only.
+    POLICY_METHOD_POST = :post
+    # Allow explicit deletion statements, but don't delete implicitly delete data.
+    POLICY_METHOD_PATCH = :patch
+    # Replace the policy entirely, deleting any existing data that is not declared in the new policy.
+    POLICY_METHOD_PUT = :put
 
-    def load_policy id, policy, account: Conjur.configuration.account, method: POLICY_METHOD_APPEND
+    def load_policy id, policy, account: Conjur.configuration.account, method: POLICY_METHOD_POST
       request = RestClient::Resource.new(Conjur.configuration.core_url, credentials)['policies'][path_escape account]['policy'][path_escape id]
       PolicyLoadResult.new JSON.parse(request.send(method, policy))
     end

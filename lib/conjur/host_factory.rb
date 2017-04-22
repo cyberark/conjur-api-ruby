@@ -24,14 +24,19 @@ module Conjur
   class HostFactory < BaseObject
     include ActsAsRolsource
     
-    def create_token expiration, options = {}
-      options[:expiration] = expiration
+    def create_tokens expiration, count: 1, cidr: nil
+      options = {}
+      options[:expiration] = expiration.iso8601
       options[:host_factory] = id
+      options[:count] = count
+      options[:cidr] = cidr if cidr
       response = JSON.parse core_resource['host_factory_tokens'].post(options)
       response.map do |data|
         HostFactoryToken.new data, credentials
       end
     end
+    
+    alias create_token create_tokens
 
     def tokens
       # Tokens list is not returned by +show+ if the caller doesn't have permission
