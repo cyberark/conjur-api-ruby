@@ -22,7 +22,13 @@
 module Conjur
   # This module is included in object classes that have resource behavior.
   module ActsAsResource
-    include HasAttributes
+    # @api private
+    # :nodoc:
+    def self.included(base)
+      base.include HasAttributes
+      base.include Escape
+      base.extend QueryString
+    end
 
     # The full role id of the role that owns this resource.
     #
@@ -77,15 +83,15 @@ module Conjur
     # @example
     #   resource = api.resource 'conjur:variable:example'
     #   resource.permitted_roles 'execute' # => ['conjur:user:admin']
-    #   resource.permit 'execute', api.user('jon')
+    #   # After permitting 'execute' to user 'jon'
     #   resource.permitted_roles 'execute' # => ['conjur:user:admin', 'conjur:user:jon']
     #
     # @param privilege [String] the privilege
-    # @param options [Hash, nil] extra parameters to pass to the webservice method.
     # @return [Array<String>] the ids of roles that have `privilege` on this resource.
-    def permitted_roles privilege, options = {}
+    def permitted_roles privilege
+      options = {}
       options[:permitted_roles] = true
-      options[:privilege] = true
+      options[:privilege] = privilege
       result = JSON.parse rbac_resource_resource[options_querystring options].get
       if result.is_a?(Hash) && ( count = result['count'] )
         count
@@ -140,38 +146,6 @@ module Conjur
     end
     alias tags annotations
 
-    # @api private
-    # This is documented by Conjur::API#resources.
-    # Returns all resources (optionally qualified by kind) visible to the user with given credentials.
-    #
-    #
-    # Options are:
-    # - host - authz url,
-    # - credentials,
-    # - account,
-    # - owner (optional),
-    # - kind (optional),
-    # - search (optional),
-    # - limit (optional),
-    # - offset (optional).
-    def self.all options = {}
-      host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
-      fail ArgumentError, "host and account are required" unless [host, account].all?
-      %w(host credentials account kind).each do |name|
-        options.delete(name.to_sym)
-      end
-
-      credentials ||= {}
-
-      path = "#{account}/resources" 
-      path += "/#{kind}" if kind
-
-      result = JSON.parse(core_resource[path][options_querystring options].get)
-
-      result = result['count'] if result.is_a?(Hash)
-      result
-    end
-    
     private
     
     # RestClient::Resource for RBAC resource operations.

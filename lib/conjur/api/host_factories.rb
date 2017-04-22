@@ -35,6 +35,16 @@ module Conjur
           host.attributes = attributes
         end
       end
+      
+      # Revokes a host factory token.
+      def revoke_host_factory_token credentials, token
+        RestClient::Resource.new(Conjur.configuration.core_url, credentials)['host_factory_tokens'][token].delete
+      end
+    end
+    
+    # Revokes a host factory token.
+    def revoke_host_factory_token token
+      self.class.revoke_host_factory_token credentials, token
     end
   end
 end

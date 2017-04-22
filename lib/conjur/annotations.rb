@@ -32,7 +32,7 @@ module Conjur
   #
   class Annotations
     include Enumerable
-    include Conjur::Escape
+    include Escape
     
     # Create an `Annotations` instance for the given {Conjur::Resource}.
     #

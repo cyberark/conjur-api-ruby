@@ -22,7 +22,11 @@ module Conjur
   # This module provides methods for things that are like users (specifically, those that have
   # api keys).
   module ActsAsUser
-    include ActsAsRolsource
+    # @api private
+    # :nodoc:
+    def self.included(base)
+      base.include ActsAsRolsource
+    end
 
     # Returns a newly created user's api_key.
     #
@@ -32,7 +36,7 @@ module Conjur
     # @return [String] the api key
     # @raise [Exception] when the object isn't newly created.
     def api_key
-      attributes['api_key'] or raise "api_key is only available on a newly created #{self.class.name.downcase}"
+      attributes['api_key'] or raise "api_key is only available on a newly created #{kind}"
     end
 
     # Create an api logged in as this user-like thing.
@@ -44,7 +48,7 @@ module Conjur
       Conjur::API.new_from_key login, api_key
     end
 
-    # Rotate this user's API key.  You must have `update` permission on the user to do so.
+    # Rotate this role's API key. You must have `update` permission on the user to do so.
     #
     # @note You will not be able to access the API key returned by this method later, so you should
     #   probably hang onto it it.
@@ -55,7 +59,7 @@ module Conjur
     #
     # @return [String] the new API key for this user.
     def rotate_api_key
-      path = "authn/#{path_escape account}/api_key?role=#{fully_escape login}"
+      path = "authn/#{path_escape account}/api_key?role=#{id}"
       core_resource[path].put('').body
     end
   end

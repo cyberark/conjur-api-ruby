@@ -46,7 +46,7 @@ module Conjur
     end
 
     def revoke
-      RestClient::Resource.new(Conjur.configuration.core_url, @credentials)['host_factory_tokens'][token].delete
+      Conjur::API.revoke_host_factory_token @credentials, token
     end
   end
 end

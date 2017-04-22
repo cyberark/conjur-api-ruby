@@ -24,6 +24,7 @@ module Conjur
   class BaseObject
     include Cast
     include QueryString
+    include LogSource
     
     attr_reader :id, :credentials
     

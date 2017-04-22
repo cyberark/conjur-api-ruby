@@ -48,7 +48,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Logging in #{username} to account #{account} via Basic authentication\n"
         end
-        RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)['authn'][path_escape account]['login'].get
+        RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)['authn'][fully_escape account]['login'].get
       end
 
       # Exchanges Conjur the API key (refresh token) for an access token.  The access token can 
@@ -63,7 +63,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username} to account #{account}\n"
         end
-        JSON::parse(RestClient::Resource.new(Conjur.configuration.authn_url)['authn'][path_escape account][path_escape username]['authenticate'].post api_key, content_type: 'text/plain')
+        JSON::parse(RestClient::Resource.new(Conjur.configuration.authn_url)['authn'][fully_escape account][fully_escape username]['authenticate'].post api_key, content_type: 'text/plain')
       end
 
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
@@ -79,7 +79,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Updating password for #{username} in account #{account}\n"
         end
-        RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)['authn'][path_escape account]['password'].put new_password
+        RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)['authn'][fully_escape account]['password'].put new_password
       end
 
       #@!endgroup
@@ -103,7 +103,7 @@ module Conjur
               Conjur.configuration.authn_url,
               user: username,
               password: password
-        )['authn'][path_escape account]['api_key'].put('').body
+        )['authn'][fully_escape account]['api_key'].put('').body
       end
 
       #@!endgroup

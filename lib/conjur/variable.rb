@@ -120,7 +120,7 @@ module Conjur
     # @note this is **not** the same as the `kind` part of a qualified Conjur id.
     # @return [String] a string representing the kind of secret.
     def kind
-      attributes['kind']
+      attributes['kind'] || "secret"
     end
 
     # The MIME Type of the variable's value.
@@ -134,7 +134,7 @@ module Conjur
     #
     # @return [String] a MIME type, such as `'text/plain'` or `'application/octet-stream'`.
     def mime_type
-      attributes['mime_type']
+      attributes['mime_type'] || "text/plain"
     end
 
     # Add a new value to the variable.
@@ -155,7 +155,7 @@ module Conjur
         logger << "Adding a value to variable #{id}"
       end
       invalidate do
-        self['values'].post value: value
+        core_resource['secrets'][id.to_url_path].post value
       end
     end
 
@@ -170,7 +170,12 @@ module Conjur
     #
     # @return [Integer] the number of versions
     def version_count
-      self.attributes['version_count']
+      secrets = attributes['secrets']
+      if secrets.empty?
+        0
+      else
+        secrets.last['version']
+      end
     end
 
     # Return the version of a variable.
@@ -205,11 +210,10 @@ module Conjur
     # @param options [Hash]
     # @option options [Boolean, false] :show_expired show value even if variable has expired
     # @return [String] the value of the variable
-    def value(version = nil, options = {})
-      url = 'value'
+    def value version = nil
+      options = {}
       options['version'] = version if version
-      url << '?' + options.to_query unless options.empty?
-      self[url].get.body
+      core_resource['secrets'][id.to_url_path][options_querystring options].get.body
     end
 
     # Set the variable to expire after the given interval. The

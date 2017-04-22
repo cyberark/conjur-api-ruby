@@ -58,8 +58,8 @@ host_factory = api.resource "cucumber:host_factory:myapp"
 puts "Host factory is:"
 puts host_factory
 
-token = host_factory.create_token (Time.now + 10.minutes).iso8601
-token = Array(token).first
+tokens = host_factory.create_token (Time.now + 10.minutes).iso8601
+token = tokens.first
 puts "New token:"
 puts token
 

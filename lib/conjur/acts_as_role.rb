@@ -29,6 +29,12 @@ module Conjur
   # The {Conjur::ActsAsRole} module itself should be considered private, but it's methods are
   # public when added to a Conjur asset class.
   module ActsAsRole
+    
+    # Login name of the role. This is formed from the role kind and role id.
+    # For users, the role kind can be omitted.
+    def login
+      [ kind, identifier ].delete_if{|t| t == "user"}.join('/')
+    end
 
     # Find all roles of which this role is a member.  By default, role relationships are recursively expanded,
     # so if `a` is a member of `b`, and `b` is a member of `c`, `a.all` will include `c`.

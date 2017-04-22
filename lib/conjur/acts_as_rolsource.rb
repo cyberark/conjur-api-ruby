@@ -23,7 +23,11 @@ module Conjur
   # This module provides methods for things that have an associated {Conjur::Role} and
   # {Conjur::Resource}.
   module ActsAsRolsource
-    include ActsAsRole
-    include ActsAsResource
+    # @api private
+    # :nodoc:
+    def self.included(base)
+      base.include ActsAsRole
+      base.include ActsAsResource
+    end
   end
 end

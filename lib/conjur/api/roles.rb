@@ -51,11 +51,11 @@ module Conjur
     # may not exist (see {Conjur::Exists#exists?}).
     #
     # ### Permissions
+    #
     # Because this method returns roles that may or may not exist, it doesn't require any permissions to call it:
     # in fact, it does not perform an HTTP request (except for authentication if necessary).
     #
     # @example Create and show a role
-    #   api.create_role 'cat:iggy'
     #   iggy = api.role 'cat:iggy'
     #   iggy.exists? # true
     #   iggy.members.map(&:member).map(&:roleid) # => ['conjur:user:admin']
@@ -70,10 +70,11 @@ module Conjur
     #   admin.exists? # => true
     #   admin.members # => RestClient::Forbidden: 403 Forbidden
     #
-    # @param [String] role the id of the role, which must contain at least kind and id tokens (account is optional).
+    # @param id [String] a fully qualified role identifier
     # @return [Conjur::Role] an object representing the role
-    def role role
-      Role.new(Conjur.configuration.core_url, credentials)[self.class.parse_role_id(role).join('/')]
+    def role id
+      id = cast(id, :id)
+      Conjur.const_get(id.kind.classify).new(id, credentials)
     end
 
     # Return a {Conjur::Role} object representing the role (typically a user or host) that this api is authenticated
@@ -92,8 +93,8 @@ module Conjur
     #   host.api.current_role.roleid # => 'conjur:host:example-host'
     #
     # @return [Conjur::Role] the authenticated role for this API instance
-    def current_role
-      role_from_username username
+    def current_role account
+      role_from_username username, account
     end
 
     #@!endgroup
@@ -103,8 +104,8 @@ module Conjur
     # Get a Role instance from a username or host id
     # @param [String] username the username or host id
     # @return [Conjur::Role]
-    def role_from_username username
-      role(role_name_from_username username)
+    def role_from_username username, account
+      role role_name_from_username(username, account)
     end
 
     # @api private
@@ -113,12 +114,12 @@ module Conjur
     # This handles conversion of logins like 'host/foo' to 'host:foo'
     # @param [String] username the user name or host id
     # @return [String] A full role id for the user or host
-    def role_name_from_username username = self.username
+    def role_name_from_username username, account
       tokens = username.split('/')
       if tokens.size == 1
-        [ 'user', username ].join(':')
+        [ account, 'user', username ].join(':')
       else
-        [ tokens[0], tokens[1..-1].join('/') ].join(':')
+        [ account, tokens[0], tokens[1..-1].join('/') ].join(':')
       end
     end
 
@@ -132,8 +133,8 @@ module Conjur
     def normalize_roleid role
       case role
         when String then role
-        when Role then role.roleid
-          else raise "Can't normalize #{role}@#{role.class}"
+        when Role then role.id
+        else raise "Can't normalize #{role}@#{role.class}"
       end
     end
   end

@@ -28,7 +28,9 @@ module Conjur
       @data
     end
     
-    alias as_json to_h
+    def to_json options = {}
+      @data.to_json(options)
+    end
     
     def to_s
       @data.to_s

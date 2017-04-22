@@ -24,6 +24,7 @@ require 'conjur/cast'
 module Conjur
   class API
     include Cast
+    include QueryString
     
     #@!group Authorization: Resources
 
@@ -92,11 +93,25 @@ module Conjur
     # @option opts [Integer]  :limit the maximum number of records to return (Conjur may return fewer)
     # @option opts [Integer]  :offset offset of the first record to return
     # @return [Array<Conjur::Resource>] the resources matching the criteria given
-    def resources opts = {}
-      opts = { host: Conjur.configuration.core_url, credentials: credentials }.merge opts
-      opts[:account] ||= Conjur.account
+    def resources options = {}
+      options = { host: Conjur.configuration.core_url, credentials: credentials }.merge options
+      options[:account] ||= Conjur.configuration.account
       
-      result = Resource.all(opts)
+      host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
+      fail ArgumentError, "host and account are required" unless [host, account].all?
+      %w(host credentials account kind).each do |name|
+        options.delete(name.to_sym)
+      end
+
+      credentials ||= {}
+
+      path = "/resources/#{path_escape account}" 
+      path += "/#{path_escape kind}" if kind
+
+      result = JSON.parse(RestClient::Resource.new(Conjur.configuration.core_url, credentials)[path][options_querystring options].get)
+
+      result = result['count'] if result.is_a?(Hash)
+
       if result.is_a?(Numeric)
         result
       else
