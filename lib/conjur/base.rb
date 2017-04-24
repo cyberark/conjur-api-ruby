@@ -120,7 +120,7 @@ module Conjur
     #
     # @return [String] the login of the current user.
     def username
-      @username || @token['data']
+      @username || token['data']
     end
     
     # @api private

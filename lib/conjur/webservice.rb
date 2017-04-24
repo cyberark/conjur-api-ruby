@@ -19,6 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # A Conjur Webservice, which protects access to service code.
   class Webservice < BaseObject
     include ActsAsResource
   end

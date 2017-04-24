@@ -38,8 +38,8 @@ module Conjur
     #   resource.owner # => 'conjur:user:jon'
     #
     # @return [String] the full role id of this resource's owner.
-    def ownerid
-      attributes['owner']
+    def owner
+      build_object attributes['owner'], default_class: Role
     end
 
     # Check whether this asset exists by performing a HEAD request to its URL.
@@ -100,7 +100,7 @@ module Conjur
       end
     end
 
-    # True if the logged-in role, or a role specified using the :acting_as option, has the
+    # True if the logged-in role, or a role specified using the :role option, has the
     # specified +privilege+ on this resource.
     #
     # @example
@@ -110,15 +110,17 @@ module Conjur
     #
     #   resource.permitted? 'update' # => false, `mouse` can't update this resource
     #   resource.permitted? 'execute' # => true, `mouse` can execute it.
-    #   resource.permitted? 'update',acting_as: 'conjur:cat:gino' # => true, `gino` can update it.
+    #   resource.permitted? 'update', role: 'conjur:cat:gino' # => true, `gino` can update it.
     # @param privilege [String] the privilege to check
     # @param [Hash, nil] options for the request
-    # @option options [String,nil] :acting_as check whether the role given by this full role id is permitted
+    # @param role [String,nil] :role check whether the role given by this full role id is permitted
     #   instead of checking +api.current_role+.
     # @return [Boolean]
-    def permitted? privilege, options = {}
+    def permitted? privilege, role: nil
+      options = {}
       options[:check] = true
       options[:privilege] = privilege
+      options[:role] = cast(role, :roleid) if role
       rbac_resource_resource[options_querystring options].get
       true
     rescue RestClient::Forbidden
@@ -127,35 +129,11 @@ module Conjur
       false
     end
 
-    # Return an {Conjur::Annotations} object to manipulate and view annotations.
-    #
-    # @see Conjur::Annotations
-    # @example
-    #    resource.annotations.count # => 0
-    #    resource.annotations['foo'] = 'bar'
-    #    resource.annotations.each do |k,v|
-    #       puts "#{k}=#{v}"
-    #    end
-    #    # output is
-    #    # foo=bar
-    #
-    #
-    # @return [Conjur::Annotations]
-    def annotations
-      @annotations ||= Conjur::Annotations.new(resource_resource)
-    end
-    alias tags annotations
-
     private
     
     # RestClient::Resource for RBAC resource operations.
     def rbac_resource_resource
       RestClient::Resource.new(Conjur.configuration.core_url, credentials)['resources'][id.to_url_path]
-    end
-
-    # RestClient::Resource for RBAC role operations.
-    def rbac_role_resource
-      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
     end
   end
 end

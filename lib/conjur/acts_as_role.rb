@@ -82,90 +82,12 @@ module Conjur
         host = Conjur.configuration.core_url
         result.collect do |item|
           if item.is_a?(String)
-            build_object item
+            build_object(item, default_class: Role)
           else
             RoleGrant.parse_from_json(item, self.options)
           end
         end
       end
-    end
-
-    # Check to see if this role is a member of another role.  Membership is transitive.
-    #
-    # ### Permissions
-    # You must be logged in as a member of this role in order to call this method.  Note that if you
-    # pass a role of which you aren't a member to this method, it will return false rather than raising an
-    # exception.
-    #
-    # @example Permissions
-    #   alice_api = Conjur::API.new_from_key "alice", "alice-password"
-    #   admin_api = Conjur::API.new_from_key "admin", "admin-password"
-    #
-    #   # admin_view is the role as seen by the admin user
-    #   admin_view = admin_api.role('conjur:group:pubkeys-1.0/key-managers')
-    #   admin_view.member_of? alice_api.current_role # => false
-    #   alice_api.current_role.member_of? admin_view # => false
-    #
-    #   # alice_view is the role as seen by alice (who isn't a member of the key-managers group)
-    #   alice_view = alice_api.role('conjur:group:pubkeys-1.0/key-managers')
-    #   alice_view.member_of? alice_api.current_role # raises RestClient::Forbidden
-    #   alice_api.current_role.member_of? alice_view # false
-    #
-    # @param [String, #roleid] other_role the role or role id of which we might be a member
-    # @return [Boolean] whether this role is a member of `other_role`
-    # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
-    def member_of?(other_role)
-      other_role = cast(other_role, :roleid)
-      not all(filter: other_role).empty?
-    end
-
-    # Check to see if this role is allowed to perform `privilege` on `resource`.
-    #
-    # ### Permissions
-    # Any authenticated role may call this method.  However, instead of raising a 404 if a resource
-    # or role doesn't exist, it will return false.  This is to prevent bad guys from finding out which roles
-    # and resources exist.
-    #
-    # @example
-    #   bacon = api.create_resource 'food:bacon'
-    #   eggs  = api.create_resoure 'food:eggs'
-    #   bob = api.create_role 'cook:bob'
-    #
-    #   # Bob can't do anything initially
-    #   bob.permitted? bacon, 'fry' # => false
-    #   bob.permitted? eggs, 'poach' # => false
-    #
-    #   # Let him poach eggs
-    #   eggs.permit 'poach', bob
-    #
-    #   # Now it's permitted
-    #   bob.permitted? eggs, 'poach' # => true
-    #
-    # @example Somethign a bit more realistic
-    #   # Say we have a service layer that needs access to a database connection string.
-    #   # The layer is called 'web', and the connection string is stored in a variable 'mysql-uri'
-    #   web_layer = api.layer 'web'
-    #   mysql_uri = api.variable 'mysql-uri'
-    #
-    #   # The web layer can't see the value of the variable right now:
-    #   web_layer.role.permitted? mysql_uri, 'execute' # => false
-    #
-    #   # Let's permit that
-    #   mysql_uri.permit 'execute', web_layer
-    #
-    #   # Now it's allowed to fetch the connection string
-    #  web_layer.role.permitted? mysql_uri, 'execute' # => true
-    #
-    # @param [#resourceid, String] resource the resource to check the permission against
-    # @param [String] privilege the privilege to check
-    # @return [Boolean] true if this role has the privilege on the resource
-    def permitted?(resource, privilege, options = {})
-      resource = cast(resource, :resourceid)
-      # NOTE: in previous versions there was 'kind' passed separately. Now it is part of id
-      rbac_role_resource["?check&resource_id=#{query_escape resource}&privilege=#{query_escape privilege}"].get(options)
-      true
-    rescue RestClient::ResourceNotFound
-      false
     end
     
     # Fetch the direct members of this role. The results are *not* recursively expanded).
@@ -186,6 +108,13 @@ module Conjur
           RoleGrant.parse_from_json(json, credentials)
         end
       end
+    end
+
+    private
+
+    # RestClient::Resource for RBAC role operations.
+    def rbac_role_resource
+      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
     end
   end
 end

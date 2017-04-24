@@ -27,6 +27,9 @@ module Conjur
   #   admin_role.members.map{|grant| grant.member}.include? alice # => true
   #
   class RoleGrant
+    extend BuildObject::ClassMethods
+    extend Cast
+
     # The role which was granted.
     # @return [Conjur::Role]
     attr_reader :role
@@ -65,9 +68,9 @@ module Conjur
       to_h.to_s
     end
 
-    #@!attribute member
-    #   The member thing
-    #   @return [Conjur::Role] a ret?
+    def as_json options = {}
+      to_h.as_json(options)
+    end
 
     class << self
       # @api private
@@ -78,8 +81,8 @@ module Conjur
       # @param [Hash] credentials the credentials used to create APIs for the member and grantor role objects
       # @return [Conjur::RoleGrant]
       def parse_from_json(json, credentials)
-        role = Role.new(json['role'], credentials)
-        member = Role.new(json['member'], credentials)
+        role = build_object(json['role'], credentials, default_class: Role)
+        member = build_object(json['member'], credentials, default_class: Role)
         RoleGrant.new(role, member, json['admin_option'])
       end
     end

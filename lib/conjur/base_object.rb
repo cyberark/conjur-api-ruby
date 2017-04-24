@@ -25,6 +25,7 @@ module Conjur
     include Cast
     include QueryString
     include LogSource
+    include BuildObject
     
     attr_reader :id, :credentials
     
@@ -32,7 +33,13 @@ module Conjur
       @id = cast(id, :id)
       @credentials = credentials
     end
-    
+
+    def as_json options={}
+      {
+        id: id.to_s
+      }
+    end
+
     def account; id.account; end
     def kind; id.kind; end
     def identifier; id.identifier; end
@@ -45,11 +52,6 @@ module Conjur
 
     def core_resource
       RestClient::Resource.new(Conjur.configuration.core_url, credentials)
-    end
-    
-    def build_object id
-      id = cast(id, :id)
-      Conjur.const_get(id.kind.classify).new(id, credentials)
     end
   end
 end

@@ -19,12 +19,11 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 require 'conjur/resource'
-require 'conjur/cast'
 
 module Conjur
   class API
-    include Cast
     include QueryString
+    include BuildObject
     
     #@!group Authorization: Resources
 
@@ -39,8 +38,7 @@ module Conjur
     # @param id [String] a fully qualified resource identifier
     # @return [Conjur::Resource] the resource, which may or may not exist
     def resource id
-      id = cast(id, :id)
-      Conjur.const_get(id.kind.classify).new(id, credentials)
+      build_object id
     end
 
     # Find all resources visible to the current role that match the given search criteria.
@@ -64,18 +62,11 @@ module Conjur
     # @example Search for resources annotated with the text "WebService Route"
     #    webservice_routes = api.resources search: "WebService Route"
     #
-    #    # Check that it worked:
-    #    webservice_routes.each do |resource|
-    #       searchable = [resource.annotations.to_h.values, resource.resource_id]
-    #       raise "FAILED" unless searchable.flatten.any?{|s| s.include? "WebService Route"}
-    #    end
-    #
     # @example Restrict the search to 'group' resources
     #   groups = api.resources kind: 'group'
     #
     #   # Correct behavior:
     #   expect(groups.all?{|g| g.kind == 'group'}).to be_true
-    #
     #
     # @example Get every single resource in a performant way
     #   resources = []

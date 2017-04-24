@@ -23,13 +23,12 @@ module Conjur
   # methods on specific asset classes (for example, {Conjur::Resource#owner}), the are available as
   # a `Hash` on all types supporting attributes.
   module HasAttributes
-    # Returns this objects {#attributes}.  This is primarily to support
-    # simple JSON serialization of Conjur assets.
-    #
-    # @param options [Hash,nil] unused, kept for compatibility reasons
-    # @see #attributes
-    def to_json(options = {})
-      attributes
+    def as_json options={}
+      result = super(options)
+      if @attributes
+        result.merge(@attributes.as_json(options))
+      end
+      result
     end
     
     def to_s
@@ -73,6 +72,10 @@ module Conjur
 
 
     protected
+
+    def annotation_value name
+      (attributes['annotations'].find{|a| a['name'] == name} || {})['value']
+    end
 
     # @api private
     # Fetch the attributes, overwriting any current ones.

@@ -19,33 +19,12 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 require 'conjur/role'
-require 'conjur/graph'
 
 module Conjur
   class API
+    include BuildObject
+
     #@!group Authorization: Roles
-
-    # Fetch a {Conjur::Graph} representing the relationships of a given role or roles.  Such graphs are transitive,
-    # and follow the normal permissions for role visibility.
-    #
-    # @param [Array<Conjur::Role, String>, String, Conjur::Role] roles role or or array of roles
-    #   roles whose relationships we're interested in
-    # @param [Hash] options options for the request
-    # @option options [Boolean] :ancestors Whether to return ancestors ("roles that your role has") of the given roles (true by default)
-    # @option options [Boolean] :descendants Whether to return descendants ("roles that have your role") of the given roles (true by default)
-    # @option options [Conjur::Role, String] :as_role Only roles visible to this role will be included in the graph
-    # @return [Conjur::Graph] An object representing the role memberships digraph
-    def role_graph roles, options = {}
-      roles = [roles] unless roles.kind_of? Array
-      roles.map!{|r| normalize_roleid(r) }
-      options[:as_role] = normalize_roleid(options[:as_role]) if options.include?(:as_role)
-      options.reverse_merge! as_role: normalize_roleid(current_role), descendants: true, ancestors: true
-
-      query = {from_role: options.delete(:as_role)}
-        .merge(options.slice(:ancestors, :descendants))
-        .merge(roles: roles).to_query
-      Conjur::Graph.new RestClient::Resource.new(Conjur.configuration.core_url, credentials)["#{Conjur.account}/roles?#{query}"].get
-    end
 
     # Return a {Conjur::Role} representing a role with the given id.  Note that the {Conjur::Role} may or
     # may not exist (see {Conjur::Exists#exists?}).
@@ -73,8 +52,7 @@ module Conjur
     # @param id [String] a fully qualified role identifier
     # @return [Conjur::Role] an object representing the role
     def role id
-      id = cast(id, :id)
-      Conjur.const_get(id.kind.classify).new(id, credentials)
+      build_object id, default_class: Role
     end
 
     # Return a {Conjur::Role} object representing the role (typically a user or host) that this api is authenticated

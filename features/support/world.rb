@@ -1,13 +1,12 @@
 module ApiWorld
-
-  def api
-    @api ||= Conjur::Authn.connect(nil, :noask => true)
+  def last_json
+    @result.to_json
   end
 
-  def namespace
-    @namespace ||= api.create_variable('text/plain', 'id').id.tap {|ns| puts "namespace: #{ns}"}
+  def random_hex nbytes = 12
+    @random ||= Random.new
+    @random.bytes(nbytes).unpack('h*').first
   end
-
 end
 
 World ApiWorld

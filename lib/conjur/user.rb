@@ -19,21 +19,16 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  # This class represents a {http://developer.conjur.net/reference/services/directory/user Conjur User}.
+  # A Conjur User.
   class User < BaseObject
     include ActsAsUser
 
-    # Get the user's uidnumber, which is used by LDAP and SSH login, among other things.
-    #
-    # ### Permissions
-    # You must have the `'show'` permission on the user's resource to call this method
-    #
-    # @note This feature requires Conjur server version 4.3 or later.
+    # Get the user's uidnumber, which can be used by LDAP and SSH login, among other things.
     #
     # @return [Fixnum] the uidnumber
     # @raise [RestClient::Forbidden] if you don't have permission to `show` the user.
     def uidnumber
-      attributes['uidnumber']
+      attributes['annotations']['uidnumber']
     end
   end
 end

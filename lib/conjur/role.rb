@@ -21,15 +21,7 @@
 require 'conjur/role_grant'
 
 module Conjur
-  # A {http://developer.conjur.net/reference/services/authorization/role Conjur Role} represents an actor that
-  # can be granted or denied permissionto do various things to
-  # {http://developer.conjur.net/reference/services/authorization/resource Conjur Resources}.  Roles are hierarchical:
-  # if role a is a **member of** role b, a is permitted to do everything b is permitted
-  # to do.  This relationship is transitive, so if a is a member of b, b is a member of c,
-  # and c is a member of d, a has all of d's permissions.
-  #
-  # This class represents a Role with a particular identifier.  The actual Conjur role *may or may not
-  # exist!*
+  # A Conjur custom Role.
   class Role < BaseObject
     include ActsAsRole
   end

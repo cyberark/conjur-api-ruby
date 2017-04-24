@@ -18,16 +18,10 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'conjur/annotations'
 
 module Conjur
 
-  # A `Conjur::Resource` instance represents a Conjur
-  # {http://developer.conjur.net/reference/services/authorization/resource Resource}.
-  #
-  # You should not instantiate this class directly.  Instead, you can get an instance from the
-  # {Conjur::API#resource} and {Conjur::API#resources} methods, or from the {ActsAsResource#resource} method
-  # present on objects representing Conjur assets that have associated resources.
+  # A Conjur custom Resource.
   #
   class Resource < BaseObject
     include ActsAsResource

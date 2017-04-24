@@ -36,7 +36,9 @@ module Conjur
       end
     end
     
-    alias create_token create_tokens
+    def create_token expiration, cidr: nil
+      create_tokens(expiration, cidr: cidr).first
+    end
 
     def tokens
       # Tokens list is not returned by +show+ if the caller doesn't have permission

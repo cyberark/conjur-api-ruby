@@ -20,12 +20,10 @@
 #
 module Conjur
 
-  # Secrets stored in Conjur are represented by {http://developer.conjur.net/reference/services/directory/variable Variables}.
+  # Protected (secret) data stored in Conjur.
+  # 
   # The code responsible for the actual encryption of variables is open source as part of the
   # {https://github.com/conjurinc/slosilo Slosilo} library.
-  #
-  # You should not generally create instances of this class directly.  Instead, you can get them from
-  # {Conjur::API} methods such as {Conjur::API#create_variable} and {Conjur::API#variable}.
   #
   # Conjur variables store metadata (mime-type and secret kind) with each secret.
   #
@@ -36,53 +34,23 @@ module Conjur
   #
   # ### Important
   # A common pitfall when trying to access older versions of a variable is to assume that `0` is the oldest
-  # version.  In fact, `0` references the *latest* version, while *1* is the oldest.
-  #
+  # version.  In fact, `nil` references the *latest* version, while `1` is the oldest.
   #
   # ### Permissions
   #
-  # * To *read* the value of a `variable`, you must have permission to `'execute'` the variable.
+  # * To *fetch* the value of a `variable`, you must have permission to `'execute'` the variable.
   # * To *add* a value to a `variable`, you must have permission to `'update'` the variable.
   # * To *show* metadata associated with a variable, but *not* the value of the secret, you must have `'read'`
   #     permission on the variable.
   #
-  #  When you create a secret, the creator role is granted all three of the above permissions.
-  #
   # @example Get a variable and access its metadata and the latest value
-  #   variable = api.variable 'example'
+  #   variable = api.resource 'myorg:variable:example'
   #   puts variable.kind      # "example-secret"
   #   puts variable.mime_type # "text/plain"
   #   puts variable.value     # "supahsecret"
-  #
-  # @example Variable permissions
-  #   # use our 'admin' api to create a variable 'permissions-example
-  #   admin_var = admin_api.create_variable 'text/plain', 'example', 'permissions-example'
-  #
-  #   # get a 'view' to it from user 'alice'
-  #   alice_var = alice_api.variable admin_var.id
-  #
-  #   # Initilally, all of the following raise a RestClient::Forbidden exception
-  #   alice_var.attributes
-  #   alice_var.value
-  #   alice_var.add_value 'hi'
-  #
-  #   # Allow alice to see the variables attributes
-  #   admin_var.permit 'read', alice
-  #   alice_var.attributes # OK
-  #
-  #   # Allow alice to update the variable
-  #   admin_var.permit 'update', alice
-  #   alice_var.add_value 'hello'
-  #
-  #   # Notice that alice still can't see the variable's value:
-  #   alice_var.value # raises RestClient::Forbidden
-  #
-  #   # Finally, we let alice execute the variable
-  #   admin_var.permit 'execute', alice
-  #   alice_var.value # 'hello'
-  #
+
   # @example Variables are versioned
-  #   var = api.variable 'version-example'
+  #   variable = api.resource 'myorg:variable:example'
   #   # Unless you set a variables value when you create it, the variable starts out without a value and version_count
   #   # is 0.
   #   var.version_count # => 0
@@ -108,6 +76,13 @@ module Conjur
   #
   class Variable < BaseObject
     include ActsAsResource
+
+    def as_json options={}
+      result = super(options)
+      result["mime_type"] = mime_type
+      result["kind"] = kind
+      result
+    end
     
     # The kind of secret represented by this variable,  for example, `'postgres-url'` or
     # `'aws-secret-access-key'`.
@@ -120,7 +95,7 @@ module Conjur
     # @note this is **not** the same as the `kind` part of a qualified Conjur id.
     # @return [String] a string representing the kind of secret.
     def kind
-      attributes['kind'] || "secret"
+      annotation_value 'conjur/kind' || "secret"
     end
 
     # The MIME Type of the variable's value.
@@ -134,7 +109,7 @@ module Conjur
     #
     # @return [String] a MIME type, such as `'text/plain'` or `'application/octet-stream'`.
     def mime_type
-      attributes['mime_type'] || "text/plain"
+      annotation_value 'conjur/mime_type' || "text/plain"
     end
 
     # Add a new value to the variable.
@@ -214,28 +189,6 @@ module Conjur
       options = {}
       options['version'] = version if version
       core_resource['secrets'][id.to_url_path][options_querystring options].get.body
-    end
-
-    # Set the variable to expire after the given interval. The
-    # interval can either be an ISO8601 duration or it can the number
-    # of seconds for which the variable should be valid. Once a
-    # variable has expired, its value will no longer be retrievable.
-    #
-    # You must have the **`'update'`** permission on a variable to call this method.
-    #
-    # @example Use an ISO8601 duration to set the expiration for a variable to tomorrow
-    #   var = api.variable 'my-secret'
-    #   var.expires_in "P1D"
-    #
-    # @example Use ActiveSupport to set the expiration for a variable to tomorrow
-    #   require 'active_support/all'
-    #   var = api.variable 'my-secret'
-    #   var.expires_in 1.day
-    # @param interval a String containing an ISO8601 duration, otherwise the number of seconds before the variable xpires
-    # @return [Hash] description of the variable's expiration, including the (Conjur server) time when it expires
-    def expires_in interval
-      duration = interval.respond_to?(:to_str) ? interval : "PT#{interval.to_i}S"
-      JSON::parse(self['expiration'].post(duration: duration).body)
     end
   end
 end

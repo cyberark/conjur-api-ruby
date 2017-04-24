@@ -19,14 +19,17 @@
 #
 module Conjur
 
-  # A Conjur Group represents a collection of
-  #   Conjur Users.
-  #   This class represents Conjur group assets and operations on them.
-  #
-  # You should not create instances of this class directly.  Instead, you can get them from
-  # API methods like {Conjur::API#group} and {Conjur::API#groups}.
+  # A Conjur Group represents a collection of Conjur Users, Groups and Layers.
   #
   class Group < BaseObject
     include ActsAsRolsource
+
+    # Get the group's gidnumber, which can be used by LDAP and SSH login, among other things.
+    #
+    # @return [Fixnum] the gidnumber
+    # @raise [RestClient::Forbidden] if you don't have permission to `show` the group.
+    def gidnumber
+      attributes['annotations']['gidnumber']
+    end
   end
 end

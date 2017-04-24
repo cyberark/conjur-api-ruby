@@ -18,30 +18,32 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'conjur/cast'
 
 module Conjur
-  # Encapsulates a Conjur id, which consists of account, kind, and identifier.
-  class Id
-    attr_reader :id
-    
-    def initialize id
-      @id = id
-    end
-    
-    def account; id.split(':', 3)[0]; end
-    def kind; id.split(':', 3)[1]; end
-    def identifier; id.split(':', 3)[2]; end
-    
-    def as_json options={}
-      @id
+  module BuildObject
+    def self.included base
+      base.module_eval do
+        extend Cast
+        extend ClassMethods
+      end
     end
 
-    def to_url_path
-      id.split(':').join('/')
+    module ClassMethods
+      def build_object id, credentials, default_class:
+        id = cast(id, :id)
+        class_name = id.kind.classify.to_sym
+        cls = if Conjur.constants.member?(class_name)
+          Conjur.const_get(class_name)
+        else
+          default_class
+        end
+        cls.new(id, credentials)
+      end
     end
-    
-    def to_s
-      id
+
+    def build_object id, default_class: Resource
+      self.class.build_object id, credentials, default_class: default_class
     end
   end
 end

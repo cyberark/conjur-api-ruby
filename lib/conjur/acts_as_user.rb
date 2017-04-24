@@ -53,7 +53,7 @@ module Conjur
     # @note You will not be able to access the API key returned by this method later, so you should
     #   probably hang onto it it.
     #
-    # @note You cannot rotate your own API key with this method.  To do so, use `Conjur::API.rotate_api_key`
+    # @note You cannot rotate your own API key with this method. To do so, use `Conjur::API.rotate_api_key`
     #
     # @note This feature requires a Conjur appliance running version 4.6 or higher.
     #
