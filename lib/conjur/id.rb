@@ -32,6 +32,14 @@ module Conjur
     def kind; id.split(':', 3)[1]; end
     def identifier; id.split(':', 3)[2]; end
     
+    def == other
+      if other.is_a?(String)
+        to_s == other
+      else
+        super
+      end
+    end
+
     def as_json options={}
       @id
     end

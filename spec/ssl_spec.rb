@@ -9,7 +9,7 @@ require 'webrick/https'
 describe 'SSL connection' do
   context 'with an untrusted certificate' do
     it 'fails' do
-      expect { Conjur::API.login 'foo', 'bar' }.to \
+      expect { Conjur::API.login 'foo', 'bar', account: "the-account" }.to \
           raise_one_of(RestClient::SSLCertificateNotVerified, OpenSSL::SSL::SSLError)
     end
   end
@@ -22,7 +22,7 @@ describe 'SSL connection' do
     end
 
     it 'works' do
-      expect { Conjur::API.login 'foo', 'bar' }.to raise_error RestClient::ResourceNotFound
+      expect { Conjur::API.login 'foo', 'bar', account: "the-account" }.to raise_error RestClient::ResourceNotFound
     end
   end
   
@@ -35,16 +35,14 @@ describe 'SSL connection' do
   let(:port) { server.config[:Port] }
 
   before do
-    allow(Conjur::Authn::API).to receive(:host).and_return "https://localhost:#{port}"
+    allow(Conjur.configuration).to receive(:authn_url).and_return "https://localhost:#{port}"
   end
 
   around do |example|
     server_thread = Thread.new do
       server.start
     end
-    WebMock.disable!
     example.run
-    WebMock.enable!
     server.shutdown
     server_thread.join
   end

@@ -7,19 +7,21 @@ require 'cucumber/rake/task'
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new :spec
-Cucumber::Rake::Task.new :features
 YARD::Rake::YardocTask.new(:yard)
 
-task :jenkins => ['ci:setup:rspec', :spec] do
-  if ENV['BUILD_NUMBER']
-    File.write('build_number', ENV['BUILD_NUMBER'])
-  end
+task :init_coverage do
   require 'fileutils'
-  FileUtils.rm_rf 'features/reports'
-  Cucumber::Rake::Task.new do |t|
-    t.cucumber_opts = "--tags ~@real-api --format pretty --format junit --out features/reports"
-  end.runner.run
-  Rake::Task["yard"].invoke
+  FileUtils.rm_rf 'coverage'
 end
 
-task default: [:spec, :features]
+task :cucumber do
+  FileUtils.rm_rf 'features/reports'
+  Cucumber::Rake::Task.new do |t|
+    t.cucumber_opts = "--tags ~@wip --format pretty --format junit --out features/reports"
+  end.runner.run
+end
+
+desc "Run the spec and cucumber suites, compute the test results and coverage statistics, build Yard docs"
+task :jenkins => [:init_coverage, :"ci:setup:rspec", :spec, :cucumber, :yard]
+
+task default: [ :jenkins ]

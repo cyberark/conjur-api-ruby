@@ -70,34 +70,28 @@ module Conjur
     #   # that this only works with a newly created host or user, which has an `api_key` attribute.
     #   host.api.current_role.roleid # => 'conjur:host:example-host'
     #
+    # @param [String] account the organization account 
     # @return [Conjur::Role] the authenticated role for this API instance
     def current_role account
-      role_from_username username, account
+      self.class.role_from_username self, username, account
     end
 
     #@!endgroup
 
-    # @api private
-    #
-    # Get a Role instance from a username or host id
-    # @param [String] username the username or host id
-    # @return [Conjur::Role]
-    def role_from_username username, account
-      role role_name_from_username(username, account)
-    end
+    class << self
+      # @api private
+      def role_from_username api, username, account
+        api.role role_name_from_username(username, account)
+      end
 
-    # @api private
-    #
-    # Convert a username or host id to a role identifier.
-    # This handles conversion of logins like 'host/foo' to 'host:foo'
-    # @param [String] username the user name or host id
-    # @return [String] A full role id for the user or host
-    def role_name_from_username username, account
-      tokens = username.split('/')
-      if tokens.size == 1
-        [ account, 'user', username ].join(':')
-      else
-        [ account, tokens[0], tokens[1..-1].join('/') ].join(':')
+      # @api private
+      def role_name_from_username username, account
+        tokens = username.split('/')
+        if tokens.size == 1
+          [ account, 'user', username ].join(':')
+        else
+          [ account, tokens[0], tokens[1..-1].join('/') ].join(':')
+        end
       end
     end
 

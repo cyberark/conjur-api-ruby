@@ -55,7 +55,7 @@ module Conjur
       # then be used to authenticate further API calls.
       #
       # @param [String] username The username or host id for which we want a token
-      # @param [String] password The api key
+      # @param [String] api_key The api key
       # @param [String] account The organization account.
       # @return [String] A JSON formatted authentication token.
       def authenticate username, api_key, account: Conjur.configuration.account

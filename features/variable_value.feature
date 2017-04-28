@@ -6,8 +6,10 @@ Feature: Work with Variable values.
     @variable_id = "password-#{random_hex}"
     $conjur.load_policy 'bootstrap', <<-POLICY
     - !variable #{@variable_id}
+    - !variable #{@variable_id}-2
     POLICY
     @variable = $conjur.resource("cucumber:variable:#{@variable_id}")
+    @variable_2 = $conjur.resource("cucumber:variable:#{@variable_id}-2")
     """
 
   Scenario: Initially the variable has no values
@@ -45,3 +47,21 @@ Feature: Work with Variable values.
     @variable.value(1)
     """
     Then the result should be "value-0"
+
+  Scenario: Retrieve multiple values in a batch
+    Given I run the code:
+    """
+    @variable.add_value 'value-0'
+    @variable_2.add_value 'value-2'
+    """
+    When I run the code:
+    """
+    $conjur.variable_values([ @variable, @variable_2 ].map(&:id))
+    """
+    Then the JSON should be:
+    """
+    [
+      "value-0",
+      "value-2"
+    ]
+    """

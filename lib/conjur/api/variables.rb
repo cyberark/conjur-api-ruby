@@ -33,29 +33,23 @@ module Conjur
     #   * You have permission to `'execute'` all of the variables
     #
     # @example Fetch multiple variable values
-    #   values = variable_values ['postgres_uri', 'aws_secret_access_key', 'aws_access_key_id']
+    #   values = variable_values ['myorg:variable:postgres_uri', 'myorg:variable:aws_secret_access_key', 'myorg:variable:aws_access_key_id']
     #   values # =>
     #   {
-    #      "postgres_uri" => "postgres://..."
-    #      "aws_secret_access_key" => "..."
-    #      "aws_access_key_id" => "..."
+    #      "postgres://...",
+    #      "the-secret-key",
+    #      "the-access-key-id"
     #   }
-    #    #
+    # 
     # This method is used to implement the {http://developer.conjur.net/reference/tools/utilities/conjurenv `conjur env`}
     # commands.  You may consider using that instead to run your program in an environment with the necessary secrets.
     #
-    # @param [Array<String>] varlist list of variable ids to fetch
-    # @return [Hash] a hash mapping variable ids to variable values
+    # @param [Array<String>] variable_ids list of variable ids to fetch
+    # @return [Array<String>] a list of variable values corresponding to the variable ids.
     # @raise [RestClient::Forbidden, RestClient::ResourceNotFound] if any of the variables don't exist or aren't accessible.
-    def variable_values(varlist)
-      raise ArgumentError, "Variables list must be an array" unless varlist.kind_of? Array
-      raise ArgumentError, "Variables list is empty" if varlist.empty?
-      opts = "?vars=#{varlist.map { |v| fully_escape(v) }.join(',')}"
-      begin
-        resp = RestClient::Resource.new(Conjur.configuration.core_url, self.credentials)['variables/values'+opts].get
-        return JSON.parse( resp.body )
-      rescue RestClient::ResourceNotFound
-        return Hash[ *varlist.map { |v| [ v, variable(v).value ]  }.flatten ]
+    def variable_values variable_ids
+      variable_ids.map do |v|
+        resource(v).value
       end
     end
     

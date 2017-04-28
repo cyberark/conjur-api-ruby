@@ -73,22 +73,7 @@ describe Conjur::Configuration do
     end
   end
     
-  context "CONJUR_ENV unspecified" do
-    before {
-      ENV.delete('CONJUR_ENV')
-    }
-    context "default env" do
-      describe '#env' do
-        subject { super().env }
-        it { is_expected.to eq("production") }
-      end
-    end
-    context "default stack" do
-      describe '#stack' do
-        subject { super().stack }
-        it { is_expected.to eq("v4") }
-      end
-    end
+  context "url generation" do
     describe 'authn_url' do
       before {
         allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
@@ -100,73 +85,7 @@ describe Conjur::Configuration do
 
         describe '#authn_url' do
           subject { super().authn_url }
-          it { is_expected.to eq("http://example.com/authn") }
-        end
-      end
-      context "without appliance_url" do
-        describe '#authn_url' do
-          subject { super().authn_url }
-          it { is_expected.to eq("https://authn-the-account-conjur.herokuapp.com") }
-        end
-      end
-    end
-    describe 'authz_url' do
-      before {
-        allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
-      }
-      context "with appliance_url" do
-        before {
-          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com"
-        }
-
-        describe '#authz_url' do
-          subject { super().authz_url }
-          it { is_expected.to eq("http://example.com/authz") }
-        end
-      end
-      context "without appliance_url" do
-        describe '#authz_url' do
-          subject { super().authz_url }
-          it { is_expected.to eq("https://authz-v4-conjur.herokuapp.com") }
-        end
-        context "with specific stack" do
-          before { allow_any_instance_of(Conjur::Configuration).to receive(:stack).and_return "the-stack" }
-
-          describe '#authz_url' do
-            subject { super().authz_url }
-            it { is_expected.to eq("https://authz-the-stack-conjur.herokuapp.com") }
-          end
-        end
-      end
-    end
-  end
-  context "CONJUR_ENV = 'test'" do
-    describe '#env' do
-      subject { super().env }
-      it { is_expected.to eq("test") }
-    end
-    before {
-      allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
-    }
-    describe 'authn_url' do
-      context "with appliance_url hostname" do
-        before {
-          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com"
-        }
-
-        describe '#authn_url' do
-          subject { super().authn_url }
-          it { is_expected.to eq("http://example.com/authn") }
-        end
-      end
-      context "with appliance_url hostname and non-trailing-slash path" do
-        before {
-          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com/api"
-        }
-
-        describe '#authn_url' do
-          subject { super().authn_url }
-          it { is_expected.to eq("http://example.com/api/authn") }
+          it { is_expected.to eq("http://example.com") }
         end
       end
       context "without appliance_url" do
@@ -176,40 +95,20 @@ describe Conjur::Configuration do
         end
       end
     end
-    describe 'authz_url' do
-      context "with appliance_url" do
-        before {
-          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com/api/"
-        }
-
-        describe '#authz_url' do
-          subject { super().authz_url }
-          it { is_expected.to eq("http://example.com/api/authz") }
-        end
-      end
-      context "without appliance_url" do
-        describe '#authz_url' do
-          subject { super().authz_url }
-          it { is_expected.to eq("http://localhost:5100") }
-        end
-      end
-    end
     describe 'core_url' do
+      before {
+        allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
+      }
+      subject { super().core_url }
       context "with appliance_url" do
         before {
-          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com/api"
+          allow_any_instance_of(Conjur::Configuration).to receive(:appliance_url).and_return "http://example.com"
         }
 
-        describe '#core_url' do
-          subject { super().core_url }
-          it { is_expected.to eq("http://example.com/api") }
-        end
+        it { is_expected.to eq("http://example.com") }
       end
       context "without appliance_url" do
-        describe '#core_url' do
-          subject { super().core_url }
-          it { is_expected.to eq("http://localhost:5200") }
-        end
+        it { is_expected.to eq("http://localhost:5000") }
       end
     end
   end

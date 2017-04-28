@@ -84,7 +84,7 @@ class RestClient::Resource
   #
   # @return {Conjur::API} the new api
   def conjur_api
-    api = Conjur::API.new_from_token token, remote_ip
+    api = Conjur::API.new_from_token token, remote_ip: remote_ip
     api
   end
 

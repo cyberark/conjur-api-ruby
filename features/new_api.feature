@@ -1,14 +1,6 @@
 Feature: Constructing a new API object.
   Background:
-    Given I run the code:
-    """
-    @host_id = "app-#{random_hex}"
-    response = $conjur.load_policy 'bootstrap', <<-POLICY
-    - !host #{@host_id}
-    POLICY
-    @host_api_key = response.created_roles["cucumber:host:#{@host_id}"]['api_key']
-    expect(@host_api_key).to be
-    """
+    Given a new host
 
   Scenario: From API key.
     Then I run the code:

@@ -41,15 +41,8 @@ module Conjur
     # @return [Hash] the new attributes
     def attributes=(attributes); @attributes = attributes; end
 
-    # Get the attributes for this asset.
-    #
-    # Although the `Hash` returned by this method is mutable, you should treat as immutable unless you know
-    # exactly what you're doing.  Each asset's attributes are constrained by a server side schema, which means
-    # that you will get an error if you violate the schema. and then try to save the asset.
-    #
-    #
-    # @note this method will use a cached copy of the objects attributes instead of fetching them
-    # with each call.  To ensure that the attributes are fresh, you can use the {#refresh} method
+    # Get the attributes for this asset. This is an immutable Hash, unless the attributes
+    # are changed via policy update.
     #
     # @return [Hash] the asset's attributes.
     def attributes

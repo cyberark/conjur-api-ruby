@@ -1,22 +1,7 @@
 Feature: Display Host object fields.
 
   Background:
-    Given I run the code:
-    """
-    $conjur.load_policy 'bootstrap', <<-POLICY
-    - !policy
-      id: myapp
-      body:
-      - !layer
-      
-      - !host-factory
-        layers: [ !layer ]
-    POLICY
-    hf = $conjur.resource('cucumber:host_factory:myapp')
-    token = hf.create_token (Time.now+1.hour)
-    host_id = "app-#{random_hex}"
-    @host = Conjur::API.host_factory_create_host token.token, host_id
-    """
+    Given a new host
 
   Scenario: API key of a newly created host is available and valid.
     Then I run the code:

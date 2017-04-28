@@ -20,7 +20,7 @@
 #
 module Conjur
   # A `RoleGrant` instance represents the membership of a role in some unspecified role.  `RoleGrant`s are returned
-  # by {Conjur::Role#members} and represent members of the role on which the method was invoked.
+  # by {ActsAsRole#members} and represent members of the role on which the method was invoked.
   #
   # @example
   #   alice.members.map{|grant| grant.member}.include? admin_role # => true

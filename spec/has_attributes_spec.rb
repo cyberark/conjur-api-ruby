@@ -13,10 +13,14 @@ describe Conjur::HasAttributes do
   end
 
   let(:object) { new_object }
+  let(:second_object) { new_object }
   let(:attributes) { { 'id' => 'the-id' } }
+  let(:rbac_resource_resource) { double(:rbac_resource_resource, url: object.url) }
 
   before {
-    expect(object).to receive(:get).with(no_args).and_return(double(:response, body: attributes.to_json))
+    allow(object).to receive(:rbac_resource_resource).and_return(rbac_resource_resource)
+    allow(second_object).to receive(:rbac_resource_resource).and_return(rbac_resource_resource)
+    expect(rbac_resource_resource).to receive(:get).with(no_args).and_return(double(:response, body: attributes.to_json))
   }
 
   it "should fetch attributes from the server" do
@@ -47,7 +51,7 @@ describe Conjur::HasAttributes do
     context "enabled" do
       it "caches the attributes across objects" do
         expect(object.attributes).to eq(attributes)
-        expect(new_object.attributes).to eq(attributes)
+        expect(second_object.attributes).to eq(attributes)
         expect(cache.table).to eq({
           "alice.http://example.com/the-object" => attributes
         })

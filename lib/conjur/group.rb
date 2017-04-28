@@ -29,7 +29,7 @@ module Conjur
     # @return [Fixnum] the gidnumber
     # @raise [RestClient::Forbidden] if you don't have permission to `show` the group.
     def gidnumber
-      attributes['annotations']['gidnumber']
+      annotation_value 'conjur/gidnumber'
     end
   end
 end

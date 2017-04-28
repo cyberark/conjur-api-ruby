@@ -30,8 +30,8 @@ module Conjur
 
     # Returns a newly created user's api_key.
     #
-    # @note this method can only be called on newly created user-like things (those returned from, for example,)
-    #   {Conjur::API#create_user}.
+    # @note The API key is not returned by {API#resource}. It is only available
+    # via {API#login}, when the object is newly created, and when the API key is rotated.
     #
     # @return [String] the api key
     # @raise [Exception] when the object isn't newly created.

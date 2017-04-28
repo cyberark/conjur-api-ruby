@@ -185,8 +185,7 @@ module Conjur
     # @param options [Hash]
     # @option options [Boolean, false] :show_expired show value even if variable has expired
     # @return [String] the value of the variable
-    def value version = nil
-      options = {}
+    def value version = nil, options = {}
       options['version'] = version if version
       core_resource['secrets'][id.to_url_path][options_querystring options].get.body
     end

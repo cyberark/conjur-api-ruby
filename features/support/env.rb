@@ -1,5 +1,9 @@
-require 'conjur/api'
+require 'simplecov'
+
+SimpleCov.start
+
 require 'json_spec/cucumber'
+require 'conjur/api'
 
 Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://localhost/api/v6'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'

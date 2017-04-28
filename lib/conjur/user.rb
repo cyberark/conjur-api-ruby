@@ -28,7 +28,7 @@ module Conjur
     # @return [Fixnum] the uidnumber
     # @raise [RestClient::Forbidden] if you don't have permission to `show` the user.
     def uidnumber
-      attributes['annotations']['uidnumber']
+      annotation_value 'conjur/uidnumber'
     end
   end
 end

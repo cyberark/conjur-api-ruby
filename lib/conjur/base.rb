@@ -82,10 +82,9 @@ module Conjur
       #
       # @param [Hash] token the authentication token as parsed JSON to use when making authenticated requests
       # @param [String] remote_ip the optional IP address to be recorded in the audit record.
-      # @param [String] account The organization account.
       # @return [Conjur::API] an api that will authenticate with the token
-      def new_from_token token, remote_ip: nil, account: Conjur.configuration.account
-        self.new.init_from_token token, remote_ip: remote_ip, account: account
+      def new_from_token token, remote_ip: nil
+        self.new.init_from_token token, remote_ip: remote_ip
       end
 
       # Create a new {Conjur::API} instance from a file containing a token issued by the
@@ -98,10 +97,9 @@ module Conjur
       #
       # @param [String] token_file the file path containing an authentication token as parsed JSON.
       # @param [String] remote_ip the optional IP address to be recorded in the audit record.
-      # @param [String] account The organization account.
       # @return [Conjur::API] an api that will authenticate with the tokens provided in the file.
-      def new_from_token_file token_file, remote_ip: nil, account: Conjur.configuration.account
-        self.new.init_from_token_file token_file, remote_ip: remote_ip, account: account
+      def new_from_token_file token_file, remote_ip: nil
+        self.new.init_from_token_file token_file, remote_ip: remote_ip
       end
     end
 
@@ -146,7 +144,6 @@ module Conjur
     #
     # @return [Hash] the options.
     # @raise [RestClient::Unauthorized] if fetching the token fails.
-    # @see {#token}
     def credentials
       headers = {}.tap do |h|
         h[:authorization] = "Token token=\"#{Base64.strict_encode64 token.to_json}\""
@@ -266,14 +263,14 @@ module Conjur
       self
     end
 
-    def init_from_token token, remote_ip: nil, account: Conjur.configuration.account
+    def init_from_token token, remote_ip: nil
       @token = token
       @remote_ip = remote_ip
       @authenticator = UnableAuthenticator.new
       self
     end
 
-    def init_from_token_file token_file, remote_ip: nil, account: Conjur.configuration.account
+    def init_from_token_file token_file, remote_ip: nil
       @remote_ip = remote_ip
       @authenticator = TokenFileAuthenticator.new(token_file)
       self

@@ -42,19 +42,19 @@ module Conjur
       build_object attributes['owner'], default_class: Role
     end
 
-    # Check whether this asset exists by performing a HEAD request to its URL.
+    # Check whether this object exists by performing a HEAD request to its URL.
     #
-    # This method will return false if the asset doesn't exist.
+    # This method will return false if the object doesn't exist.
     #
     # @example
     #   does_not_exist = api.user 'does-not-exist' # This returns without error.
     #
     #   # this is wrong!
-    #   owner = does_not_exist.ownerid # raises RestClient::ResourceNotFound
+    #   owner = does_not_exist.owner # raises RestClient::ResourceNotFound
     #
     #   # this is right!
     #   owner = if does_not_exist.exists?
-    #     does_not_exist.ownerid
+    #     does_not_exist.owner
     #   else
     #     nil # or some sensible default
     #   end
@@ -112,7 +112,6 @@ module Conjur
     #   resource.permitted? 'execute' # => true, `mouse` can execute it.
     #   resource.permitted? 'update', role: 'conjur:cat:gino' # => true, `gino` can update it.
     # @param privilege [String] the privilege to check
-    # @param [Hash, nil] options for the request
     # @param role [String,nil] :role check whether the role given by this full role id is permitted
     #   instead of checking +api.current_role+.
     # @return [Boolean]

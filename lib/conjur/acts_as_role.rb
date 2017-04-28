@@ -36,6 +36,35 @@ module Conjur
       [ kind, identifier ].delete_if{|t| t == "user"}.join('/')
     end
 
+    # Check whether this object exists by performing a HEAD request to its URL.
+    #
+    # This method will return false if the object doesn't exist.
+    #
+    # @example
+    #   does_not_exist = api.user 'does-not-exist' # This returns without error.
+    #
+    #   # this is wrong!
+    #   owner = does_not_exist.members # raises RestClient::ResourceNotFound
+    #
+    #   # this is right!
+    #   owner = if does_not_exist.exists?
+    #     does_not_exist.members
+    #   else
+    #     nil # or some sensible default
+    #   end
+    #
+    # @return [Boolean] does it exist?
+    def exists?
+      begin
+        rbac_role_resource.head
+        true
+      rescue RestClient::Forbidden
+        true
+      rescue RestClient::ResourceNotFound
+        false
+      end
+    end
+
     # Find all roles of which this role is a member.  By default, role relationships are recursively expanded,
     # so if `a` is a member of `b`, and `b` is a member of `c`, `a.all` will include `c`.
     #
@@ -62,9 +91,8 @@ module Conjur
     #   is_member = api.role('conjur:user:alice').all(filter: ['conjur:group:developers', 'conjur:group:ops']).any?
     #
     # @param [Hash] options options for the request
-    # @param options [Hash, nil] :filter only return roles in this list. Also, extra parameters to pass to the webservice method.
     # @return [Array<Conjur::Role>] Roles of which this role is a member
-    def memberships(options = {})
+    def memberships options = {}
       request = if options.delete(:recursive) == false
         options["memberships"] = true
       else

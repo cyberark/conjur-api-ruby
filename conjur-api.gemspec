@@ -32,5 +32,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'io-grab'
   gem.add_development_dependency 'rdoc'
   gem.add_development_dependency 'yard'
+  gem.add_development_dependency 'fakefs'
   gem.add_development_dependency 'pry-byebug'
 end
