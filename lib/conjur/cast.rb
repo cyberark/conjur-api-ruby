@@ -25,22 +25,14 @@ module Conjur
 
     # Convert a value to a role or resource identifier.
     #
-    # @param [String, Array, #roleid, #resourceid] obj the value to cast
-    # @param [Symbol] kind must be either `:roleid` or `:resourceid`
-    def cast(obj, kind)
-      result = case kind
-        when :id, :roleid, :resourceid
-        if obj.is_a?(String) || obj.is_a?(Id)
-          obj
-        elsif obj.is_a?(Array)
-          obj.join(':')
-        elsif obj.respond_to?(kind)
-          obj.send(kind)
-        else
-          raise "I don't know how to cast a #{obj.class} to a #{kind}"
-        end
+    # @param obj the value to cast
+    def cast_to_id obj
+      result =if obj.is_a?(String) || obj.is_a?(Id)
+        obj
+      elsif obj.is_a?(Array)
+        obj.join(':')
       else
-        raise "I don't know how to convert things to a #{kind}"
+        raise "I don't know how to cast a #{obj.class} to an id"
       end
       result = Id.new(result) unless result.is_a?(Id)
       result

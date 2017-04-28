@@ -6,6 +6,7 @@ Feature: Display Host object fields.
   Scenario: API key of a newly created host is available and valid.
     Then I run the code:
     """
+    expect(@host.exists?).to be(true)
     expect(@host.api_key).to be
     Conjur::API.new_from_key(@host.login, @host.api_key).token
     """

@@ -26,7 +26,7 @@ module Conjur
     def as_json options={}
       result = super(options)
       if @attributes
-        result.merge(@attributes.as_json(options))
+        result.merge!(@attributes.as_json(options))
       end
       result
     end

@@ -1,9 +1,12 @@
 Given(/^a new user$/) do
   @user_id = "user-#{random_hex}"
+  @public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDd/PAcCL9rW/zAS7DRns/KYiAvRAEKxBu/0IF32z7x6YiMFcA2hmH4DMYaIY45Xlj7L9uTZamUlRZNjSS9Xm6Lhh7XGceIX2067/MDnH+or9xh5LZs6gb3x7QVtNz26Au5h5kP0xoJ+wpVxvY707BeSax/WQZI8akqd0fD1IqOoafWkcX0ucu5iIgDh08R7zq3vrDHEK7+SoYo9ncHfmOUJ5lmImGiU/WMqM0OzN3RsgxJi/aaHjW1IASTY8TmAtTtjEsxbQXxRVUCAP9vWUZg7p3aqIB6sEP8skgncCUtHBQxUtE1XN8Q8NeFOzau6+9sQTXlPl8c/L4Jc4K96C75 #{@user_id}@example.com"
   response = $conjur.load_policy 'bootstrap', <<-POLICY
   - !user
     id: #{@user_id}
     uidnumber: 1000
+    public_keys:
+    - #{@public_key}
   POLICY
   @user = $conjur.resource("cucumber:user:#{@user_id}")
   @user_api_key = response.created_roles["cucumber:user:#{@user_id}"]['api_key']

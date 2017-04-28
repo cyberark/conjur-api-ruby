@@ -31,7 +31,7 @@ module Conjur
 
     module ClassMethods
       def build_object id, credentials, default_class:
-        id = cast(id, :id)
+        id = cast_to_id(id)
         class_name = id.kind.classify.to_sym
         cls = if Conjur.constants.member?(class_name)
           Conjur.const_get(class_name)

@@ -94,20 +94,5 @@ module Conjur
         end
       end
     end
-
-    private
-
-    # @api  private
-    # Use of this method is deprecated in favor of Conjur::Cast#cast
-    # @deprecated
-    # @param [String, Conjur::Role] role object to extract a role id from
-    # @return [String] the role id
-    def normalize_roleid role
-      case role
-        when String then role
-        when Role then role.id
-        else raise "Can't normalize #{role}@#{role.class}"
-      end
-    end
   end
 end

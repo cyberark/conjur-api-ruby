@@ -45,7 +45,7 @@ module Conjur
     # @see #api_key
     # @return [Conjur::API] an api logged in as this user-like thing.
     def api
-      Conjur::API.new_from_key login, api_key
+      Conjur::API.new_from_key login, api_key, account: account
     end
 
     # Rotate this role's API key. You must have `update` permission on the user to do so.

@@ -100,7 +100,7 @@ module Conjur
       end
       if filter = options.delete(:filter)
         filter = [filter] unless filter.is_a?(Array)
-        options["filter"] = filter.map{ |obj| cast(obj, :roleid) }
+        options["filter"] = filter.map{ |obj| cast_to_id(obj) }
       end
 
       result = JSON.parse(rbac_role_resource[options_querystring options].get)

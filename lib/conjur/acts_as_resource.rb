@@ -119,7 +119,7 @@ module Conjur
       options = {}
       options[:check] = true
       options[:privilege] = privilege
-      options[:role] = cast(role, :roleid) if role
+      options[:role] = cast_to_id(role) if role
       rbac_resource_resource[options_querystring options].get
       true
     rescue RestClient::Forbidden

@@ -30,7 +30,7 @@ module Conjur
     attr_reader :id, :credentials
     
     def initialize id, credentials
-      @id = cast(id, :id)
+      @id = cast_to_id(id)
       @credentials = credentials
     end
 
