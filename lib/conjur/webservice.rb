@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,10 @@
 #
 module Conjur
   # A Conjur Webservice, which protects access to service code.
+  #
+  # Permissions on webservices can be granted and interpreted in a free-form way
+  # which is appropriate to the domain. For example, for a Docker registry
+  # which is guarded by a Webservice, the likely privileges would be `pull` and `push`.
   class Webservice < BaseObject
     include ActsAsResource
   end

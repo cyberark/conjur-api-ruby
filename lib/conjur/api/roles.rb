@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@ module Conjur
   class API
     include BuildObject
 
-    #@!group Authorization: Roles
+    #@!group Roles
 
     # Return a {Conjur::Role} representing a role with the given id.  Note that the {Conjur::Role} may or
     # may not exist (see {Conjur::Exists#exists?}).
@@ -37,8 +37,8 @@ module Conjur
     # @example Create and show a role
     #   iggy = api.role 'cat:iggy'
     #   iggy.exists? # true
-    #   iggy.members.map(&:member).map(&:roleid) # => ['conjur:user:admin']
-    #   api.current_role.roleid # => 'conjur:user:admin' # creator role is a member of created role.
+    #   iggy.members.map(&:member).map(&:id) # => ['conjur:user:admin']
+    #   api.current_role.id # => 'conjur:user:admin' # creator role is a member of created role.
     #
     # @example No permissions are required to call this method
     #   api.current_role # => "user:no-access"
@@ -55,20 +55,20 @@ module Conjur
       build_object id, default_class: Role
     end
 
-    # Return a {Conjur::Role} object representing the role (typically a user or host) that this api is authenticated
+    # Return a {Conjur::Role} object representing the role (typically a user or host) that this API instance is authenticated
     # as.  This is derived either from the `login` argument to {Conjur::API.new_from_key} or from the contents of the
-    # `token` given to {Conjur::API.new_from_token}.
+    # `token` given to {Conjur::API.new_from_token} or {Conjur::API.new_from_token_file}.
     #
     # @example Current role for a user
     #   api = Conjur::API.new_from_key 'jon', 'somepassword'
-    #   api.current_role.roleid # => 'conjur:user:jon'
+    #   api.current_role.id # => 'conjur:user:jon'
     #
     # @example Current role for a host
     #   host = api.create_host id: 'exapmle-host'
     #
     #   # Host and User have an `api` method that returns an api with their credentials.  Note
     #   # that this only works with a newly created host or user, which has an `api_key` attribute.
-    #   host.api.current_role.roleid # => 'conjur:host:example-host'
+    #   host.api.current_role.id # => 'conjur:host:example-host'
     #
     # @param [String] account the organization account 
     # @return [Conjur::Role] the authenticated role for this API instance

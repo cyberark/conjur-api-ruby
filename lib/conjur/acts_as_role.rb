@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -84,7 +84,7 @@ module Conjur
     #   key_managers.add_member api.user('alice')
     #
     #   # Show the memberships, mapped to the member ids.
-    #   key_managers.role.all.map(&:roleid)
+    #   key_managers.role.all.map(&:id)
     #   # => ["conjur:group:pubkeys-1.0/admin", "conjur:user:alice"]
     #
     # @example See if role `"conjur:user:alice"` is a member of either `"conjur:groups:developers"` or `"conjur:group:ops"`

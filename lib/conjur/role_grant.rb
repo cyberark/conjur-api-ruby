@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,7 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  # A `RoleGrant` instance represents the membership of a role in some unspecified role.  `RoleGrant`s are returned
+  # Represents the membership of a role. `RoleGrant`s are returned
   # by {ActsAsRole#members} and represent members of the role on which the method was invoked.
   #
   # @example

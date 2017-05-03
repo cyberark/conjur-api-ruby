@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,7 @@ require 'conjur/user'
 module Conjur
   class API
     class << self
-      #@!group Authentication Methods
+      #@!group Authentication
 
       # Exchanges a username and a password for an api key.  The api key
       #   is preferable for storage and use in code, as it can be rotated and has far greater entropy than
@@ -31,19 +31,18 @@ module Conjur
       #
       #  * Note that this method works only for {Conjur::User}s. While
       #   {Conjur::Host}s are roles, they do not have passwords.
-      #  * If you pass an api key to this method instead of a password, it will simply return the API key.
-      #  * This method uses Basic Auth to send the credentials.
+      #  * If you pass an api key to this method instead of a password, it will verify and return the API key.
+      #  * This method uses HTTP Basic Authentication to send the credentials.
       #
       # @example
-      #   bob_api_key = Conjur::API.login('mycorp', 'bob', 'bob_password')
-      #   bob_api_key == Conjur::API.login('mycorp', 'bob', bob_api_key)  # => true
+      #   bob_api_key = Conjur::API.login('bob', 'bob_password')
+      #   bob_api_key == Conjur::API.login('bob', bob_api_key)  # => true
       #
       # @param [String] username The `username` or `login` for the
       #   {http://developer.conjur.net/reference/services/directory/user Conjur User}.
       # @param [String] password The `password` or `api key` to authenticate with.
       # @param [String] account The organization account.
       # @return [String] the API key.
-      # @raise [RestClient::Exception] when the request fails or the identity provided is invalid.
       def login username, password, account: Conjur.configuration.account
         if Conjur.log
           Conjur.log << "Logging in #{username} to account #{account} via Basic authentication\n"
@@ -67,11 +66,11 @@ module Conjur
       end
 
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
-      #   api keys.  However, you *can*  use the user's api key as the *current* password, if the user was not created
+      #   api keys. However, you *can* use the user's api key as the *current* password, if the user was not created
       #   with a password.
       #
-      # @param [String] username the name of the user whose password we want to change
-      # @param [String] password the user's *current* password *or* api key
+      # @param [String] username the name of the user whose password we want to change.
+      # @param [String] password the user's *current* password *or* api key.
       # @param [String] new_password the new password for the user.
       # @param [String] account The organization account.
       # @return [void]

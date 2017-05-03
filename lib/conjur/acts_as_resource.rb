@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@ module Conjur
   # This module is included in object classes that have resource behavior.
   module ActsAsResource
     # @api private
-    # :nodoc:
     def self.included(base)
       base.include HasAttributes
       base.include Escape

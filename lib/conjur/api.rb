@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -50,6 +50,7 @@ require 'conjur-api/version'
 # Monkey patch RestClient::Request so it always uses
 # :ssl_cert_store. (RestClient::Resource uses Request to send
 # requests, so it sees :ssl_cert_store, too).
+# @api private
 class RestClient::Request
   alias_method :initialize_without_defaults, :initialize
 
@@ -64,6 +65,7 @@ class RestClient::Request
   end
 end
 
+# @api private
 class RestClient::Resource
   include Conjur::Escape
   include Conjur::LogSource

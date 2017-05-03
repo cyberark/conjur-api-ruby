@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,27 +19,41 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
+  # The result of loading a policy. When a policy is loaded, two types of data
+  # are always provided:
+  #
+  # * {#created_roles} the API keys of any new roles which were created
+  # * {#version} the new version of the policy.
   class PolicyLoadResult
     def initialize data
       @data = data
     end
     
+    # @api private
     def to_h
       @data
     end
     
+    # @api private
     def to_json options = {}
       @data.to_json(options)
     end
     
+    # @api private
     def to_s
       @data.to_s
     end
-    
+
+    # API keys for roles which were created when loading the policy.
+    #
+    # @return [Hash] Hash keys are the role ids, and hash values are the API keys.    
     def created_roles
       @data['created_roles']
     end
     
+    # The new version of the policy. When a policy is updated, a new version is appended
+    # to that policy. The YAML of previous versions of the policy can be obtained 
+    # by fetching the policy resource using {API#resource}.
     def version
       @data['version']
     end

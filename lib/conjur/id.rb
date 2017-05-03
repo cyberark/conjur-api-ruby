@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -28,10 +28,15 @@ module Conjur
       @id = id
     end
     
+    # The organization account, obtained from the first component of the id.
     def account; id.split(':', 3)[0]; end
+    # The object kind, obtained from the second component of the id.
     def kind; id.split(':', 3)[1]; end
+    # The object identifier, obtained from the third component of the id. The
+    # identifier must be unique within the `account` and `kind`.
     def identifier; id.split(':', 3)[2]; end
     
+    # Defines id equivalence using the string representation.
     def == other
       if other.is_a?(String)
         to_s == other
@@ -40,14 +45,17 @@ module Conjur
       end
     end
 
+    # @return [String] the id string.
     def as_json options={}
       @id
     end
 
+    # Splits the id into 3 components, and then joins them with a forward-slash `/`.
     def to_url_path
-      id.split(':').join('/')
+      id.split(':', 3).join('/')
     end
     
+    # @return [String] the id string
     def to_s
       id
     end

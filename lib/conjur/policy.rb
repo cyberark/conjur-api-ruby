@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,14 @@
 #
 module Conjur
 
+  # Defines an set of objects, permission grants and role grants. All objects in a policy
+  # share a common naming prefix, which is the id of the policy. (Exception: the root
+  # policy does not add a naming prefix to each of its objects).
+  #
+  # Policies are defined using a YAML syntax, which is extensively documented on the Conjur 
+  # web site. To load a policy, define it using YAML and then use {API#load_policy}.
+  #
+  # @see API#load_policy
   class Policy < BaseObject
     include ActsAsRolsource
   end

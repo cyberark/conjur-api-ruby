@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -22,8 +22,22 @@ require 'conjur/host_factory'
 
 module Conjur
   class API
+    #@!group Host Factory
+
     class << self
-      # Creates a host and returns the response Hash.
+      # Use a host factory token to create a new host. Unlike most other methods, this
+      # method does not require a Conjur access token. The host factory token is the
+      # authentication and authorization to create the host.
+      #
+      # The token must be valid. The host id can be a new host, or an existing host. 
+      # If the host already exists, the server verifies that its layer memberships
+      # match the host factory exactly. Then, its API key is rotated and returned with
+      # the response.
+      # 
+      # @param [String] token the host factory token.
+      # @param [String] id the id of a new or existing host.
+      # @param options [Hash] additional host creation options.
+      # @return [Host]
       def host_factory_create_host token, id, options = {}
         token = token.token if token.is_a?(HostFactoryToken)
         http_options = {
@@ -36,15 +50,24 @@ module Conjur
         end
       end
       
-      # Revokes a host factory token.
+      # Revokes a host factory token. After revocation, the token can no longer be used to 
+      # create hosts.
+      # 
+      # @param [Hash] credentials authentication credentials of the current user.
+      # @param [String] token the host factory token.
       def revoke_host_factory_token credentials, token
         RestClient::Resource.new(Conjur.configuration.core_url, credentials)['host_factory_tokens'][token].delete
       end
     end
     
-    # Revokes a host factory token.
+      # Revokes a host factory token. After revocation, the token can no longer be used to 
+      # create hosts.
+      # 
+      # @param [String] token the host factory token.
     def revoke_host_factory_token token
       self.class.revoke_host_factory_token credentials, token
     end
+
+    #@!endgroup
   end
 end

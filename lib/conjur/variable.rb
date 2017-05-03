@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2016 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -25,16 +25,16 @@ module Conjur
   # The code responsible for the actual encryption of variables is open source as part of the
   # {https://github.com/conjurinc/slosilo Slosilo} library.
   #
-  # Conjur variables store metadata (mime-type and secret kind) with each secret.
+  # Each variables has some standard metadata (`mime-type` and secret `kind`).
   #
   # Variables are *versioned*.  Storing secrets in multiple places is a bad security practice, but
   # overwriting a secret accidentally can create a major problem for development and ops teams.  Conjur
-  # discourages bad security practices while avoiding ops disasters by storing all previous versions of
-  # a secret.
+  # discourages bad security practices while avoiding ops disasters by storing previous versions of
+  # a secret (up to a fixed limit, to avoid unbounded database growth).
   #
   # ### Important
   # A common pitfall when trying to access older versions of a variable is to assume that `0` is the oldest
-  # version.  In fact, `nil` references the *latest* version, while `1` is the oldest.
+  # version.  Variable versions are `1`-based, with `1` being the oldest.
   #
   # ### Permissions
   #

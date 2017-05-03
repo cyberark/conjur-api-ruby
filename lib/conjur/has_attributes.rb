@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -76,7 +76,8 @@ module Conjur
       @attributes ||= fetch_attributes
     end
 
-    def fetch_attributes # :nodoc:
+    # @api private
+    def fetch_attributes
       cache_key = Conjur.cache_key username, rbac_resource_resource.url
       Conjur.cache.fetch_attributes cache_key do
         JSON.parse(rbac_resource_resource.get.body)
