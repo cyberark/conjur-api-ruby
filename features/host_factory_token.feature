@@ -29,6 +29,10 @@ Feature: Working with host factory tokens.
     expiration = expiration.change(sec: 0)
     expect(expiration).to eq(@expiration)
     """
+    And I can run the code:
+    """
+    expect(@host_factory.tokens).to eq([@token])
+    """
 
   Scenario: Create multiple new host factory tokens.
     When I run the code:
