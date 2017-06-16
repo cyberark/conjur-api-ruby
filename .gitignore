@@ -1,4 +1,5 @@
 features/reports
+dev/data_key
 .DS_Store
 build_number
 *.gem

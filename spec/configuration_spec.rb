@@ -29,51 +29,51 @@ describe Conjur::Configuration do
       configuration.account = "the-account"
       configuration.appliance_url = "https://conjur/api"
     }
-    context "and core_url fetched" do
-      before { 
-        configuration.core_url 
-      }
+    it "can still be changed by changing the appliance_url" do
+      configuration.appliance_url = "https://other/api"
+      expect(configuration.core_url).to eq "https://other/api"
+    end
 
-      it "can still be changed by changing the appliance_url" do
-        configuration.appliance_url = "https://other/api"
-        expect(configuration.core_url).to eq "https://other/api"
+    it "can still be changed by changing the authn_url" do
+      configuration.authn_url = "http://authn-docker"
+      expect(configuration.core_url).to eq "https://conjur/api"
+      expect(configuration.authn_url).to eq "http://authn-docker"
+    end
+
+    context "and duplicated" do 
+      subject { configuration.clone override_options }
+      let(:override_options) { Hash.new }
+
+      describe '#account' do
+        subject { super().account }
+        it { is_expected.to eq(configuration.account) }
       end
 
-      context "and duplicated" do 
-        subject { configuration.clone override_options }
-        let(:override_options) { Hash.new }
+      describe '#appliance_url' do
+        subject { super().appliance_url }
+        it { is_expected.to eq(configuration.appliance_url) }
+      end
 
-        describe '#account' do
-          subject { super().account }
-          it { is_expected.to eq(configuration.account) }
+      describe '#core_url' do
+        subject { super().core_url }
+        it { is_expected.to eq(configuration.appliance_url) }
+      end
+
+      context "appliance_url overridden" do
+        let(:override_options) {
+          { :appliance_url => "https://example/api" }
+        }
+        it "is ignored by the configuration core_url" do
+          expect(configuration.core_url).to eq("https://conjur/api")
         end
-
-        describe '#appliance_url' do
-          subject { super().appliance_url }
-          it { is_expected.to eq(configuration.appliance_url) }
-        end
-
-        describe '#core_url' do
-          subject { super().core_url }
-          it { is_expected.to eq(configuration.appliance_url) }
-        end
-
-        context "appliance_url overridden" do
-          let(:override_options) {
-            { :appliance_url => "https://example/api" }
-          }
-          it "is ignored by the configuration core_url" do
-            expect(configuration.core_url).to eq("https://conjur/api")
-          end
-          it "is reflected in the copy core_url" do
-            expect(subject.core_url).to eq("https://example/api")
-          end
+        it "is reflected in the copy core_url" do
+          expect(subject.core_url).to eq("https://example/api")
         end
       end
     end
   end
     
-  context "url generation" do
+  describe "url generation" do
     describe 'authn_url' do
       before {
         allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
@@ -85,7 +85,7 @@ describe Conjur::Configuration do
 
         describe '#authn_url' do
           subject { super().authn_url }
-          it { is_expected.to eq("http://example.com") }
+          it { is_expected.to eq("http://example.com/authn") }
         end
       end
       context "without appliance_url" do
@@ -95,6 +95,7 @@ describe Conjur::Configuration do
         end
       end
     end
+
     describe 'core_url' do
       before {
         allow_any_instance_of(Conjur::Configuration).to receive(:account).and_return "the-account"
