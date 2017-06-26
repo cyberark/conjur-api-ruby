@@ -16,6 +16,7 @@ Feature: Working with host factory tokens.
     @host_factory = $conjur.resource('cucumber:host_factory:myapp')
     """
 
+  @wip
   Scenario: Create a new host factory token.
     When I run the code:
     """

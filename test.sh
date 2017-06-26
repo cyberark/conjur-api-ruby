@@ -12,27 +12,32 @@ function finish {
 }
 trap finish EXIT
 
-export POSSUM_DATA_KEY="$(docker run --rm possum data-key generate)"
+possum_tag=push-image_170626_0.1.0
+possum=registry.tld/possum:${possum_tag}
+
+export POSSUM_DATA_KEY="$(docker run --rm ${possum} data-key generate)"
 
 pg_cid=$(docker run -d postgres:9.3)
 
 mkdir -p spec/reports
 
-possum_tag=push-image_170626_0.1.0
-
 server_cid=$(docker run -d \
 	--link $pg_cid:pg \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
-	registry.tld/possum:${possum_tag} server)
+	${possum} server)
 
 admin_api_key=( $(cat ci/setup-account.sh | docker exec -i $server_cid /bin/bash | tail -1) )
+
+mkdir -p spec/reports features/reports
 
 docker run \
 	-i \
 	--rm \
 	--link $pg_cid:pg \
 	--link $server_cid:possum \
+    -v $PWD/spec/reports:/src/spec/reports \
+    -v $PWD/features/reports:/src/features/reports \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
 	-e CONJUR_APPLIANCE_URL=http://possum \
