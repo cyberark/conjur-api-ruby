@@ -66,5 +66,13 @@ module Conjur
     def revoke
       Conjur::API.revoke_host_factory_token @credentials, token
     end
+
+    def ==(other)
+      other.class == self.class &&
+        other.token == self.token &&
+        other.expiration == self.expiration &&
+        other.cidr == self.cidr
+    end
+
   end
 end
