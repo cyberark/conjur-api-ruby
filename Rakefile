@@ -15,25 +15,22 @@ rescue LoadError
   warn "yard not found, yard task will be unavailable"
 end
 
-task :init_coverage do
-  require 'fileutils'
-  FileUtils.rm_rf 'coverage'
-end
+require 'fileutils'
+task(:init_coverage) { FileUtils.rm_rf 'coverage' }
+task(:cuke_report_cleanup) { FileUtils.rm_rf 'features/reports' }
 
 begin
   require 'cucumber'
   require 'cucumber/rake/task'
-  task :cucumber do
-    FileUtils.rm_rf 'features/reports'
-    Cucumber::Rake::Task.new do |t|
-      t.cucumber_opts = "--tags ~@wip --format pretty --format junit --out features/reports"
-    end.runner.run
+
+  Cucumber::Rake::Task.new(:cucumber) do |t|
+    t.cucumber_opts = "--tags ~@wip --format pretty --format junit --out features/reports"
   end
 
   begin
     require 'ci/reporter/rake/rspec'
     desc "Run the spec and cucumber suites, compute the test results and coverage statistics, build Yard docs"
-    task :jenkins => [:init_coverage, :"ci:setup:rspec", :spec, :cucumber, :yard]
+    task :jenkins => [:init_coverage, :"ci:setup:rspec", :spec, :cuke_report_cleanup, :cucumber, :yard]
     task default: [ :jenkins ]
   rescue LoadError
     warn "ci_reporter_rspec not found, jenkins task will be unavailable"
