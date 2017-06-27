@@ -22,6 +22,7 @@ server_cid=$(docker run -d \
 	-e RAILS_ENV=test \
 	$possum_image server)
 
+set -o pipefail
 admin_api_key=( $(cat ci/setup-account.sh | docker exec -i $server_cid /bin/bash | tail -1) )
 
 mkdir -p spec/reports features/reports
