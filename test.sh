@@ -9,7 +9,7 @@ function finish {
 }
 trap finish EXIT
 
-possum_tag=push-image_170626_0.1.0
+possum_tag=0.1.0-stable
 possum_image=registry.tld/possum:$possum_tag
 
 export POSSUM_DATA_KEY="$(docker run --rm $possum_image data-key generate)"
