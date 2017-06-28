@@ -287,15 +287,16 @@ module Conjur
     end
 
     # @!attribute authn_url
+    #
     # The url for the {http://developer.conjur.net/reference/services/authentication Conjur authentication service}.
     #
-    # @note You should not generally set this value.  Instead, Conjur will derive it from the
-    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
-    #   properties.
+    # By default, this will be built from the +appliance_url+. To use a custom authenticator, 
+    # set this option in code or set `CONJUR_AUTHN_URL`. 
+    #
     #
     # @return [String] the authentication service url
     add_option :authn_url do
-      global_service_url 0
+      global_service_url 0, service_name: 'authn'
     end
 
     # @!attribute core_url
@@ -395,11 +396,7 @@ module Conjur
 
     def global_service_url service_port_offset, service_name: nil
       if appliance_url
-        if service_name
-          URI.join(appliance_url + '/', service_name).to_s
-        else
-          appliance_url
-        end
+        URI.join([appliance_url, service_name].compact.join('/')).to_s
       else
         "http://localhost:#{service_base_port + service_port_offset}"
       end

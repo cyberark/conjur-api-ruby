@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 test_image=api-test
-docker build -t $test_image -f Dockerfile.test .
+docker build -t $test_image .
 
 function finish {
 	docker rm -f $pg_cid
@@ -32,8 +32,8 @@ docker run \
 	--rm \
 	--link $pg_cid:pg \
 	--link $server_cid:possum \
-    -v $PWD/spec/reports:/src/spec/reports \
-    -v $PWD/features/reports:/src/features/reports \
+    -v $PWD/spec/reports:/src/conjur-api/spec/reports \
+    -v $PWD/features/reports:/src/conjur-api/features/reports \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=test \
 	-e CONJUR_APPLIANCE_URL=http://possum \
