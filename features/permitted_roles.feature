@@ -15,6 +15,7 @@ Feature: Enumerate roles which have a permission on a resource.
     POLICY
     """
 
+  @wip
   Scenario: Permitted roles can be enumerated.
     When I run the code:
     """

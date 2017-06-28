@@ -1,4 +1,3 @@
 #!/bin/bash -ex
 
-bundle exec rake jenkins || true
-
+./test.sh
