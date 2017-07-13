@@ -1,3 +1,3 @@
 Before do
-  $conjur.load_policy 'bootstrap', "--- []"
+  $conjur.load_policy 'root', "--- []"
 end

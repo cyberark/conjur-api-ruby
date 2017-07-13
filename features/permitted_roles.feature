@@ -3,7 +3,7 @@ Feature: Enumerate roles which have a permission on a resource.
   Background:
     Given I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !variable db-password
 
     - !layer myapp

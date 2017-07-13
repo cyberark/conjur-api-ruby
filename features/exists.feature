@@ -3,7 +3,7 @@ Feature: Check if an object exists.
   Background:
     Given I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !group developers
     POLICY
     """

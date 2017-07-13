@@ -3,7 +3,7 @@ Feature: Display Variable fields.
   Background:
     Given I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !variable
       id: ssl-certificate
       kind: SSL certificate

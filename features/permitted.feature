@@ -4,7 +4,7 @@ Feature: Check if a role has permission on a resource.
     Given I run the code:
     """
     @host_id = "app-#{random_hex}"
-    response = $conjur.load_policy 'bootstrap', <<-POLICY
+    response = $conjur.load_policy 'root', <<-POLICY
     - !variable db-password
 
     - !layer myapp

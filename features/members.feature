@@ -3,7 +3,7 @@ Feature: Display role members and memberships.
   Background:
     Given I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !group everyone
     - !group developers
     - !grant
