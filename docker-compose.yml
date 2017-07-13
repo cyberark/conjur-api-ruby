@@ -14,6 +14,7 @@ services:
 
   tests:
     build: .
+    command: /src/conjur-api/ci/sleep.sh
     depends_on:
       - possum
       - postgres
