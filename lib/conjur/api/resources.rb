@@ -83,6 +83,7 @@ module Conjur
     # @option options [String]   :kind find resources whose `kind` matches this string
     # @option options [Integer]  :limit the maximum number of records to return (Conjur may return fewer)
     # @option options [Integer]  :offset offset of the first record to return
+    # @option options [Boolean]  :count return a count of records instead of the records themselves when set to true
     # @return [Array<Conjur::Resource>] the resources matching the criteria given
     def resources options = {}
       options = { host: Conjur.configuration.core_url, credentials: credentials }.merge options
