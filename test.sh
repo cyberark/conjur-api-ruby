@@ -1,13 +1,14 @@
 #!/bin/bash -ex
 
 function finish {
-  docker-compose down
+  docker-compose down --rmi
 }
-# trap finish EXIT
+trap finish EXIT
 
 # Generate reports folders locally
 mkdir -p spec/reports features/reports
 
+docker-compose down
 # Build test container & start the cluster
 docker-compose build
 docker-compose up -d
