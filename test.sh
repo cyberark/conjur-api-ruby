@@ -14,7 +14,7 @@ docker-compose up -d
 
 sleep 5
 
-docker-compose exec possum possum account create cucumber
+docker-compose exec -T possum possum account create cucumber
 
 api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
 echo "api_key: $api_key"
