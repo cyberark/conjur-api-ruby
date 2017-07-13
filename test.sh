@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 function finish {
-  docker-compose down --rmi all
+  docker-compose down
 }
 trap finish EXIT
 
