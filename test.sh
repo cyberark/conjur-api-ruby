@@ -12,10 +12,10 @@ mkdir -p spec/reports features/reports
 docker-compose build
 docker-compose up -d
 
-until [ $(docker-compose exec possum curl -X OPTIONS http://localhost) ]; do
-  sleep 1
-done
-# sleep 5
+# until [ $(docker-compose exec possum curl -X OPTIONS http://localhost) ]; do
+#   sleep 1
+# done
+sleep 10
 
 # docker-compose exec -T possum possum account create cucumber
 
