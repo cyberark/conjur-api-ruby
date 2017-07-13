@@ -1,0 +1,27 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.3
+
+  possum:
+    image: registry2.itci.conjur.net/possum:0.1.0-stable
+    command: server
+    environment:
+      DATABASE_URL: postgres://postgres@postgres/postgres
+      RAILS_ENV: test
+    depends_on:
+      - postgres
+
+  tests:
+    build: .
+    depends_on:
+      - possum
+      - postgres
+    volumes:
+      - ./spec/reports:/src/conjur-api/spec/reports
+      - ./features/reports:/src/conjur-api/features/reports
+    environment:
+      DATABASE_URL: postgres://postgres@pg/postgres
+      RAILS_ENV: test
+      CONJUR_APPLIANCE_URL: http://possum
+      CONJUR_ACCOUNT: cucumber
