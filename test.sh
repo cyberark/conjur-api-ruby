@@ -14,7 +14,7 @@ docker-compose up -d
 
 # Delay to allow time for Possum to come up
 # TODO: remove this once we have HEALTHCHECK in place
-sleep 10
+sleep 20
 
 api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
 
