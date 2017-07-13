@@ -3,7 +3,7 @@
 function finish {
   docker-compose down
 }
-trap finish EXIT
+# trap finish EXIT
 
 # Generate reports folders locally
 mkdir -p spec/reports features/reports
@@ -13,10 +13,17 @@ docker-compose build
 docker-compose up -d
 
 sleep 5
-# Generate a new account `cucumber` and extract the API key so we can log in for CI tests
-docker-compose exec -T possum possum account create cucumber >> tmp.txt
 
-api_key=$(cat tmp.txt | tail -1 | awk '{print $4}' | tr -d '\r')
+# docker-compose exec possum possum account create cucumber
+
+api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
+echo "api_key: $api_key"
+# api_key=$(cat tmp.txt | tail -1 | awk '{print $4}' | tr -d '\r')
 
 # Execute tests
-docker-compose exec tests env CONJUR_AUTHN_API_KEY="$api_key" bash -c 'ci/test.sh'
+docker-compose exec tests \
+  env CONJUR_AUTHN_API_KEY=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key") \
+  bash -c 'ci/test.sh'
+# env CONJUR_AUTHN_API_KEY=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key") \
+#     docker-compose run tests ci/test.sh
+# $(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
