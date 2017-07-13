@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   postgres:
     image: postgres:9.3
@@ -11,6 +11,11 @@ services:
       RAILS_ENV: test
     depends_on:
       - postgres
+    healthcheck:
+      test: ['CMD', 'curl', '-f', '-X OPTIONS', 'http://localhost']
+      interval: 2s
+      timeout: 1s
+      retries: 5
 
   tests:
     build: .

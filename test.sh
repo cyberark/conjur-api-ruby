@@ -12,13 +12,8 @@ mkdir -p spec/reports features/reports
 docker-compose build
 docker-compose up -d
 
-# Verify Possum is running
-# TODO: Once health-checks are in place in Possum, this line can come out.
-docker-compose exec possum bash -c 'until [ $(curl -f -X OPTIONS http://localhost) ]; do sleep 1; done;'
-
 # Generate a new account `cucumber` and extract the API key so we can log in for CI tests
 api_key=$(docker-compose exec possum possum account create cucumber | tail -1 | awk '{print $4}' | tr -d '\r')
-echo "api_key: $api_key"
 
 # Execute tests
 docker-compose exec tests env CONJUR_AUTHN_API_KEY="$api_key" bash -c 'ci/test.sh'
