@@ -24,7 +24,7 @@ echo "api_key: $api_key"
 # api_key=$(cat tmp.txt | tail -1 | awk '{print $4}' | tr -d '\r')
 
 # Execute tests
-docker-compose exec tests \
+docker-compose exec -T tests \
   env CONJUR_AUTHN_API_KEY=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key") \
   bash -c 'ci/test.sh'
 # env CONJUR_AUTHN_API_KEY=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key") \
