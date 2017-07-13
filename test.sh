@@ -1,21 +1,20 @@
 #!/bin/bash -ex
 
 function finish {
-  docker-compose down --rmi all
+  docker-compose down
 }
 trap finish EXIT
 
 # Generate reports folders locally
 mkdir -p spec/reports features/reports
 
-docker-compose down  --rmi all
 # Build test container & start the cluster
 docker-compose build
 docker-compose up -d
 
 sleep 5
 
-# docker-compose exec possum possum account create cucumber
+docker-compose exec possum possum account create cucumber
 
 api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
 echo "api_key: $api_key"

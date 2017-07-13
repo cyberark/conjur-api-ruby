@@ -7,7 +7,7 @@ services:
     # image: registry.tld/possum:0.1.0-stable
     # command: server -a cucumber
     image: registry2.itci.conjur.net/possum:0.1.0-stable
-    command: server -a cucumber
+    command: server
     environment:
       DATABASE_URL: postgres://postgres@postgres/postgres
       POSSUM_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
