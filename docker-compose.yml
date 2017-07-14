@@ -4,7 +4,7 @@ services:
     image: postgres:9.3
 
   possum:
-    image: registry2.itci.conjur.net/possum:0.1.0-stable
+    image: registry.tld/possum:0.1.0-stable
     command: server -a cucumber
     environment:
       DATABASE_URL: postgres://postgres@postgres/postgres
@@ -19,7 +19,7 @@ services:
 
   tests:
     build: .
-    command: /src/conjur-api/ci/sleep.sh
+    # command: /src/conjur-api/ci/sleep.sh
     depends_on:
       - possum
       - postgres
