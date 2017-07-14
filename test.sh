@@ -14,14 +14,14 @@ docker-compose up -d
 
 # Delay to allow time for Possum to come up
 # TODO: remove this once we have HEALTHCHECK in place
-sleep 20
+docker-compose run test ci/wait_for_server.sh
 
 api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
 
 # Execute tests
 docker-compose run --rm \
   -e CONJUR_AUTHN_API_KEY="$api_key" \
-  tests bash -c 'ci/test.sh'
+  test bash -c 'ci/test.sh'
 
 # docker-compose exec -T tests \
 #   env CONJUR_AUTHN_API_KEY="$api_key" \
