@@ -1,8 +1,10 @@
-# v5.0.0
+# v5.0.0-beta.3
 
 * Removed hard dependency on older version of `rest-client` gem.
 
-WIP
+# v5.0.0
+
+* Migrated to be compatible with Conjur 5 API.
 
 # v4.31.0
 
