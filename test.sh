@@ -9,7 +9,7 @@ trap finish EXIT
 mkdir -p spec/reports features/reports
 
 # Build test container & start the cluster
-docker-compose --pull build
+docker-compose build --pull
 docker-compose up -d
 
 # Delay to allow time for Possum to come up
