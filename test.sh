@@ -1,43 +1,28 @@
 #!/bin/bash -ex
 
-test_image=api-test
-docker build -t $test_image .
-
 function finish {
-	docker rm -f $pg_cid
-	docker rm -f $server_cid
+  docker-compose down -v
 }
 trap finish EXIT
 
-possum_tag=0.1.0-stable
-possum_image=registry.tld/possum:$possum_tag
-
-export POSSUM_DATA_KEY="$(docker run --rm $possum_image data-key generate)"
-
-pg_cid=$(docker run -d postgres:9.3)
-
-server_cid=$(docker run -d \
-	--link $pg_cid:pg \
-	-e DATABASE_URL=postgres://postgres@pg/postgres \
-	-e RAILS_ENV=test \
-	$possum_image server)
-
-set -o pipefail
-admin_api_key=( $(cat ci/setup-account.sh | docker exec -i $server_cid /bin/bash | tail -1) )
-
+# Generate reports folders locally
 mkdir -p spec/reports features/reports
 
-docker run \
-	-i \
-	--rm \
-	--link $pg_cid:pg \
-	--link $server_cid:possum \
-    -v $PWD/spec/reports:/src/conjur-api/spec/reports \
-    -v $PWD/features/reports:/src/conjur-api/features/reports \
-	-e DATABASE_URL=postgres://postgres@pg/postgres \
-	-e RAILS_ENV=test \
-	-e CONJUR_APPLIANCE_URL=http://possum \
-	-e CONJUR_ACCOUNT=cucumber \
-    -e CONJUR_AUTHN_API_KEY=${admin_api_key[3]} \
-    $test_image ci/test.sh "$@"
+# Build test container & start the cluster
+docker-compose build --pull
+docker-compose up -d
 
+# Delay to allow time for Possum to come up
+# TODO: remove this once we have HEALTHCHECK in place
+docker-compose run test ci/wait_for_server.sh
+
+api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
+
+# Execute tests
+docker-compose run --rm \
+  -e CONJUR_AUTHN_API_KEY="$api_key" \
+  test bash -c 'ci/test.sh'
+
+# docker-compose exec -T tests \
+#   env CONJUR_AUTHN_API_KEY="$api_key" \
+#   bash -c 'ci/test.sh'

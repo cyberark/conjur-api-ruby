@@ -3,7 +3,7 @@ Feature: Display basic resource fields.
   Background:
     Given I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !group
       id: developers
       annotations:
@@ -28,14 +28,14 @@ Feature: Display basic resource fields.
         "annotations": [
           {
             "name": "gidnumber",
-            "policy": "cucumber:policy:bootstrap",
+            "policy": "cucumber:policy:root",
             "value": "2000"
           }
         ],
         "owner": "cucumber:user:admin",
         "permissions": [
         ],
-        "policy": "cucumber:policy:bootstrap"
+        "policy": "cucumber:policy:root"
       }
     ]
     """
@@ -51,4 +51,3 @@ Feature: Display basic resource fields.
     $conjur.resource('cucumber:group:developers').class
     """
     Then the result should be "Conjur::Group"
-

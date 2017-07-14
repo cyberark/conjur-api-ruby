@@ -3,12 +3,12 @@ Feature: Create a host using a host factory token.
   Background:
     Given I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !policy
       id: myapp
       body:
       - !layer
-      
+
       - !host-factory
         layers: [ !layer ]
     POLICY

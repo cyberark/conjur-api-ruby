@@ -10,24 +10,24 @@ Feature: Load a policy.
       id: myapp
       body:
       - !layer
-      
+
       - !host-factory
         layers: [ !layer ]
-        
+
     - !host app-01
 
     - !grant
       role: !layer myapp
       member: !host app-01
     POLICY
-      
-    $conjur.load_policy 'bootstrap', policy
+
+    $conjur.load_policy 'root', policy
     """
 
   Scenario: The policy load reports the API keys of created roles.
     Then I can run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !host app-#{random_hex}
     POLICY
     """
@@ -38,14 +38,14 @@ Feature: Load a policy.
   Scenario: Policy contents can be replaced using POLICY_METHOD_PUT.
     Given I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !group developers
     - !group operations
     POLICY
     """
     And I run the code:
     """
-    $conjur.load_policy 'bootstrap', <<-POLICY, method: Conjur::API::POLICY_METHOD_PUT
+    $conjur.load_policy 'root', <<-POLICY, method: Conjur::API::POLICY_METHOD_PUT
     --- []
     POLICY
     """
@@ -56,6 +56,6 @@ Feature: Load a policy.
     Then the JSON should be:
     """
     [
-      "cucumber:policy:bootstrap"
+      "cucumber:policy:root"
     ]
     """

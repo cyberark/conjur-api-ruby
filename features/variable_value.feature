@@ -4,7 +4,7 @@ Feature: Work with Variable values.
     Given I run the code:
     """
     @variable_id = "password-#{random_hex}"
-    $conjur.load_policy 'bootstrap', <<-POLICY
+    $conjur.load_policy 'root', <<-POLICY
     - !variable #{@variable_id}
     - !variable #{@variable_id}-2
     POLICY
