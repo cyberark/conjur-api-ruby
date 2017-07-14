@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 1.9'
 
-  gem.add_dependency 'rest-client', '~> 2.0'
+  gem.add_dependency 'rest-client'
   gem.add_dependency 'activesupport'
 
   gem.add_development_dependency 'rake', '~> 10.0'
