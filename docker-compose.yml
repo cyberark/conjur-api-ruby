@@ -19,15 +19,11 @@ services:
 
   tests:
     build: .
-    # command: /src/conjur-api/ci/sleep.sh
     depends_on:
       - possum
-      - postgres
     volumes:
       - ./spec/reports:/src/conjur-api/spec/reports
       - ./features/reports:/src/conjur-api/features/reports
     environment:
-      DATABASE_URL: postgres://postgres@pg/postgres
-      RAILS_ENV: test
       CONJUR_APPLIANCE_URL: http://possum
       CONJUR_ACCOUNT: cucumber
