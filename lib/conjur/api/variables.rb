@@ -48,8 +48,15 @@ module Conjur
     # @return [Array<String>] a list of variable values corresponding to the variable ids.
     # @raise [RestClient::Forbidden, RestClient::ResourceNotFound] if any of the variables don't exist or aren't accessible.
     def variable_values variable_ids
-      variable_ids.map do |v|
-        resource(v).value
+      raise ArgumentError, "Variables list must be an array" unless variable_ids.kind_of? Array 
+      raise ArgumentError, "Variables list is empty" if variable_ids.empty?
+      
+      opts = "?variable_ids=#{variable_ids.map { |v| fully_escape(v) }.join(',')}"
+      begin 
+        resp = RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'+opts].get
+        return JSON.parse(resp.body) 
+      rescue RestClient::ResourceNotFound 
+        return Hash[*varlist.map { |v| [ v, variable(v).value ] }.flatten]
       end
     end
     
