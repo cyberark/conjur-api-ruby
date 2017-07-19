@@ -52,12 +52,12 @@ module Conjur
       raise ArgumentError, "Variables list is empty" if variable_ids.empty?
       
       opts = "?variable_ids=#{variable_ids.map { |v| fully_escape(v) }.join(',')}"
-      begin 
-        resp = RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'+opts].get
-        return JSON.parse(resp.body) 
-      rescue RestClient::ResourceNotFound 
-        return Hash[*varlist.map { |v| [ v, variable(v).value ] }.flatten]
-      end
+      
+      response =
+        RestClient::Resource.
+          new(Conjur.configuration.core_url,credentials)['secrets'+opts].get
+      
+      return JSON.parse(response.body) 
     end
     
     #@!endgroup
