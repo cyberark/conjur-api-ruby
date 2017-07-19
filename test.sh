@@ -9,6 +9,7 @@ trap finish EXIT
 mkdir -p spec/reports features/reports
 
 # Build test container & start the cluster
+docker-compose pull postgres possum
 docker-compose build --pull
 docker-compose up -d
 
