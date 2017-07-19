@@ -1,3 +1,7 @@
+# v5.0.0-beta.4
+
+* Support for batch secret retrieval.
+
 # v5.0.0-beta.3
 
 * Removed hard dependency on older version of `rest-client` gem.
