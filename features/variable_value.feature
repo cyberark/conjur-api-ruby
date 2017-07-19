@@ -3,7 +3,7 @@ Feature: Work with Variable values.
   Background:
     Given I run the code:
     """
-    @variable_id = "password-#{random_hex}"
+    @variable_id = "password"
     $conjur.load_policy 'root', <<-POLICY
     - !variable #{@variable_id}
     - !variable #{@variable_id}-2
@@ -60,8 +60,8 @@ Feature: Work with Variable values.
     """
     Then the JSON should be:
     """
-    [
-      "value-0",
-      "value-2"
-    ]
+    {
+      "cucumber:variable:password": "value-0",
+      "cucumber:variable:password-2": "value-2"
+    }
     """
