@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Test') {
       steps {
-        sh './test.sh'
+        sh './jenkins.sh'
 
         junit 'spec/reports/*.xml'
         junit 'features/reports/*.xml'
