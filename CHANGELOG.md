@@ -1,3 +1,7 @@
+# Latest
+
+* Changed license to Apache 2.0
+
 # v4.31.0
 
 * Internal refactor to improve performance and facilitate caching.
