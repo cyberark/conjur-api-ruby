@@ -8,3 +8,6 @@ COPY lib/conjur-api/version.rb ./lib/conjur-api/
 RUN bundle
 
 COPY . ./
+
+ENTRYPOINT ["/usr/local/bin/bundle", "exec"]
+CMD ["rake", "jenkins"]
