@@ -6,8 +6,8 @@ Gem::Specification.new do |gem|
   gem.email         = ["rafal@conjur.net","kgilpin@conjur.net"]
   gem.description   = %q{Conjur API}
   gem.summary       = %q{Conjur API}
-  gem.homepage      = "https://github.com/conjurinc/api-ruby/"
-  gem.license       = "MIT"
+  gem.homepage      = "https://github.com/cyberark/conjur-api-ruby/"
+  gem.license       = "Apache-2.0"
 
   gem.files         = `git ls-files`.split($\) + Dir['build_number']
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
