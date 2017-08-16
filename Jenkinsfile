@@ -27,7 +27,6 @@ pipeline {
         milestone(2)
         input(
           message: 'Publish to RubyGems?',
-          ok: 'PUBLISH',
           parameters: [
             booleanParam(defaultValue: false, description: 'Approve and publish this gem to RubyGems', name: 'PUBLISH')
           ],
@@ -40,6 +39,7 @@ pipeline {
     stage('Publishing to RubyGems') {
       when {
         branch 'master'
+        environment name: 'PUBLISH', value: true
       }
       steps {
         echo 'publishing!'
