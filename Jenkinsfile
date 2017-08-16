@@ -39,7 +39,7 @@ pipeline {
     stage('Publishing to RubyGems') {
       when {
         branch 'master'
-        environment name: 'PUBLISH', value: true
+        environment name: 'PUBLISH', value: 'true'
       }
       steps {
         echo 'publishing!'
