@@ -36,8 +36,11 @@ pipeline {
         milestone(3)
       }
     }
-    
+
     stage('Publishing to RubyGems') {
+      when {
+        branch 'master'
+      }
       steps {
         echo 'publishing!'
         // build(job: 'release-rubygems', parameters: [
