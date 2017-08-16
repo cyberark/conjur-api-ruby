@@ -1,29 +1,40 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 function finish {
-  docker-compose down -v
+  echo 'Removing test environment'
+  echo '---'
+  docker-compose down --rmi 'local' --volumes
 }
 trap finish EXIT
 
-# Generate reports folders locally
-mkdir -p spec/reports features/reports
+function main() {
+  # Generate reports folders locally
+  mkdir -p spec/reports features/reports
 
-# Build test container & start the cluster
-docker-compose pull postgres possum
-docker-compose build --pull
-docker-compose up -d
+  startConjur
+  runTests
+}
 
-# Delay to allow time for Possum to come up
-# TODO: remove this once we have HEALTHCHECK in place
-docker-compose run test ci/wait_for_server.sh
+function startConjur() {
+  echo 'Starting Conjur environment'
+  echo '-----'
+  docker-compose pull conjur postgres
+  docker-compose build --pull tester
+  docker-compose up -d conjur
+}
 
-api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
+function runTests() {
+  echo 'waiting for Conjur to come up...'
+  # TODO: remove this once we have HEALTHCHECK in place
+  docker-compose run --rm tester ./ci/wait_for_server.sh
 
-# Execute tests
-docker-compose run --rm \
-  -e CONJUR_AUTHN_API_KEY="$api_key" \
-  test bash -c 'ci/test.sh'
+  local api_key=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
 
-# docker-compose exec -T tests \
-#   env CONJUR_AUTHN_API_KEY="$api_key" \
-#   bash -c 'ci/test.sh'
+  echo 'Running tests'
+  echo '-----'
+  docker-compose run --rm \
+    -e CONJUR_AUTHN_API_KEY="$api_key" \
+    tester
+}
+
+main

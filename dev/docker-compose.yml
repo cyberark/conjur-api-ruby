@@ -1,26 +1,23 @@
-pg:
-  image: postgres:9.3
-  
-possum:
-  image: possum
-  command: server -a cucumber -f /run/empty.yml
-  environment:
-    DATABASE_URL: postgres://postgres@pg/postgres
-    POSSUM_ADMIN_PASSWORD: admin
-    POSSUM_DATA_KEY:
-  volumes:
-  - ./empty.yml:/run/empty.yml:ro
-  links:
-  - pg:pg
+version: '2'
+services:
+  postgres:
+    image: postgres:9.3
 
-cli:
-  build: ..
-  entrypoint: sleep
-  command: infinity
-  environment:
-    CONJUR_APPLIANCE_URL: http://possum
-    CONJUR_ACCOUNT: cucumber
-  volumes:
-  - ..:/src/conjur-api
-  links:
-  - possum:possum
+  conjur:
+    command: server -a cucumber -f /run/empty.yml
+    environment:
+      DATABASE_URL: postgres://postgres@pg/postgres
+      CONJUR_ADMIN_PASSWORD: admin
+      CONJUR_DATA_KEY:
+    volumes:
+    - ./empty.yml:/run/empty.yml:ro
+
+  conjur-cli:
+    build: ..
+    entrypoint: sleep
+    command: infinity
+    environment:
+      CONJUR_APPLIANCE_URL: http://conjur
+      CONJUR_ACCOUNT: cucumber
+    volumes:
+      - ..:/src/conjur-api-ruby

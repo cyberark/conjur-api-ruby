@@ -3,12 +3,12 @@ services:
   postgres:
     image: postgres:9.3
 
-  possum:
+  conjur:
     image: registry.tld/possum:0.1.0-stable
     command: server -a cucumber
     environment:
       DATABASE_URL: postgres://postgres@postgres/postgres
-      POSSUM_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
+      CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
     depends_on:
       - postgres
     # healthcheck:
@@ -17,13 +17,11 @@ services:
     #   timeout: 1s
     #   retries: 5
 
-  test:
+  tester:
     build: .
-    depends_on:
-      - possum
     volumes:
       - ./spec/reports:/src/conjur-api/spec/reports
       - ./features/reports:/src/conjur-api/features/reports
     environment:
-      CONJUR_APPLIANCE_URL: http://possum
+      CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
