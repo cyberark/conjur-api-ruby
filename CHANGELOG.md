@@ -1,3 +1,7 @@
+# v5.0.0.pre
+
+* Provides compatibility with [cyberark/conjur](https://github.com/cyberark/conjur), Conjur 5 CE.
+
 # v5.0.0-beta.4
 
 * Support for batch secret retrieval.
