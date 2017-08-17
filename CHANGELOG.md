@@ -1,6 +1,9 @@
+# Latest
+
 # v5.0.0.pre
 
 * Provides compatibility with [cyberark/conjur](https://github.com/cyberark/conjur), Conjur 5 CE.
+* Changed license to Apache 2.0
 
 # v5.0.0-beta.4
 
