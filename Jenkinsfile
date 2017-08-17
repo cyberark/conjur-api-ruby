@@ -19,39 +19,38 @@ pipeline {
       }
     }
 
-
+    // Only publish to RubyGems if branch is 'master'
+    // AND someone confirms this stage within 5 minutes
     stage('Publish to RubyGems') {
       when {
-        // Only publish to RubyGems if branch is 'master'
-        // AND someone confirms this stage within 1 minute.
         allOf {
-          branch 'debug-env-var-jenkins'
-          // branch 'master'
-
+          branch 'master'
           expression {
             boolean publish = false
+
             if (env.PUBLISH_GEM == "true") {
                 return true
             }
+
             try {
-              timeout(time: 1, unit: 'MINUTES') {
+              timeout(time: 5, unit: 'MINUTES') {
                 input(message: 'Publish to RubyGems?')
                 publish = true
               }
             } catch (final ignore) {
               publish = false
             }
+
             return publish
           }
         }
       }
       steps {
         milestone(2)
-        echo 'promoting!'
-        // build(job: 'release-rubygems', parameters: [
-        //   string(name: 'GEM_NAME', value: 'conjur-api'),
-        //   string(name: 'GEM_BRANCH', value: "${env.BRANCH_NAME}")
-        // ])
+        build(job: 'release-rubygems', parameters: [
+          string(name: 'GEM_NAME', value: 'conjur-api'),
+          string(name: 'GEM_BRANCH', value: "${env.BRANCH_NAME}")
+        ])
         milestone(3)
       }
     }
