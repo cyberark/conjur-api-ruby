@@ -21,7 +21,7 @@ pipeline {
 
     // Only publish to RubyGems if branch is 'master'
     // AND someone confirms this stage within 5 minutes
-    stage('Publish to RubyGems') {
+    stage('Publish to RubyGems?') {
       when {
         allOf {
           branch 'master'
