@@ -36,6 +36,12 @@ pipeline {
       }
     }
 
+    stage('Debug PUBLISH env var') {
+      steps {
+        sh 'printenv'
+      }
+    }
+
     stage('Publishing to RubyGems') {
       when {
         branch 'master'
