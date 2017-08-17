@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2015 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -287,52 +287,30 @@ module Conjur
     end
 
     # @!attribute authn_url
+    #
     # The url for the {http://developer.conjur.net/reference/services/authentication Conjur authentication service}.
     #
-    # @note You should not generally set this value.  Instead, Conjur will derive it from the
-    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
-    #   properties.
+    # By default, this will be built from the +appliance_url+. To use a custom authenticator, 
+    # set this option in code or set `CONJUR_AUTHN_URL`. 
+    #
     #
     # @return [String] the authentication service url
     add_option :authn_url do
-      account_service_url 'authn', 0
-    end
-
-    # @!attribute authz_url
-    # The url for the {http://developer.conjur.net/reference/services/authorization Conjur authorization service}.
-    #
-    # @note You should not generally set this value.  Instead, Conjur will derive it from the
-    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
-    #   properties.
-    #
-    # @return [String] the authorization service url
-    add_option :authz_url do
-      global_service_url  'authz', 100
+      global_service_url 0, service_name: 'authn'
     end
 
     # @!attribute core_url
-    # The url for the {http://developer.conjur.net/reference/services/directory Conjur core/directory service}.
+    #
+    # The url for the core Conjur services.
     #
     # @note You should not generally set this value.  Instead, Conjur will derive it from the
     #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
     #   properties.
     #
-    # @return [String] the core/directory service url
+    # @return [String] the base service url
     add_option :core_url do
-      default_service_url 'core', 200
+      global_service_url 0
     end
-
-    # @!attribute audit_url
-    # The url for the {http://developer.conjur.net/reference/services/audit Conjur audit service}.
-    #
-    # @note You should not generally set this value.  Instead, Conjur will derive it from the
-    #   {Conjur::Configuration#account} and {Conjur::Configuration#appliance_url}
-    #   properties.
-    #
-    # @return [String] the audit service url
-    add_option :audit_url do
-      global_service_url  'audit', 300
-    end    
 
     # @!attribute appliance_url
     # The url for your Conjur appliance.
@@ -368,28 +346,6 @@ module Conjur
     # @return [String]
     add_option :account, required: true
 
-
-    # @!attribute env
-    #
-    # The type of environment your program is running in (e.g., `development`, `production`, `test`).
-    #
-    # @deprecated
-    #
-    # @return [String] the environment name
-    add_option :env do
-      ENV['CONJUR_ENV'] || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || "production"
-    end
-
-    # DEPRECATED SaaS option, do not doc comment!
-    add_option :stack do
-      case env
-      when "production"
-        "v4"
-      else
-        env
-      end
-    end
-
     # @!attribute cert_file
     #
     # Path to the certificate file to use when making secure connections to your Conjur appliance.
@@ -412,8 +368,6 @@ module Conjur
     #
     # @see cert_file
     add_option :ssl_certificate
-
-
 
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
     # store used by Conjur clients.
@@ -440,43 +394,12 @@ module Conjur
 
     private
 
-    def global_service_url(service_name, service_port_offset)
+    def global_service_url service_port_offset, service_name: nil
       if appliance_url
-        URI.join(appliance_url + '/', service_name).to_s
+        URI.join([appliance_url, service_name].compact.join('/')).to_s
       else
-        case env
-        when 'test', 'development', 'appliance'
-          "http://localhost:#{service_base_port + service_port_offset}"
-        else
-          "https://#{herokuize service_name}-#{stack}-conjur.herokuapp.com"
-        end
+        "http://localhost:#{service_base_port + service_port_offset}"
       end
-    end
-    
-    def account_service_url(service_name, service_port_offset)
-      if appliance_url
-        URI.join(appliance_url + '/', service_name).to_s
-      else
-        case env
-        when 'test', 'development', 'appliance'
-          "http://localhost:#{service_base_port + service_port_offset}"
-        else
-          "https://#{herokuize service_name}-#{account}-conjur.herokuapp.com"
-        end
-      end
-    end
-    
-    def default_service_url(service_name, service_port_offset)
-      if appliance_url
-        appliance_url
-      else
-        account_service_url(service_name, service_port_offset)
-      end
-    end
-    
-    # Heroku: Name must start with a letter and can only contain lowercase letters, numbers, and dashes.
-    def herokuize name
-      name.downcase.gsub(/[^a-z0-9\-]/, '-')
     end
 
     def ensure_cert_readable!(path)
@@ -485,6 +408,5 @@ module Conjur
       # propagate.
       File.open(path) {}
     end
-
   end
 end

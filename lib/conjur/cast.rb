@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,29 +18,24 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 module Conjur
   module Cast
     protected
 
     # Convert a value to a role or resource identifier.
     #
-    # @param [String, Array, #roleid, #resourceid] obj the value to cast
-    # @param [Symbol] kind must be either `:roleid` or `:resourceid`
-    def cast(obj, kind)
-      case kind
-      when :roleid, :resourceid
-        if obj.is_a?(String)
-          obj
-        elsif obj.is_a?(Array)
-          obj.join(':')
-        elsif obj.respond_to?(kind)
-          obj.send(kind)
-        else
-          raise "I don't know how to cast a #{obj.class} to a #{kind}"
-        end
+    # @param obj the value to cast
+    def cast_to_id obj
+      result =if obj.is_a?(String) || obj.is_a?(Id)
+        obj
+      elsif obj.is_a?(Array)
+        obj.join(':')
       else
-        raise "I don't know how to convert things to a #{kind}"
+        raise "I don't know how to cast a #{obj.class} to an id"
       end
+      result = Id.new(result) unless result.is_a?(Id)
+      result
     end
   end
 end

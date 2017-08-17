@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -23,13 +23,16 @@ module Conjur
   # methods on specific asset classes (for example, {Conjur::Resource#owner}), the are available as
   # a `Hash` on all types supporting attributes.
   module HasAttributes
-    # Returns this objects {#attributes}.  This is primarily to support
-    # simple JSON serialization of Conjur assets.
-    #
-    # @param options [Hash,nil] unused, kept for compatibility reasons
-    # @see #attributes
-    def to_json(options = {})
-      attributes
+    def as_json options={}
+      result = super(options)
+      if @attributes
+        result.merge!(@attributes.as_json(options))
+      end
+      result
+    end
+    
+    def to_s
+      to_json.to_s
     end
 
     # @api private
@@ -38,58 +41,12 @@ module Conjur
     # @return [Hash] the new attributes
     def attributes=(attributes); @attributes = attributes; end
 
-    # Get the attributes for this asset.
-    #
-    # Although the `Hash` returned by this method is mutable, you should treat as immutable unless you know
-    # exactly what you're doing.  Each asset's attributes are constrained by a server side schema, which means
-    # that you will get an error if you violate the schema. and then try to save the asset.
-    #
-    #
-    # @note this method will use a cached copy of the objects attributes instead of fetching them
-    # with each call.  To ensure that the attributes are fresh, you can use the {#refresh} method
+    # Get the attributes for this asset. This is an immutable Hash, unless the attributes
+    # are changed via policy update.
     #
     # @return [Hash] the asset's attributes.
     def attributes
       return @attributes if @attributes
-      fetch
-    end
-
-
-    # Update this asset's attributes on the server.
-    #
-    #
-    # @note If the objects attributes haven't been fetched (for example, by calling {#attributes}),
-    #   this method is a no-op.
-    #
-    # Although you can manipulate an assets attributes and then call {#save}, the attributes are constrained
-    # by a server side schema, and attempting to set an attribute that doesn't exist will result in
-    # a 422 Unprocessable Entity error.
-    #
-    # If you want to set arbitrary metadata on an asset, you might consider using the {Conjur::Resource#tags}
-    # method instead.
-    #
-    # @return [void]
-    def save
-      if @attributes
-        self.put(attributes.to_json)
-      end
-    end
-    
-    # Reload this asset's attributes. This method can be used to guarantee a current view of the entity in the case
-    # that it has been modified by an update method or by an external party.
-    #
-    # @note any changes to {#attributes} without a call to #save will be overwritten by this method.
-    #
-    # @example
-    #   res = api.resources.firs
-    #   res.attributes # => {  ... }
-    #   res.attributes['hello'] = 'blah'
-    #   res.refresh
-    #   res.attributes['hello'] # => nil
-    #
-    #
-    # @return [Hash] the asset's attributes.
-    def refresh
       fetch
     end
 
@@ -106,7 +63,12 @@ module Conjur
       @attributes = nil
     end
 
+
     protected
+
+    def annotation_value name
+      (attributes['annotations'].find{|a| a['name'] == name} || {})['value']
+    end
 
     # @api private
     # Fetch the attributes, overwriting any current ones.
@@ -114,10 +76,11 @@ module Conjur
       @attributes ||= fetch_attributes
     end
 
-    def fetch_attributes # :nodoc:
-      cache_key = Conjur.cache_key self.username, self.url
+    # @api private
+    def fetch_attributes
+      cache_key = Conjur.cache_key username, rbac_resource_resource.url
       Conjur.cache.fetch_attributes cache_key do
-        JSON.parse(get.body)
+        JSON.parse(rbac_resource_resource.get.body)
       end
     end
   end

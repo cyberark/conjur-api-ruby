@@ -1,6 +1,21 @@
 # Latest
 
+# v5.0.0.pre
+
+* Provides compatibility with [cyberark/conjur](https://github.com/cyberark/conjur), Conjur 5 CE.
 * Changed license to Apache 2.0
+
+# v5.0.0-beta.4
+
+* Support for batch secret retrieval.
+
+# v5.0.0-beta.3
+
+* Removed hard dependency on older version of `rest-client` gem.
+
+# v5.0.0-beta.1
+
+* Migrated to be compatible with Conjur 5 API.
 
 # v4.31.0
 
@@ -41,7 +56,7 @@ On older server versions, the new options will be ignored by the server.
 
 * Add `Conjur::API#ldap_sync_policy` to fetch the policy to use to
   bring Conjur and the LDAP server into sync.
-  
+
 * Remove `Conjur::API#ldap_sync_now` and `Conjur::API#ldap_sync_jobs`
 
 # v4.27.0
@@ -141,7 +156,7 @@ occurs before the Conjur 4.5 server that implements `elevate` is released.
 
 # v4.16.0
   * Add ssl_certificate option to allow certs to be provided as strings (helpful in heroku)
-  * Add `Conjur::Configuration#apply_cert_config!` method to add certs from `#cert_file` and `#ssl_certificate` 
+  * Add `Conjur::Configuration#apply_cert_config!` method to add certs from `#cert_file` and `#ssl_certificate`
      to the default cert store.
 # v4.15.0
  * Extensive documentation improvements
@@ -182,6 +197,6 @@ occurs before the Conjur 4.5 server that implements `elevate` is released.
 * Tests use Rspec v3 and reset configuration between test cases
 
 
-# v.4.10.1 
+# v.4.10.1
 * Resource#exists? returns true if access to resource is forbidden
 * Thread-local configuration for working with different endpoints

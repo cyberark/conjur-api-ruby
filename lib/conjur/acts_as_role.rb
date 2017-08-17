@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -29,69 +29,120 @@ module Conjur
   # The {Conjur::ActsAsRole} module itself should be considered private, but it's methods are
   # public when added to a Conjur asset class.
   module ActsAsRole
-
-    # The qualified identifier for the role associated with this asset.  A *qualified* identifier
-    # prepends the asset's account and kind, for example, a {Conjur::User} with login `'bob'` in a
-    # system with organizational account `'conjur'` would have a `roleid` of `'conjur:user:bob'`
-    #
-    # @return [String] the qualified role id
-    def roleid
-      [ core_conjur_account, role_kind, id ].join(':')
-    end
-    alias role_id roleid
-
-    # The `kind` of a role.  This may be any value, but standard ones correspond to various high level
-    # Conjur assets, for example, `'user'`, `'group'`, or `'variable'`.
-    #
-    # Note that this method derives the role kind from the asset's class name.
-    #
-    # @return [String] the role kind
-    def role_kind
-      self.class.name.split('::')[-1].underscore
+    
+    # Login name of the role. This is formed from the role kind and role id.
+    # For users, the role kind can be omitted.
+    def login
+      [ kind, identifier ].delete_if{|t| t == "user"}.join('/')
     end
 
-    # Get a {Conjur::Role} instance corresponding to the `role` associated with this asset.
-    def role
-      require 'conjur/role'
-      Conjur::Role.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_role_id(self.roleid).join('/')]
+    # Check whether this object exists by performing a HEAD request to its URL.
+    #
+    # This method will return false if the object doesn't exist.
+    #
+    # @example
+    #   does_not_exist = api.user 'does-not-exist' # This returns without error.
+    #
+    #   # this is wrong!
+    #   owner = does_not_exist.members # raises RestClient::ResourceNotFound
+    #
+    #   # this is right!
+    #   owner = if does_not_exist.exists?
+    #     does_not_exist.members
+    #   else
+    #     nil # or some sensible default
+    #   end
+    #
+    # @return [Boolean] does it exist?
+    def exists?
+      begin
+        rbac_role_resource.head
+        true
+      rescue RestClient::Forbidden
+        true
+      rescue RestClient::ResourceNotFound
+        false
+      end
     end
 
-    # Permit the asset to perform `privilege` on `resource`.  You can also use this method to control whether the role
-    # is able to grant the privilege on the resource to other roles by passing a `:grant_option` option.
-    #
-    # This method is primarily intended for use in the
-    # {http://developer.conjur.net/reference/tools/utilities/policy-load.html Conjur Policy DSL},
-    # and simply delegates to {Conjur::Resource#permit}.  For code clarity, you might consider using
-    # that method instead.
+    # Find all roles of which this role is a member.  By default, role relationships are recursively expanded,
+    # so if `a` is a member of `b`, and `b` is a member of `c`, `a.all` will include `c`.
     #
     # ### Permissions
+    # You must be a member of the role to call this method.
     #
-    # To call this method, you must *own* the resource, or have the privilege on it with grant option set to true.
+    # You can restrict the roles returned to one or more role ids.  This feature is mainly useful
+    # for checking whether this role is a member of any of a set of roles.
     #
-    # @api dsl
-    # @param [String] privilege the privilege to allow this role to perform, e.g. `'execute'` or `'update'`
-    # @param [Conjur::Resource, #resource_id, String] resource the resource to grant `privilege` on.
-    # @param [Hash] options Options to pass through to RestClient::Resource#post
-    # @option options [Boolean] :grant_option whether this role will be able to grant the privilege to other roles.
-    # @return [void]
-    def can(privilege, resource, options = {})
-      require 'conjur/resource'
-      Conjur::Resource.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_resource_id(resource).join('/')].permit privilege, self.roleid, options
+    # ### Options
+    #
+    # * **recursive** Defaults to +true+, performs recursive expansion of the memberships.
+    #
+    # @example Show all roles of which `"conjur:group:pubkeys-1.0/key-managers"` is a member
+    #   # Add alice to the group, so we see something interesting
+    #   key_managers = api.group('pubkeys-1.0/key-managers')
+    #   key_managers.add_member api.user('alice')
+    #
+    #   # Show the memberships, mapped to the member ids.
+    #   key_managers.role.all.map(&:id)
+    #   # => ["conjur:group:pubkeys-1.0/admin", "conjur:user:alice"]
+    #
+    # @example See if role `"conjur:user:alice"` is a member of either `"conjur:groups:developers"` or `"conjur:group:ops"`
+    #   is_member = api.role('conjur:user:alice').all(filter: ['conjur:group:developers', 'conjur:group:ops']).any?
+    #
+    # @param [Hash] options options for the request
+    # @return [Array<Conjur::Role>] Roles of which this role is a member
+    def memberships options = {}
+      request = if options.delete(:recursive) == false
+        options["memberships"] = true
+      else
+        options["all"] = true
+      end
+      if filter = options.delete(:filter)
+        filter = [filter] unless filter.is_a?(Array)
+        options["filter"] = filter.map{ |obj| cast_to_id(obj) }
+      end
+
+      result = JSON.parse(rbac_role_resource[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        host = Conjur.configuration.core_url
+        result.collect do |item|
+          if item.is_a?(String)
+            build_object(item, default_class: Role)
+          else
+            RoleGrant.parse_from_json(item, self.options)
+          end
+        end
+      end
+    end
+    
+    # Fetch the direct members of this role. The results are *not* recursively expanded).
+    #
+    # ### Permissions
+    # You must be a member of the role to call this method.
+    # 
+    # @param options [Hash, nil] extra parameters to pass to the webservice method.
+    # @return [Array<Conjur::RoleGrant>] the role memberships
+    # @raise [RestClient::Forbidden] if you don't have permission to perform this operation
+    def members options = {}
+      options["members"] = true
+      result = JSON.parse(rbac_role_resource[options_querystring options].get)
+      if result.is_a?(Hash) && ( count = result['count'] )
+        count
+      else
+        result['members'].collect do |json|
+          RoleGrant.parse_from_json(json, credentials)
+        end
+      end
     end
 
-    # Deny the asset's role the ability to perform `privilege` on `resource`.  This operation is the inverse of {#can}.
-    #
-    # This method is primarily intended for use in the
-    # {http://developer.conjur.net/reference/tools/utilities/policy-load.html Conjur Policy DSL},
-    # and simply delegates to {Conjur::Resource#permit}.  For code clarity, you might consider using
-    # that method instead.
-    #
-    # @see Conjur::Resource#deny
-    #
-    # @api dsl
-    def cannot(privilege, resource, options = {})
-      require 'conjur/resource'
-      Conjur::Resource.new(Conjur::Authz::API.host, self.options)[Conjur::API.parse_resource_id(resource).join('/')].deny privilege, self.roleid
+    private
+
+    # RestClient::Resource for RBAC role operations.
+    def rbac_role_resource
+      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
     end
   end
 end

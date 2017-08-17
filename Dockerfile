@@ -1,4 +1,13 @@
-FROM ruby:1.9.3
+FROM ruby:2.3
 
-RUN mkdir /src
-WORKDIR /src
+WORKDIR /src/conjur-api
+
+COPY Gemfile conjur-api.gemspec ./
+COPY lib/conjur-api/version.rb ./lib/conjur-api/
+
+RUN bundle
+
+COPY . ./
+
+ENTRYPOINT ["/usr/local/bin/bundle", "exec"]
+CMD ["rake", "jenkins"]

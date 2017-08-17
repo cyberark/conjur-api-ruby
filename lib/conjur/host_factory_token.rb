@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 Conjur Inc
+# Copyright 2013-2017 Conjur Inc
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,45 +19,60 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 module Conjur
-  class HostFactoryToken < RestClient::Resource
-    include HasAttributes
+  class HostFactoryToken
+    def initialize data, credentials
+      @data = data
+      @credentials = credentials
+    end
     
+    # Convert the object to JSON.
+    #
+    # Fields:
+    #
+    # * token
+    # * expiration
+    # * cidr
     def to_json(options = {})
       { token: token, expiration: expiration, cidr: cidr }
     end
   
+    # Format the token as a string, using JSON format.
+    def to_s
+      to_json.to_s
+    end
+  
+    # Gets the token string.
+    #
+    # @return [String]
     def token
-      self.url.split('/')[-1]
+      @data['token']
     end    
     
-    alias id token
-    
+    # Gets the expiration.
+    #
+    # @return [DateTime]
     def expiration
-      DateTime.iso8601(attributes['expiration'])
+      DateTime.iso8601(@data['expiration'])
     end
     
-    def host_factory
-      Conjur::HostFactory.new(Conjur::API.host_factory_asset_host, options)[fully_escape attributes['host_factory']['id']]
-    end
-
+    # Gets the CIDR restriction.
+    #
+    # @return [String]
     def cidr
-      attributes['cidr']
+      @data['cidr']
     end
 
-    def revoke!
-      invalidate do
-        RestClient::Resource.new(self['revoke'].url, options).post
-      end
+    # Revokes the token, after which it cannot be used any more.
+    def revoke
+      Conjur::API.revoke_host_factory_token @credentials, token
     end
 
-    def save
-      raise "HostFactoryToken attributes are not updatable"
+    def ==(other)
+      other.class == self.class &&
+        other.token == self.token &&
+        other.expiration == self.expiration &&
+        other.cidr == self.cidr
     end
 
-    protected
-    
-    def fetch
-      raise "HostFactoryToken attributes are not fetchable"
-    end
   end
 end

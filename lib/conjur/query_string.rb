@@ -1,4 +1,5 @@
-module QueryString
+# @api private
+module Conjur::QueryString
   protected
 
   def options_querystring options
