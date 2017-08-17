@@ -19,41 +19,40 @@ pipeline {
       }
     }
 
-    stage('Publish to RubyGems?') {
+
+    stage('Publish to RubyGems') {
       when {
-        branch 'master'
+        // Only publish to RubyGems if branch is 'master'
+        // AND someone confirms this stage within 1 minute.
+        allOf {
+          branch 'debug-env-var-jenkins'
+          // branch 'master'
+
+          expression {
+            boolean publish = false
+            if (env.PUBLISH_GEM == "true") {
+                return true
+            }
+            try {
+              timeout(time: 1, unit: 'MINUTES') {
+                input(message: 'Publish to RubyGems?')
+                publish = true
+              }
+            } catch (final ignore) {
+              publish = false
+            }
+            return publish
+          }
+        }
       }
       steps {
         milestone(2)
-        input(
-          message: 'Publish to RubyGems?',
-          parameters: [
-            booleanParam(defaultValue: false, description: 'Approve and publish this gem to RubyGems', name: 'PUBLISH')
-          ],
-          submitterParameter: 'PUBLISHER'
-        )
-        milestone(3)
-      }
-    }
-
-    stage('Debug PUBLISH env var') {
-      steps {
-        sh 'printenv'
-      }
-    }
-
-    stage('Publishing to RubyGems') {
-      when {
-        branch 'master'
-        environment name: 'PUBLISH', value: 'true'
-      }
-      steps {
-        echo 'publishing!'
+        echo 'promoting!'
         // build(job: 'release-rubygems', parameters: [
         //   string(name: 'GEM_NAME', value: 'conjur-api'),
         //   string(name: 'GEM_BRANCH', value: "${env.BRANCH_NAME}")
         // ])
-        milestone(4)
+        milestone(3)
       }
     }
   }
