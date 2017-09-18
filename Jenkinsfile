@@ -46,12 +46,7 @@ pipeline {
         }
       }
       steps {
-        milestone(2)
-        build(job: 'release-rubygems', parameters: [
-          string(name: 'GEM_NAME', value: 'conjur-api'),
-          string(name: 'GEM_BRANCH', value: "${env.BRANCH_NAME}")
-        ])
-        milestone(3)
+        sh './publish.sh'
       }
     }
   }
