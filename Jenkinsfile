@@ -48,9 +48,12 @@ pipeline {
         }
       }
       steps {
+        // Clean up first
+        sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'
+
         sh './publish.sh'
 
-        // Clean up
+        // Clean up again...
         sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'
         deleteDir()
       }
