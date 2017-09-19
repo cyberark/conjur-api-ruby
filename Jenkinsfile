@@ -49,6 +49,8 @@ pipeline {
       }
       steps {
         sh './publish.sh'
+        // Clean up
+        sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'
       }
     }
   }
