@@ -22,6 +22,8 @@ pipeline {
     // Only publish to RubyGems if branch is 'master'
     // AND someone confirms this stage within 5 minutes
     stage('Publish to RubyGems?') {
+      agent { label 'releaser-v2' }
+
       when {
         allOf {
           branch 'master'
