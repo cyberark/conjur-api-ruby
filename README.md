@@ -2,6 +2,10 @@
 
 Programmatic Ruby access to the Conjur API.
 
+# Development branch
+
+This branch is for the v4 product. Please work out of the `master` branch for v5 development.
+
 # Installation
 
 Add this line to your application's Gemfile:
