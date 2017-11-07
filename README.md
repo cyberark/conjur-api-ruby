@@ -2,6 +2,8 @@
 
 Programmatic Ruby access to the Conjur API.
 
+*NOTE*: Conjur v4 users should use the `v4` branch. The `master` branch only supports Conjur v5 and newer.
+
 # Installation
 
 Add this line to your application's Gemfile:
