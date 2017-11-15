@@ -31,7 +31,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'aruba', '~> 0.12.0'
   gem.add_development_dependency 'cucumber', '~> 2.99'
   gem.add_development_dependency 'conjur-cli'
-  gem.add_development_dependency 'conjur-asset-policy'
   gem.add_development_dependency 'conjur-debify'
   gem.add_development_dependency 'ci_reporter_rspec'
   gem.add_development_dependency 'simplecov'
