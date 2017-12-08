@@ -369,6 +369,14 @@ module Conjur
     # @see cert_file
     add_option :ssl_certificate
 
+    # @!attribute major_version
+    #
+    # Selects the major API version of the Conjur server. With this setting, the API
+    # will use the routing scheme for API version `4` or `5`. 
+    #
+    # Methods which are not available in the selected version will raise NoMethodError.
+    add_option :major_version, default: 5
+
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
     # store used by Conjur clients.
     #

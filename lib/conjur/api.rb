@@ -22,6 +22,7 @@ require 'active_support'
 require 'active_support/deprecation'
 
 require 'conjur/configuration'
+require 'conjur/provider'
 require 'conjur/id'
 require 'conjur/base'
 require 'conjur/exceptions'
