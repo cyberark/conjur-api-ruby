@@ -98,7 +98,7 @@ module Conjur
           Conjur.log << "Rotating API key for self (#{username} in account #{account})\n"
         end
 
-        route_to(:authn_rotate_api_key, account, username, password).put('').body
+        route_to(:authn_rotate_own_api_key, account, username, password).put('').body
       end
 
       #@!endgroup

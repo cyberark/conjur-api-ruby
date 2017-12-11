@@ -18,12 +18,12 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)[fully_escape account]['password']
         end
 
-        def authn_rotate_api_key account, username, password
-          RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)[fully_escape account]['api_key']
+        def authn_rotate_api_key credentials, account, id
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authn'][path_escape account]["api_key?role=#{id}"]
         end
 
-        def authn_rotate_own_api_key credentials, account, id
-          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authn'][path_escape account]["api_key?role=#{id}"]
+        def authn_rotate_own_api_key account, username, password
+          RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)[fully_escape account]['api_key']
         end
 
         def host_factory_create_host token
@@ -33,7 +33,7 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, http_options)["host_factories"]["hosts"]
         end
 
-        def host_factory_create_tokens credentials
+        def host_factory_create_tokens credentials, id
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['host_factory_tokens']
         end
 

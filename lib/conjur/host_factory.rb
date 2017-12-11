@@ -47,7 +47,7 @@ module Conjur
       options[:host_factory] = id
       options[:count] = count
       options[:cidr] = cidr if cidr
-      response = JSON.parse route_to(:host_factory_create_tokens, credentials).post(options)
+      response = JSON.parse route_to(:host_factory_create_tokens, credentials, id).post(options)
       response.map do |data|
         HostFactoryToken.new data, credentials
       end
