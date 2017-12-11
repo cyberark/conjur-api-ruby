@@ -47,7 +47,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Logging in #{username} to account #{account} via Basic authentication\n"
         end
-        provider_method(:authn_login_resource, account, username, password).get
+        route_to(:authn_login, account, username, password).get
       end
 
       # Exchanges Conjur the API key (refresh token) for an access token.  The access token can 
@@ -62,7 +62,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Authenticating #{username} to account #{account}\n"
         end
-        JSON.parse provider_method(:authn_authenticate_resource, account, username, password).post(api_key, content_type: 'text/plain')
+        JSON.parse route_to(:authn_authenticate, account, username).post(api_key, content_type: 'text/plain')
       end
 
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
@@ -78,7 +78,7 @@ module Conjur
         if Conjur.log
           Conjur.log << "Updating password for #{username} in account #{account}\n"
         end
-        provider_method(:authn_update_password_resource, account, username, password).put new_password
+        route_to(:authn_update_password, account, username, password).put new_password
       end
 
       #@!endgroup
@@ -98,7 +98,7 @@ module Conjur
           Conjur.log << "Rotating API key for self (#{username} in account #{account})\n"
         end
 
-        provider_method(:authn_rotate_api_key_resource, account, username, password).put('').body
+        route_to(:authn_rotate_api_key, account, username, password).put('').body
       end
 
       #@!endgroup

@@ -142,7 +142,7 @@ module Conjur
 
     # RestClient::Resource for RBAC role operations.
     def rbac_role_resource
-      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
+      route_to(:roles_role, credentials, id)    
     end
   end
 end

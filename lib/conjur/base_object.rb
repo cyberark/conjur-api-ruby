@@ -26,6 +26,7 @@ module Conjur
     include QueryString
     include LogSource
     include BuildObject
+    include Routing
     
     attr_reader :id, :credentials
     
@@ -46,12 +47,6 @@ module Conjur
     
     def username
       credentials[:username] or raise "No username found in credentials"
-    end
-    
-    protected
-
-    def core_resource
-      RestClient::Resource.new(Conjur.configuration.core_url, credentials)
     end
   end
 end

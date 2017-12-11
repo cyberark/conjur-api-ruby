@@ -130,7 +130,7 @@ module Conjur
         logger << "Adding a value to variable #{id}"
       end
       invalidate do
-        core_resource['secrets'][id.to_url_path].post value
+        route_to(:variables_variable, credentials, id).post value
       end
     end
 
@@ -187,7 +187,7 @@ module Conjur
     # @return [String] the value of the variable
     def value version = nil, options = {}
       options['version'] = version if version
-      core_resource['secrets'][id.to_url_path][options_querystring options].get.body
+      route_to(:variables_variable, credentials, id)[options_querystring options].get.body
     end
   end
 end

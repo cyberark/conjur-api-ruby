@@ -58,8 +58,7 @@ module Conjur
     #
     # @return [String] the new API key for this user.
     def rotate_api_key
-      path = "authn/#{path_escape account}/api_key?role=#{id}"
-      core_resource[path].put('').body
+      route_to(:authn_rotate_own_api_key, credentials, account, id).put("").body
     end
   end
 end

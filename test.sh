@@ -18,7 +18,7 @@ function main() {
 function startConjur() {
   echo 'Starting Conjur environment'
   echo '-----'
-  docker-compose pull conjur postgres
+  docker-compose pull conjur pg
   docker-compose build --pull tester
   docker-compose up -d conjur
 }

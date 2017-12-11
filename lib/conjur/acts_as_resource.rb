@@ -131,7 +131,7 @@ module Conjur
     
     # RestClient::Resource for RBAC resource operations.
     def rbac_resource_resource
-      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['resources'][id.to_url_path]
+      route_to(:resources_resource, credentials, id)
     end
   end
 end

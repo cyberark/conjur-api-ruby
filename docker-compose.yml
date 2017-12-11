@@ -1,27 +1,31 @@
 version: '2.1'
 services:
-  postgres:
+  pg:
     image: postgres:9.3
 
   conjur:
-    image: registry.tld/cyberark/conjur:0.1.0-stable
+    image: cyberark/conjur
     command: server -a cucumber
     environment:
-      DATABASE_URL: postgres://postgres@postgres/postgres
+      DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
     depends_on:
-      - postgres
-    # healthcheck:
-    #   test: ['CMD', 'curl', '-f', '-X OPTIONS', 'http://localhost']
-    #   interval: 2s
-    #   timeout: 1s
-    #   retries: 5
+      - pg
 
   tester:
     build: .
     volumes:
       - ./spec/reports:/src/conjur-api/spec/reports
       - ./features/reports:/src/conjur-api/features/reports
+    environment:
+      CONJUR_APPLIANCE_URL: http://conjur
+      CONJUR_ACCOUNT: cucumber
+
+  dev:
+    build: .
+    entrypoint: bash
+    volumes:
+      - .:/src/conjur-api
     environment:
       CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber

@@ -37,8 +37,8 @@ module Conjur
   class API
     include Escape
     include LogSource
-    include Provider
-    extend  Provider
+    include Routing
+    extend  Routing
 
     class << self
       # Create a new {Conjur::API} instance from a username and a password or api key.

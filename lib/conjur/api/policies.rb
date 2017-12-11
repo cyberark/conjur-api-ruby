@@ -47,7 +47,7 @@ module Conjur
     # @param account [String] Conjur organization account
     # @param method [Symbol] Policy load method to use: {POLICY_METHOD_POST} (default), {POLICY_METHOD_PATCH}, or {POLICY_METHOD_PUT}.
     def load_policy id, policy, account: Conjur.configuration.account, method: POLICY_METHOD_POST
-      request = RestClient::Resource.new(Conjur.configuration.core_url, credentials)['policies'][path_escape account]['policy'][path_escape id]
+      request = route_to(:policies_load_policy, credentials, account, id)
       PolicyLoadResult.new JSON.parse(request.send(method, policy))
     end
 

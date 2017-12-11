@@ -44,18 +44,10 @@ module Conjur
       # @param [String] username the *unqualified* Conjur username
       # @return [String] newline delimited public keys
       def public_keys username, account: Conjur.configuration.account
-        public_keys_resource(username, account).get
+        route_to(:public_keys_for_user, account, username).get
       end
 
       #@!endgroup
-      
-      protected
-
-      # @api private
-      # Returns a RestClient::Resource with the pubkeys host and the given path.
-      def public_keys_resource username, account
-        RestClient::Resource.new(Conjur.configuration.core_url)['public_keys'][fully_escape account]['user'][path_escape username]
-      end
     end
   end
 end
