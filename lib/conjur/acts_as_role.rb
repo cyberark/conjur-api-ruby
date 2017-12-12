@@ -132,18 +132,7 @@ module Conjur
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
-        case Conjur.configuration.major_version.to_s
-        when "5"
-          result['members'].collect do |json|
-            RoleGrant.parse_from_json(json, credentials)
-          end
-        when "4"
-          result.collect do |json|
-            RoleGrant.parse_from_json(json, credentials)
-          end
-        else
-          raise "Unspported major version #{Conjur.configuration.major_version}"
-        end
+        parser_for(:members, credentials, result)
       end
     end
 
@@ -151,7 +140,7 @@ module Conjur
 
     # RestClient::Resource for RBAC role operations.
     def rbac_role_resource
-      route_to(:roles_role, credentials, id)    
+      url_for(:roles_role, credentials, id)    
     end
   end
 end

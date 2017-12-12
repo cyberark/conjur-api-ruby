@@ -56,4 +56,5 @@ function runTests4() {
     -v $PWD/tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem \
     tester_4 rake jenkins_cucumber_v4
 }
+
 main

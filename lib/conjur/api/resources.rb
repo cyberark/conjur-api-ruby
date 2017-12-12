@@ -95,7 +95,7 @@ module Conjur
         options.delete(name.to_sym)
       end
 
-      result = JSON.parse(route_to(:resources, credentials, account, kind, options).get)
+      result = JSON.parse(url_for(:resources, credentials, account, kind, options).get)
 
       result = result['count'] if result.is_a?(Hash)
 

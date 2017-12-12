@@ -1,7 +1,11 @@
 module Conjur
   module Routing
-    def route_to method, *args
+    def url_for method, *args
       router.send method, *args
+    end
+
+    def parser_for method, *args
+      router.send "parse_#{method}", *args
     end
 
     protected

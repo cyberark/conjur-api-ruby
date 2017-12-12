@@ -377,6 +377,18 @@ module Conjur
     # Methods which are not available in the selected version will raise NoMethodError.
     add_option :major_version, default: 5
 
+    # Calls a major-version-specific function.
+    def major_version_logic v4_logic, v5_logic
+      case major_version.to_s
+      when "4"
+        v4_logic.call
+      when "5"
+        v5_logic.call
+      else
+        raise "Unspported major version #{major_version}"
+      end
+    end
+
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
     # store used by Conjur clients.
     #

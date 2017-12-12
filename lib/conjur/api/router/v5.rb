@@ -4,6 +4,7 @@ module Conjur
       module V5
         extend Conjur::Escape::ClassMethods
         extend Conjur::QueryString
+        extend Conjur::Cast
         extend self
 
         def authn_login account, username, password
@@ -62,6 +63,21 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['resources'][id.to_url_path]
         end
 
+        def resources_permitted_roles credentials, id, privilege
+          options = {}
+          options[:permitted_roles] = true
+          options[:privilege] = privilege
+          resources_resource(credentials, id)[options_querystring options]
+        end
+
+        def resources_check credentials, id, privilege, role
+          options = {}
+          options[:check] = true
+          options[:privilege] = privilege
+          options[:role] = cast_to_id(role) if role
+          resources_resource(credentials, id)[options_querystring options].get
+        end
+
         def roles_role credentials, id
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
         end
@@ -79,6 +95,12 @@ module Conjur
             variable_ids: Array(variable_ids).join(',')
           }
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'][options_querystring(options).gsub("%2C", ',')]
+        end
+
+        def parse_members credentials, result
+          result['members'].collect do |json|
+            RoleGrant.parse_from_json(json, credentials)
+          end
         end
       end
     end

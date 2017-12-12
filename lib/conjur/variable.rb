@@ -130,15 +130,12 @@ module Conjur
         logger << "Adding a value to variable #{id}"
       end
       invalidate do
-        route = route_to(:secrets_add, credentials, id)
-        case Conjur.configuration.major_version.to_s
-        when "5"
-          route.post value
-        when "4"
-          route.post value: value
-        else
-          raise "Unspported major version #{Conjur.configuration.major_version}"
-        end
+        route = url_for(:secrets_add, credentials, id)
+        Conjur.configuration.major_version_logic lambda {
+            route.post value: value
+          }, lambda {
+            route.post value
+          }
       end
     end
 
@@ -153,19 +150,16 @@ module Conjur
     #
     # @return [Integer] the number of versions
     def version_count
-      case Conjur.configuration.major_version.to_s
-      when "5"
-        secrets = attributes['secrets']
-        if secrets.empty?
-          0
-        else
-          secrets.last['version']
-        end
-      when "4"
-        JSON.parse(route_to(:variable, credentials, id).get)['version_count']
-      else
-        raise "Unspported major version #{Conjur.configuration.major_version}"
-      end        
+      Conjur.configuration.major_version_logic lambda {
+          JSON.parse(url_for(:variable, credentials, id).get)['version_count']
+        }, lambda {
+          secrets = attributes['secrets']
+          if secrets.empty?
+            0
+          else
+            secrets.last['version']
+          end
+        }
     end
 
     # Return the version of a variable.
@@ -202,7 +196,7 @@ module Conjur
     # @return [String] the value of the variable
     def value version = nil, options = {}
       options['version'] = version if version
-      route_to(:secrets_value, credentials, id, options).get.body
+      url_for(:secrets_value, credentials, id, options).get.body
     end
   end
 end

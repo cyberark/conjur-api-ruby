@@ -51,7 +51,7 @@ module Conjur
       raise ArgumentError, "Variables list must be an array" unless variable_ids.kind_of? Array 
       raise ArgumentError, "Variables list is empty" if variable_ids.empty?
 
-      JSON.parse(route_to(:secrets_values, credentials, variable_ids).get.body)
+      JSON.parse(url_for(:secrets_values, credentials, variable_ids).get.body)
     end
     
     #@!endgroup

@@ -78,9 +78,9 @@ module Conjur
 
     # @api private
     def fetch_attributes
-      cache_key = Conjur.cache_key username, rbac_resource_resource.url
+      cache_key = Conjur.cache_key username, url_for(:resources_resource, credentials, id).url
       Conjur.cache.fetch_attributes cache_key do
-        JSON.parse(rbac_resource_resource.get.body)
+        JSON.parse(url_for(:resources_resource, credentials, id).get.body)
       end
     end
   end

@@ -44,7 +44,7 @@ module Conjur
       # @param [String] username the *unqualified* Conjur username
       # @return [String] newline delimited public keys
       def public_keys username, account: Conjur.configuration.account
-        route_to(:public_keys_for_user, account, username).get
+        url_for(:public_keys_for_user, account, username).get
       end
 
       #@!endgroup

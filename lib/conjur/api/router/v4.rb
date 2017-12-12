@@ -50,6 +50,18 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authz'][id.account]['resources'][id.kind][id.identifier]
         end
 
+        def resources_check credentials, id, privilege, role
+          options = {}
+          options[:check] = true
+          options[:privilege] = privilege
+          if role
+            options[:resource_id] = id
+            roles_role(credentials, Id.new(role))[options_querystring options].get
+          else
+            resources_resource(credentials, id)[options_querystring options].get
+          end
+        end
+
         def resources_permitted_roles credentials, id, privilege
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authz'][id.account]['roles']['allowed_to'][privilege][id.kind][id.identifier]
         end
@@ -77,6 +89,12 @@ module Conjur
             vars: Array(variable_ids).map { |v| fully_escape(v.identifier) }.join(',')
           }
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['variables']['values'][options_querystring options]
+        end
+
+        def parse_members credentials, result
+          result.collect do |json|
+            RoleGrant.parse_from_json(json, credentials)
+          end
         end
 
         protected
