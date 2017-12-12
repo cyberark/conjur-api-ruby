@@ -2,7 +2,25 @@
 
 Programmatic Ruby access to the Conjur API.
 
-*NOTE*: Conjur v4 users should use the `v4` branch. The `master` branch only supports Conjur v5 and newer.
+# Server Versions
+
+The Conjur server comes in two major versions:
+
+* **4.x** Conjur 4 is an commercial, non-open-source product, which is documented at [https://developer.conjur.net/])(https://developer.conjur.net/).
+* **5.x** Conjur 5 is open-source software, hosted and documeted at [https://www.conjur.org/](https://www.conjur.org/). 
+
+You can use the `master` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
+
+* Authenticate
+* Fetch secrets
+* Check permissions
+* List roles, resources, members, memberships and permitted roles.
+* Create hosts using host factory
+* Rotate API keys
+
+Use the configuration setting `Configuration.major_version` to select your server version, or set the environment variable `CONJUR_MAJOR_VERSION`. In either case, the valid values are `4` and `5`; the default is `5`.
+
+If you are using Conjur server version `4.x`, you can also choose to use the `conjur-api` version `4.x`. In this case, the `Configuration.major_version` setting is not required (actually, it doesn't exist).
 
 # Installation
 
