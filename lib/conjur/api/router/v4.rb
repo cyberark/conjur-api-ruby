@@ -42,12 +42,41 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['host_factories'][id.identifier]['tokens']
         end
 
+        def host_factory_revoke_token credentials, token
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['host_factories']['tokens'][token]
+        end
+
         def resources_resource credentials, id
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authz'][id.account]['resources'][id.kind][id.identifier]
         end
 
+        def resources_permitted_roles credentials, id, privilege
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authz'][id.account]['roles']['allowed_to'][privilege][id.kind][id.identifier]
+        end
+
         def roles_role credentials, id
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authz'][id.account]['roles'][id.kind][id.identifier]
+        end
+
+        def secrets_add credentials, id
+          verify_account(id.account)
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['variables'][fully_escape id.identifier]['values']
+        end
+
+        def variable credentials, id
+          verify_account(id.account)
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['variables'][fully_escape id.identifier]
+        end
+
+        def secrets_value credentials, id, options
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['variables'][fully_escape id.identifier]['value'][options_querystring options]
+        end
+
+        def secrets_values credentials, variable_ids
+          options = {
+            vars: Array(variable_ids).map { |v| fully_escape(v.identifier) }.join(',')
+          }
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['variables']['values'][options_querystring options]
         end
 
         protected

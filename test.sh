@@ -5,11 +5,12 @@ function finish {
   echo '---'
   docker-compose down --rmi 'local' --volumes
 }
+
 trap finish EXIT
 
 function main() {
   # Generate reports folders locally
-  mkdir -p spec/reports features/reports
+  mkdir -p spec/reports features/reports features_v4/reports
 
   startConjur
   runTests5
@@ -25,33 +26,34 @@ function startConjur() {
 }
 
 function runTests5() {
-  echo 'waiting for Conjur v5 to come up...'
+  echo 'Waiting for Conjur v5 to come up...'
   # TODO: remove this once we have HEALTHCHECK in place
-  docker-compose run --rm tester ./ci/wait_for_server.sh
+  docker-compose run --rm tester_5 ./ci/wait_for_server.sh
 
-  local api_key=$(docker-compose exec -T conjur_5 rake rake 'role:retrieve-key[cucumber:user:admin]')
+  local api_key=$(docker-compose exec -T conjur_5 rake 'role:retrieve-key[cucumber:user:admin]')
 
   echo 'Running tests'
   echo '-----'
   docker-compose run --rm \
     -e CONJUR_AUTHN_API_KEY="$api_key" \
-    tester_5
+    tester_5 rake jenkins_init jenkins_spec jenkins_cucumber_v5
 }
 
 function runTests4() {
-  echo 'waiting for Conjur v4 to come up...'
-  # TODO: remove this once we have HEALTHCHECK in place
+  echo 'Waiting for Conjur v4 to come up...'
   docker-compose exec -T conjur_4 /opt/conjur/evoke/bin/wait_for_conjur
   docker-compose exec -T conjur_4 evoke ca regenerate conjur_4
   docker-compose exec -T conjur_4 /opt/conjur/evoke/bin/wait_for_conjur
   docker-compose exec -T conjur_4 cat /opt/conjur/etc/ssl/ca.pem > ./tmp/conjur.pem
+  docker-compose exec -T conjur_4 env CONJUR_AUTHN_LOGIN=admin CONJUR_AUTHN_API_KEY=secret conjur policy load --as-group security_admin /etc/policy.yml
 
-  local api_key=$(docker-compose exec -T conjur_4 conjur-plugin-service authn rails r "puts User['admin'].api_key")
+  local api_key=$(docker-compose exec -T conjur_4 su conjur -c "conjur-plugin-service authn env RAILS_ENV=appliance rails r \"puts User['admin'].api_key\" 2>/dev/null")
 
   echo 'Running tests'
   echo '-----'
   docker-compose run --rm \
     -e CONJUR_AUTHN_API_KEY="$api_key" \
-    tester_4
+    -v $PWD/tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem \
+    tester_4 rake jenkins_cucumber_v4
 }
 main

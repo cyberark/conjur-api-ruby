@@ -132,8 +132,17 @@ module Conjur
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
-        result['members'].collect do |json|
-          RoleGrant.parse_from_json(json, credentials)
+        case Conjur.configuration.major_version.to_s
+        when "5"
+          result['members'].collect do |json|
+            RoleGrant.parse_from_json(json, credentials)
+          end
+        when "4"
+          result.collect do |json|
+            RoleGrant.parse_from_json(json, credentials)
+          end
+        else
+          raise "Unspported major version #{Conjur.configuration.major_version}"
         end
       end
     end

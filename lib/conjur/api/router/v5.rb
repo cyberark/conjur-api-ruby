@@ -66,13 +66,19 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
         end
 
-        def variables_variable credentials, id
+        def secrets_add credentials, id
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'][id.to_url_path]
         end
 
-        def variable_values credentials, variable_ids
-          opts = "?variable_ids=#{variable_ids.map { |v| fully_escape(v) }.join(',')}"
-          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'+opts]
+        def secrets_value credentials, id, options
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'][id.to_url_path][options_querystring options]
+        end
+
+        def secrets_values credentials, variable_ids
+          options = {
+            variable_ids: Array(variable_ids).join(',')
+          }
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'][options_querystring(options).gsub("%2C", ',')]
         end
       end
     end

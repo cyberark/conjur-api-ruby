@@ -1,30 +1,24 @@
 Feature: Work with Variable values.
-
   Background:
     Given I run the code:
     """
-    @variable_id = "password"
-    $conjur.load_policy 'root', <<-POLICY
-    - !variable #{@variable_id}
-    - !variable #{@variable_id}-2
-    POLICY
-    @variable = $conjur.resource("cucumber:variable:#{@variable_id}")
-    @variable_2 = $conjur.resource("cucumber:variable:#{@variable_id}-2")
+    @variable = $conjur.resource("cucumber:variable:db-password")
+    @variable_2 = $conjur.resource("cucumber:variable:ssh-key")
     """
 
   Scenario: Add a value, retrieve the variable metadata and the value.
-    When I run the code:
+    Given I run the code:
     """
     @initial_count = @variable.version_count
     @variable.add_value 'value-0'
     """
-    And I run the code:
+    When I run the code:
     """
     expect(@variable.version_count).to eq(@initial_count + 1)
     """
     And I run the code:
     """
-    @variable.value(@variable.version_count)
+    @variable.value
     """
     Then the result should be "value-0"
 
@@ -37,7 +31,7 @@ Feature: Work with Variable values.
     """
     When I run the code:
     """
-    @variable.value(@variable.version_count - 2)
+    @variable.value(1)
     """
     Then the result should be "value-0"
 
@@ -54,7 +48,7 @@ Feature: Work with Variable values.
     Then the JSON should be:
     """
     {
-      "cucumber:variable:password": "value-0",
-      "cucumber:variable:password-2": "value-2"
+      "db-password": "value-0",
+      "ssh-key": "value-2"
     }
     """

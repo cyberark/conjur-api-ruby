@@ -18,4 +18,5 @@ $password = ENV['CONJUR_AUTHN_API_KEY'] || 'secret'
 $api_key = Conjur::API.login $username, $password
 $conjur = Conjur::API.new_from_key $username, $api_key
 
-$token = $conjur.resource('cucumber:host_factory:myapp').create_token(Time.now + 1.hour)
+$host_factory = $conjur.resource('cucumber:host_factory:myapp')
+$token = $host_factory.create_token(Time.now + 1.hour)

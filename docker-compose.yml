@@ -16,6 +16,8 @@ services:
     image: registry2.itci.conjur.net/conjur-appliance-cuke-master:4.9-stable
     security_opt:
       - seccomp:unconfined
+    volumes:
+      - ./features_v4/support/policy.yml:/etc/policy.yml:ro
 
   tester_5:
     build: .
@@ -31,7 +33,7 @@ services:
     volumes:
       - ./features_v4/reports:/src/conjur-api/features_v4/reports
     environment:
-      CONJUR_APPLIANCE_URL: http://conjur_4/api
+      CONJUR_APPLIANCE_URL: https://conjur_4/api
       CONJUR_MAJOR_VERSION: 4
       CONJUR_ACCOUNT: cucumber
 

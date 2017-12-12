@@ -88,10 +88,18 @@ module Conjur
     # @param privilege [String] the privilege
     # @return [Array<String>] the ids of roles that have `privilege` on this resource.
     def permitted_roles privilege
-      options = {}
-      options[:permitted_roles] = true
-      options[:privilege] = privilege
-      result = JSON.parse rbac_resource_resource[options_querystring options].get
+      result = case Conjur.configuration.major_version.to_s
+      when "5"
+        options = {}
+        options[:permitted_roles] = true
+        options[:privilege] = privilege
+        JSON.parse rbac_resource_resource[options_querystring options].get
+      when "4"
+        JSON.parse route_to(:resources_permitted_roles, credentials, id, privilege).get
+      else
+        raise "Unspported major version #{Conjur.configuration.major_version}"
+      end
+
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
@@ -118,8 +126,21 @@ module Conjur
       options = {}
       options[:check] = true
       options[:privilege] = privilege
-      options[:role] = cast_to_id(role) if role
-      rbac_resource_resource[options_querystring options].get
+
+      case Conjur.configuration.major_version.to_s
+      when "5"
+        options[:role] = cast_to_id(role) if role
+        rbac_resource_resource[options_querystring options].get
+      when "4"
+        if role
+          options[:resource_id] = self.id
+          route_to(:roles_role, credentials, Id.new(role))[options_querystring options].get
+        else
+          rbac_resource_resource[options_querystring options].get
+        end            
+      else
+        raise "Unspported major version #{Conjur.configuration.major_version}"
+      end
       true
     rescue RestClient::Forbidden
       false
