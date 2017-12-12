@@ -24,7 +24,7 @@ begin
   require 'cucumber/rake/task'
 
   Cucumber::Rake::Task.new(:cucumber_4) do |t|
-    t.cucumber_opts = "--tags ~@wip --format pretty --format junit --out features/reports -r features_v4/step_definitions/ -r features_v4/support/ features_v4/"
+    t.cucumber_opts = "--tags ~@wip --format pretty --format junit --out features_v4/reports -r features_v4/step_definitions/ -r features_v4/support/ features_v4/"
   end
 
   Cucumber::Rake::Task.new(:cucumber_5) do |t|
