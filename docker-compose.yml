@@ -26,6 +26,7 @@ services:
       - ./features/reports:/src/conjur-api/features/reports
     environment:
       CONJUR_APPLIANCE_URL: http://conjur_5
+      CONJUR_VERSION: 5
       CONJUR_ACCOUNT: cucumber
 
   tester_4:

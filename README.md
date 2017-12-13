@@ -124,15 +124,16 @@ The file `docker-compose.yml` is a self-contained development environment for th
 To bring it up, run:
 
 ```sh-session
+$ docker-compose build
 $ docker-compose up -d pg conjur_4 conjur_5
 ```
 
 Then configure the v4 and v5 servers:
 
 ```sh-session
-$ ./ci/configure_v4
+$ ./ci/configure_v4.sh
 ...
-$ ./ci/configure_v5
+$ ./ci/configure_v5.sh
 ...
 ```
 

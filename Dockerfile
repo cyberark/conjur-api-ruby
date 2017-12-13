@@ -1,5 +1,7 @@
 FROM ruby:2.3
 
+RUN apt-get update && apt-get install -y vim curl
+
 WORKDIR /src/conjur-api
 
 COPY Gemfile conjur-api.gemspec ./

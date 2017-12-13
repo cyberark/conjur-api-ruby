@@ -12,6 +12,9 @@ Conjur.configuration.cert_file = "./tmp/conjur.pem"
 Conjur.configuration.version = 4
 Conjur.configuration.apply_cert_config!
 
+puts "Configured with Conjur version: #{Conjur.configuration.version}"
+puts
+
 api_key = Conjur::API.login username, password
 api = Conjur::API.new_from_key username, api_key
 

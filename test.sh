@@ -13,8 +13,8 @@ function main() {
   mkdir -p spec/reports features/reports features_v4/reports
 
   startConjur
-  runTests5
-  runTests4
+  runTests_5
+  runTests_4
 }
 
 function startConjur() {
@@ -25,7 +25,7 @@ function startConjur() {
   docker-compose up -d pg conjur_4 conjur_5
 }
 
-function runTests5() {
+function runTests_5() {
   echo 'Waiting for Conjur v5 to come up, and configuring it...'
   ./ci/configure_v5.sh
 
@@ -38,7 +38,7 @@ function runTests5() {
     tester_5 rake jenkins_init jenkins_spec jenkins_cucumber_v5
 }
 
-function runTests4() {
+function runTests_4() {
   echo 'Waiting for Conjur v4 to come up, and configuring it...'
   ./ci/configure_v4.sh
 

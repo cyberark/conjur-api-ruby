@@ -14,6 +14,9 @@ Conjur.configuration.account = "cucumber"
 # This is the default
 # Conjur.configuration.version = 5
 
+puts "Configured with Conjur version: #{Conjur.configuration.version}"
+puts
+
 api = Conjur::API.new_from_key username, api_key
 
 policy = File.read("features_v4/support/policy.yml")
