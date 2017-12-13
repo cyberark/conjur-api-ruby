@@ -131,7 +131,7 @@ module Conjur
       end
       invalidate do
         route = url_for(:secrets_add, credentials, id)
-        Conjur.configuration.major_version_logic lambda {
+        Conjur.configuration.version_logic lambda {
             route.post value: value
           }, lambda {
             route.post value
@@ -150,7 +150,7 @@ module Conjur
     #
     # @return [Integer] the number of versions
     def version_count
-      Conjur.configuration.major_version_logic lambda {
+      Conjur.configuration.version_logic lambda {
           JSON.parse(url_for(:variable, credentials, id).get)['version_count']
         }, lambda {
           secrets = attributes['secrets']

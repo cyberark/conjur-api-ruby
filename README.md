@@ -18,9 +18,9 @@ You can use the `master` branch of this project, which is `conjur-api` version `
 * Create hosts using host factory
 * Rotate API keys
 
-Use the configuration setting `Configuration.major_version` to select your server version, or set the environment variable `CONJUR_MAJOR_VERSION`. In either case, the valid values are `4` and `5`; the default is `5`.
+Use the configuration setting `Configuration.version` to select your server version, or set the environment variable `CONJUR_VERSION`. In either case, the valid values are `4` and `5`; the default is `5`.
 
-If you are using Conjur server version `4.x`, you can also choose to use the `conjur-api` version `4.x`. In this case, the `Configuration.major_version` setting is not required (actually, it doesn't exist).
+If you are using Conjur server version `4.x`, you can also choose to use the `conjur-api` version `4.x`. In this case, the `Configuration.version` setting is not required (actually, it doesn't exist).
 
 # Installation
 

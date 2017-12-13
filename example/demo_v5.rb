@@ -12,7 +12,7 @@ api_key = arguments.shift or raise "Usage: ./demo_v5 <admin-api-key>"
 Conjur.configuration.appliance_url = "http://conjur_5"
 Conjur.configuration.account = "cucumber"
 # This is the default
-# Conjur.configuration.major_version = 5
+# Conjur.configuration.version = 5
 
 api = Conjur::API.new_from_key username, api_key
 

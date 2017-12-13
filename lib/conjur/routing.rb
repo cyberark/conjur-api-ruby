@@ -14,7 +14,7 @@ module Conjur
       require 'conjur/api/router/v4'
       require 'conjur/api/router/v5'
 
-      variable_id = "@v#{Conjur.configuration.major_version}_router"
+      variable_id = "@v#{Conjur.configuration.version}_router"
       router = instance_variable_get variable_id
       if router.nil?
         router = instance_variable_set variable_id, router_for_version
@@ -23,7 +23,7 @@ module Conjur
     end
 
     def router_for_version
-      Conjur::API::Router.const_get("V#{Conjur.configuration.major_version}")
+      Conjur::API::Router.const_get("V#{Conjur.configuration.version}")
     end
   end
 end

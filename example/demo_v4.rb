@@ -9,7 +9,7 @@ password = "secret"
 Conjur.configuration.appliance_url = "https://conjur_4/api"
 Conjur.configuration.account = "cucumber"
 Conjur.configuration.cert_file = "./tmp/conjur.pem"
-Conjur.configuration.major_version = 4
+Conjur.configuration.version = 4
 Conjur.configuration.apply_cert_config!
 
 api_key = Conjur::API.login username, password

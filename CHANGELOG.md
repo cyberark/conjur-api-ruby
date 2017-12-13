@@ -3,7 +3,7 @@
 # v5.1.0
 
 * Introduces backwards compatibility with Conjur 4.x for most API methods.
-* Adds the configuration setting `major_version`, which is auto-populated from the environment variable `CONJUR_MAJOR_VERSION`.
+* Adds the configuration setting `version`, which is auto-populated from the environment variable `CONJUR_VERSION`.
 
 # v5.0.0
 
