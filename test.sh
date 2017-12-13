@@ -26,9 +26,8 @@ function startConjur() {
 }
 
 function runTests5() {
-  echo 'Waiting for Conjur v5 to come up...'
-  # TODO: remove this once we have HEALTHCHECK in place
-  docker-compose run --rm tester_5 ./ci/wait_for_server.sh
+  echo 'Waiting for Conjur v5 to come up, and configuring it...'
+  ./ci/configure_v5.sh
 
   local api_key=$(docker-compose exec -T conjur_5 rake 'role:retrieve-key[cucumber:user:admin]')
 
@@ -40,12 +39,8 @@ function runTests5() {
 }
 
 function runTests4() {
-  echo 'Waiting for Conjur v4 to come up...'
-  docker-compose exec -T conjur_4 /opt/conjur/evoke/bin/wait_for_conjur
-  docker-compose exec -T conjur_4 evoke ca regenerate conjur_4
-  docker-compose exec -T conjur_4 /opt/conjur/evoke/bin/wait_for_conjur
-  docker-compose exec -T conjur_4 cat /opt/conjur/etc/ssl/ca.pem > ./tmp/conjur.pem
-  docker-compose exec -T conjur_4 env CONJUR_AUTHN_LOGIN=admin CONJUR_AUTHN_API_KEY=secret conjur policy load --as-group security_admin /etc/policy.yml
+  echo 'Waiting for Conjur v4 to come up, and configuring it...'
+  ./ci/configure_v4.sh
 
   local api_key=$(docker-compose exec -T conjur_4 su conjur -c "conjur-plugin-service authn env RAILS_ENV=appliance rails r \"puts User['admin'].api_key\" 2>/dev/null")
 

@@ -115,7 +115,69 @@ Conjur::API.new_from_key login, api_key
 Note that if you are connecting as a [Host](http://developer.conjur.net/reference/services/directory/host), the login should be 
 prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.example.com`.
 
-## Contributing
+# Development
+
+The file `docker-compose.yml` is a self-contained development environment for the project.
+
+## Starting
+
+To bring it up, run:
+
+```sh-session
+$ docker-compose up -d pg conjur_4 conjur_5
+```
+
+Then configure the v4 and v5 servers:
+
+```sh-session
+$ ./ci/configure_v4
+...
+$ ./ci/configure_v5
+...
+```
+
+## Using
+
+Obtain the API key for the v5 admin user:
+
+```
+$ docker-compose exec conjur_5 rake 'role:retrieve-key[cucumber:user:admin]'
+3aezp05q3wkem3hmegymwzz8wh3bs3dr6xx3y3m2q41k5ymebkc
+```
+
+The password of the v4 admin user is "secret".
+
+Now you can run the client `dev` container:
+
+```sh-session
+$ docker-compose run --rm dev
+```
+
+This gives you a shell session with `conjur_4` and `conjur_5` available as linked containers.
+
+## Demos
+
+For a v5 demo, run:
+
+```sh-session
+$ bundle exec ./example/demo_v5.rb <admin-api-key>
+```
+
+For a v4 demo, run:
+
+```sh-session
+$ bundle exec ./example/demo_v4.rb
+```
+
+## Stopping
+
+To bring it down, run:
+
+```sh-session
+$ docker-compose down
+```
+
+# Contributing
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
@@ -123,7 +185,7 @@ prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-## License
+# License
 
 Copyright 2016-2017 CyberArk
 
