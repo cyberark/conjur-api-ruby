@@ -6,8 +6,8 @@ Programmatic Ruby access to the Conjur API.
 
 The Conjur server comes in two major versions:
 
-* **4.x** Conjur 4 is an commercial, non-open-source product, which is documented at [https://developer.conjur.net/])(https://developer.conjur.net/).
-* **5.x** Conjur 5 is open-source software, hosted and documeted at [https://www.conjur.org/](https://www.conjur.org/). 
+* **4.x** Conjur 4 is a commercial, non-open-source product, which is documented at [https://developer.conjur.net/])(https://developer.conjur.net/).
+* **5.x** Conjur 5 is open-source software, hosted and documented at [https://www.conjur.org/](https://www.conjur.org/). 
 
 You can use the `master` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
 
