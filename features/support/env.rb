@@ -7,6 +7,7 @@ require 'conjur/api'
 
 Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://localhost/api/v6'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
+Conjur.configuration.authn_local_socket = "/run/authn-local-5/.socket"
 
 $username = ENV['CONJUR_AUTHN_LOGIN'] || 'admin'
 $password = ENV['CONJUR_AUTHN_API_KEY'] || 'secret'

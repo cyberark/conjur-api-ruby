@@ -57,7 +57,7 @@ module Conjur
       # @param [String] remote_ip the optional IP address to be recorded in the audit record.
       # @param [String] account The organization account.
       # @return [Conjur::API] an api that will authenticate with the given username and api key.
-      def new_from_key username, api_key, remote_ip: nil, account: Conjur.configuration.account
+      def new_from_key username, api_key, account: Conjur.configuration.account, remote_ip: nil
         self.new.init_from_key username, api_key, remote_ip: remote_ip, account: account
       end
 
@@ -103,6 +103,19 @@ module Conjur
       def new_from_token_file token_file, remote_ip: nil
         self.new.init_from_token_file token_file, remote_ip: remote_ip
       end
+
+      # Create a new {Conjur::API} instance which authenticates using +authn-local+
+      # using the specified username.
+      # 
+      # @param [String] username the username to use when making authenticated requests.
+      # @param [String] account The organization account.
+      # @param [String] remote_ip the optional IP address to be recorded in the audit record.
+      # @param [String] expiration the optional expiration time of the token (supported in V5 only).
+      # @param [String] cidr the optional CIDR restriction on the token (supported in V5 only).
+      # @return [Conjur::API] an api that will authenticate with the given username.
+      def new_from_authn_local username, account: Conjur.configuration.account, remote_ip: nil, expiration: nil, cidr: nil
+        self.new.init_from_authn_local username, account: account, remote_ip: remote_ip, expiration: expiration, cidr: cidr
+      end
     end
 
     #@!attribute [r] api_key
@@ -141,6 +154,12 @@ module Conjur
       return @token
     end
 
+    # @api private
+    # Force the API to obtain a new access token on the next invocation.
+    def force_token_refresh
+      @token = nil
+    end
+
     # Credentials that can be merged with options to be passed to `RestClient::Resource` HTTP request methods.
     # These include a username and an Authorization header containing the authentication token.
     #
@@ -176,6 +195,10 @@ module Conjur
         token_age > TOKEN_STALE
       end
 
+      def update_token_born
+        self.token_born = gettime
+      end
+
       def token_age
         gettime - token_born
       end
@@ -202,8 +225,29 @@ module Conjur
         end
       end
 
-      def update_token_born
-        self.token_born = gettime
+      def gettime
+        monotonic_time
+      end
+    end
+
+    # Obtains access tokens from the +authn-local+ service.
+    class LocalAuthenticator
+      include TokenExpiration
+
+      attr_reader :account, :username, :expiration, :cidr
+
+      def initialize account, username, expiration, cidr
+        @account = account
+        @username = username
+        @expiration = expiration
+        @cidr = cidr
+        update_token_born
+      end
+
+      def refresh_token
+        Conjur::API.authenticate_local(username, account: account, expiration: expiration, cidr: cidr).tap do
+          update_token_born
+        end
       end
 
       def gettime
@@ -257,7 +301,7 @@ module Conjur
       end
     end
 
-    def init_from_key username, api_key, remote_ip: nil, account: Conjur.configuration.account
+    def init_from_key username, api_key, account: Conjur.configuration.account, remote_ip: nil
       @username = username
       @api_key = api_key
       @remote_ip = remote_ip
@@ -275,6 +319,14 @@ module Conjur
     def init_from_token_file token_file, remote_ip: nil
       @remote_ip = remote_ip
       @authenticator = TokenFileAuthenticator.new(token_file)
+      self
+    end
+
+    def init_from_authn_local username, account: Conjur.configuration.account, remote_ip: nil, expiration: nil, cidr: nil
+      @username = username
+      @api_key = api_key
+      @remote_ip = remote_ip
+      @authenticator = LocalAuthenticator.new(account, username, expiration, cidr)
       self
     end
 

@@ -65,6 +65,24 @@ module Conjur
         JSON.parse url_for(:authn_authenticate, account, username).post(api_key, content_type: 'text/plain')
       end
 
+      # Obtains an access token from the +authn_local+ service. The access token can 
+      # then be used to authenticate further API calls.
+      #
+      # @param [String] username The username or host id for which we want a token
+      # @param [String] account The organization account.
+      # @return [String] A JSON formatted authentication token.
+      def authenticate_local username, account: Conjur.configuration.account, expiration: nil, cidr: nil
+        account ||= Conjur.configuration.account
+        if Conjur.log
+          Conjur.log << "Authenticating #{username} to account #{account} using authn_local\n"
+        end
+
+        require 'json'
+        require 'socket'
+        message = url_for(:authn_authenticate_local, username, account, expiration, cidr)
+        JSON.parse(UNIXSocket.open(Conjur.configuration.authn_local_socket) {|s| s.puts message; s.gets })        
+      end
+
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate
       #   api keys. However, you *can* use the user's api key as the *current* password, if the user was not created
       #   with a password.
