@@ -31,7 +31,7 @@ Feature: Work with Variable values.
     """
     When I run the code:
     """
-    @variable.value(1)
+    @variable.value(@variable.version_count - 2)
     """
     Then the result should be "value-0"
 

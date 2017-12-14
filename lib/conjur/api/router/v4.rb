@@ -91,6 +91,37 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['variables']['values'][options_querystring options]
         end
 
+        def group_attributes credentials, resource, id
+          verify_account(id.account)
+          JSON.parse(RestClient::Resource.new(Conjur.configuration.core_url, credentials)['groups'][fully_escape id.identifier].get)
+        end
+
+        def variable_attributes credentials, resource, id
+          verify_account(id.account)
+          JSON.parse(RestClient::Resource.new(Conjur.configuration.core_url, credentials)['variables'][fully_escape id.identifier].get)
+        end
+
+        def user_attributes credentials, resource, id
+          verify_account(id.account)
+          JSON.parse(RestClient::Resource.new(Conjur.configuration.core_url, credentials)['users'][fully_escape id.identifier].get)
+        end
+
+        def parse_group_gidnumber attributes
+          attributes['gidnumber']
+        end
+
+        def parse_user_uidnumber attributes
+          attributes['uidnumber']
+        end
+
+        def parse_variable_kind attributes
+          attributes['kind']
+        end
+
+        def parse_variable_mime_type attributes
+          attributes['mime_type']
+        end
+
         def parse_members credentials, result
           result.collect do |json|
             RoleGrant.parse_from_json(json, credentials)
