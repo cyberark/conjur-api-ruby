@@ -47,7 +47,7 @@ module Conjur
       options[:host_factory] = id
       options[:count] = count
       options[:cidr] = cidr if cidr
-      response = JSON.parse core_resource['host_factory_tokens'].post(options)
+      response = JSON.parse url_for(:host_factory_create_tokens, credentials, id).post(options)
       response.map do |data|
         HostFactoryToken.new data, credentials
       end

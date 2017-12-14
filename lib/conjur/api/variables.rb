@@ -50,14 +50,8 @@ module Conjur
     def variable_values variable_ids
       raise ArgumentError, "Variables list must be an array" unless variable_ids.kind_of? Array 
       raise ArgumentError, "Variables list is empty" if variable_ids.empty?
-      
-      opts = "?variable_ids=#{variable_ids.map { |v| fully_escape(v) }.join(',')}"
-      
-      response =
-        RestClient::Resource.
-          new(Conjur.configuration.core_url,credentials)['secrets'+opts].get
-      
-      return JSON.parse(response.body) 
+
+      JSON.parse(url_for(:secrets_values, credentials, variable_ids).get.body)
     end
     
     #@!endgroup

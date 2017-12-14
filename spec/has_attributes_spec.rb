@@ -4,6 +4,8 @@ describe Conjur::HasAttributes do
   class ObjectWithAttributes
     include Conjur::HasAttributes
 
+    def id; "the-object"; end
+    def credentials; {}; end
     def username; 'alice'; end
     def url; 'http://example.com/the-object'; end
   end
@@ -18,8 +20,8 @@ describe Conjur::HasAttributes do
   let(:rbac_resource_resource) { double(:rbac_resource_resource, url: object.url) }
 
   before {
-    allow(object).to receive(:rbac_resource_resource).and_return(rbac_resource_resource)
-    allow(second_object).to receive(:rbac_resource_resource).and_return(rbac_resource_resource)
+    allow(object).to receive(:url_for).with(:resources_resource, {}, "the-object").and_return(rbac_resource_resource)
+    allow(second_object).to receive(:url_for).with(:resources_resource, {}, "the-object").and_return(rbac_resource_resource)
     expect(rbac_resource_resource).to receive(:get).with(no_args).and_return(double(:response, body: attributes.to_json))
   }
 

@@ -16,6 +16,7 @@ pipeline {
 
         junit 'spec/reports/*.xml'
         junit 'features/reports/*.xml'
+        junit 'features_v4/reports/*.xml'
       }
     }
 

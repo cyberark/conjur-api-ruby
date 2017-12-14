@@ -61,7 +61,7 @@ module Conjur
     # @return [Boolean] does it exist?
     def exists?
       begin
-        rbac_resource_resource.head
+        url_for(:resources_resource, credentials, id).head
         true
       rescue RestClient::Forbidden
         true
@@ -88,10 +88,7 @@ module Conjur
     # @param privilege [String] the privilege
     # @return [Array<String>] the ids of roles that have `privilege` on this resource.
     def permitted_roles privilege
-      options = {}
-      options[:permitted_roles] = true
-      options[:privilege] = privilege
-      result = JSON.parse rbac_resource_resource[options_querystring options].get
+      result = JSON.parse url_for(:resources_permitted_roles, credentials, id, privilege).get
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
@@ -115,23 +112,12 @@ module Conjur
     #   instead of checking +api.current_role+.
     # @return [Boolean]
     def permitted? privilege, role: nil
-      options = {}
-      options[:check] = true
-      options[:privilege] = privilege
-      options[:role] = cast_to_id(role) if role
-      rbac_resource_resource[options_querystring options].get
+      url_for(:resources_check, credentials, id, privilege, role)
       true
     rescue RestClient::Forbidden
       false
     rescue RestClient::ResourceNotFound
       false
-    end
-
-    private
-    
-    # RestClient::Resource for RBAC resource operations.
-    def rbac_resource_resource
-      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['resources'][id.to_url_path]
     end
   end
 end

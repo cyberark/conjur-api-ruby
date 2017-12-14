@@ -95,12 +95,7 @@ module Conjur
         options.delete(name.to_sym)
       end
 
-      credentials ||= {}
-
-      path = "/resources/#{path_escape account}" 
-      path += "/#{path_escape kind}" if kind
-
-      result = JSON.parse(RestClient::Resource.new(Conjur.configuration.core_url, credentials)[path][options_querystring options].get)
+      result = JSON.parse(url_for(:resources, credentials, account, kind, options).get)
 
       result = result['count'] if result.is_a?(Hash)
 

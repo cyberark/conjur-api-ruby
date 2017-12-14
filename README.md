@@ -2,7 +2,25 @@
 
 Programmatic Ruby access to the Conjur API.
 
-*NOTE*: Conjur v4 users should use the `v4` branch. The `master` branch only supports Conjur v5 and newer.
+# Server Versions
+
+The Conjur server comes in two major versions:
+
+* **4.x** Conjur 4 is a commercial, non-open-source product, which is documented at [https://developer.conjur.net/])(https://developer.conjur.net/).
+* **5.x** Conjur 5 is open-source software, hosted and documented at [https://www.conjur.org/](https://www.conjur.org/). 
+
+You can use the `master` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
+
+* Authenticate
+* Fetch secrets
+* Check permissions
+* List roles, resources, members, memberships and permitted roles.
+* Create hosts using host factory
+* Rotate API keys
+
+Use the configuration setting `Configuration.version` to select your server version, or set the environment variable `CONJUR_VERSION`. In either case, the valid values are `4` and `5`; the default is `5`.
+
+If you are using Conjur server version `4.x`, you can also choose to use the `conjur-api` version `4.x`. In this case, the `Configuration.version` setting is not required (actually, it doesn't exist).
 
 # Installation
 
@@ -97,7 +115,70 @@ Conjur::API.new_from_key login, api_key
 Note that if you are connecting as a [Host](http://developer.conjur.net/reference/services/directory/host), the login should be 
 prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.example.com`.
 
-## Contributing
+# Development
+
+The file `docker-compose.yml` is a self-contained development environment for the project.
+
+## Starting
+
+To bring it up, run:
+
+```sh-session
+$ docker-compose build
+$ docker-compose up -d pg conjur_4 conjur_5
+```
+
+Then configure the v4 and v5 servers:
+
+```sh-session
+$ ./ci/configure_v4.sh
+...
+$ ./ci/configure_v5.sh
+...
+```
+
+## Using
+
+Obtain the API key for the v5 admin user:
+
+```
+$ docker-compose exec conjur_5 rake 'role:retrieve-key[cucumber:user:admin]'
+3aezp05q3wkem3hmegymwzz8wh3bs3dr6xx3y3m2q41k5ymebkc
+```
+
+The password of the v4 admin user is "secret".
+
+Now you can run the client `dev` container:
+
+```sh-session
+$ docker-compose run --rm dev
+```
+
+This gives you a shell session with `conjur_4` and `conjur_5` available as linked containers.
+
+## Demos
+
+For a v5 demo, run:
+
+```sh-session
+$ bundle exec ./example/demo_v5.rb <admin-api-key>
+```
+
+For a v4 demo, run:
+
+```sh-session
+$ bundle exec ./example/demo_v4.rb
+```
+
+## Stopping
+
+To bring it down, run:
+
+```sh-session
+$ docker-compose down
+```
+
+# Contributing
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
@@ -105,7 +186,7 @@ prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-## License
+# License
 
 Copyright 2016-2017 CyberArk
 

@@ -132,9 +132,7 @@ module Conjur
       if result.is_a?(Hash) && ( count = result['count'] )
         count
       else
-        result['members'].collect do |json|
-          RoleGrant.parse_from_json(json, credentials)
-        end
+        parser_for(:members, credentials, result)
       end
     end
 
@@ -142,7 +140,7 @@ module Conjur
 
     # RestClient::Resource for RBAC role operations.
     def rbac_role_resource
-      RestClient::Resource.new(Conjur.configuration.core_url, credentials)['roles'][id.to_url_path]
+      url_for(:roles_role, credentials, id)    
     end
   end
 end

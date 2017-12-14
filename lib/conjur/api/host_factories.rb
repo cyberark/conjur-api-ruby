@@ -40,10 +40,7 @@ module Conjur
       # @return [Host]
       def host_factory_create_host token, id, options = {}
         token = token.token if token.is_a?(HostFactoryToken)
-        http_options = {
-          headers: { authorization: %Q(Token token="#{token}") }
-        }
-        response = RestClient::Resource.new(Conjur.configuration.core_url, http_options)["host_factories"]["hosts"].post(options.merge(id: id)).body
+        response = url_for(:host_factory_create_host, token).post(options.merge(id: id)).body
         attributes = JSON.parse(response)
         Host.new(attributes['id'], {}).tap do |host|
           host.attributes = attributes
@@ -56,7 +53,7 @@ module Conjur
       # @param [Hash] credentials authentication credentials of the current user.
       # @param [String] token the host factory token.
       def revoke_host_factory_token credentials, token
-        RestClient::Resource.new(Conjur.configuration.core_url, credentials)['host_factory_tokens'][token].delete
+        url_for(:host_factory_revoke_token, credentials, token).delete
       end
     end
     

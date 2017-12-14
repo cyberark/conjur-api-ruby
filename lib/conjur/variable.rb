@@ -130,7 +130,12 @@ module Conjur
         logger << "Adding a value to variable #{id}"
       end
       invalidate do
-        core_resource['secrets'][id.to_url_path].post value
+        route = url_for(:secrets_add, credentials, id)
+        Conjur.configuration.version_logic lambda {
+            route.post value: value
+          }, lambda {
+            route.post value
+          }
       end
     end
 
@@ -145,12 +150,16 @@ module Conjur
     #
     # @return [Integer] the number of versions
     def version_count
-      secrets = attributes['secrets']
-      if secrets.empty?
-        0
-      else
-        secrets.last['version']
-      end
+      Conjur.configuration.version_logic lambda {
+          JSON.parse(url_for(:variable, credentials, id).get)['version_count']
+        }, lambda {
+          secrets = attributes['secrets']
+          if secrets.empty?
+            0
+          else
+            secrets.last['version']
+          end
+        }
     end
 
     # Return the version of a variable.
@@ -187,7 +196,7 @@ module Conjur
     # @return [String] the value of the variable
     def value version = nil, options = {}
       options['version'] = version if version
-      core_resource['secrets'][id.to_url_path][options_querystring options].get.body
+      url_for(:secrets_value, credentials, id, options).get.body
     end
   end
 end
