@@ -1,6 +1,10 @@
-- !user alice
-
-- !group developers
+- !user
+  id: alice
+  uidnumber: 2000
+  
+- !group
+  id: developers
+  gidnumber: 2000
 
 - !group everyone
 
@@ -11,6 +15,11 @@
 - !variable db-password
 
 - !variable ssh-key
+
+- !variable
+  id: ssl-certificate
+  kind: SSL certificate
+  mime_type: application/x-pem-file
 
 - !layer myapp
 

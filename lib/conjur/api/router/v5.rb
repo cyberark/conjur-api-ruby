@@ -97,10 +97,44 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['secrets'][options_querystring(options).gsub("%2C", ',')]
         end
 
+        def group_attributes credentials, resource, id
+          resource_annotations resource
+        end
+
+        def variable_attributes credentials, resource, id
+          resource_annotations resource
+        end
+
+        def user_attributes credentials, resource, id
+          resource_annotations resource
+        end
+
+        def parse_group_gidnumber attributes
+          HasAttributes.annotation_value attributes, 'conjur/gidnumber'
+        end
+
+        def parse_user_uidnumber attributes
+          HasAttributes.annotation_value attributes, 'conjur/uidnumber'
+        end
+
+        def parse_variable_kind attributes
+          HasAttributes.annotation_value attributes, 'conjur/kind'
+        end
+
+        def parse_variable_mime_type attributes
+          HasAttributes.annotation_value attributes, 'conjur/mime_type'
+        end
+
         def parse_members credentials, result
           result['members'].collect do |json|
             RoleGrant.parse_from_json(json, credentials)
           end
+        end
+
+        private
+
+        def resource_annotations resource
+          resource.attributes['annotations'] || {}
         end
       end
     end

@@ -95,7 +95,7 @@ module Conjur
     # @note this is **not** the same as the `kind` part of a qualified Conjur id.
     # @return [String] a string representing the kind of secret.
     def kind
-      annotation_value 'conjur/kind' || "secret"
+      parser_for(:variable_kind, variable_attributes) || "secret"
     end
 
     # The MIME Type of the variable's value.
@@ -109,7 +109,7 @@ module Conjur
     #
     # @return [String] a MIME type, such as `'text/plain'` or `'application/octet-stream'`.
     def mime_type
-      annotation_value 'conjur/mime_type' || "text/plain"
+      parser_for(:variable_mime_type, variable_attributes) || "text/plain"
     end
 
     # Add a new value to the variable.
@@ -198,5 +198,11 @@ module Conjur
       options['version'] = version if version
       url_for(:secrets_value, credentials, id, options).get.body
     end
-  end
+
+    private
+
+    def variable_attributes
+      @variable_attributes ||= url_for(:variable_attributes, credentials, self, id)
+    end
+  end  
 end

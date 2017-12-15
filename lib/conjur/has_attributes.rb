@@ -23,6 +23,14 @@ module Conjur
   # methods on specific asset classes (for example, {Conjur::Resource#owner}), the are available as
   # a `Hash` on all types supporting attributes.
   module HasAttributes
+    class << self
+
+      # @api private
+      def annotation_value annotations, name
+        (annotations.find{|a| a['name'] == name} || {})['value']
+      end
+    end
+
     def as_json options={}
       result = super(options)
       if @attributes
@@ -67,7 +75,7 @@ module Conjur
     protected
 
     def annotation_value name
-      (attributes['annotations'].find{|a| a['name'] == name} || {})['value']
+      HasAttributes.annotation_value attributes['annotations'], name
     end
 
     # @api private

@@ -29,7 +29,13 @@ module Conjur
     # @return [Fixnum] the gidnumber
     # @raise [RestClient::Forbidden] if you don't have permission to `show` the group.
     def gidnumber
-      annotation_value 'conjur/gidnumber'
+      parser_for(:group_gidnumber, group_attributes)
+    end
+
+    private
+
+    def group_attributes
+      @group_attributes ||= url_for(:group_attributes, credentials, self, id)
     end
   end
 end
