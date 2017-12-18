@@ -8,6 +8,7 @@ require 'conjur/api'
 Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'https://conjur_4/api'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
 Conjur.configuration.cert_file = "./tmp/conjur.pem"
+Conjur.configuration.authn_local_socket = "/run/authn-local-4/.socket"
 Conjur.configuration.version = 4
 
 Conjur.configuration.apply_cert_config!

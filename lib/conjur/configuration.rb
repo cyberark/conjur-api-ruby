@@ -377,6 +377,12 @@ module Conjur
     # Methods which are not available in the selected version will raise NoMethodError.
     add_option :version, default: 5
 
+    # @!attribute authn_local_socket
+    #
+    # File path to the Unix socket used for local authentication.
+    # This is only available when the API client is running on the Conjur server.
+    add_option :authn_local_socket, default: "/run/authn-local/.socket"
+
     # Calls a major-version-specific function.
     def version_logic v4_logic, v5_logic
       case version.to_s

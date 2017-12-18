@@ -6,7 +6,7 @@ Programmatic Ruby access to the Conjur API.
 
 The Conjur server comes in two major versions:
 
-* **4.x** Conjur 4 is a commercial, non-open-source product, which is documented at [https://developer.conjur.net/])(https://developer.conjur.net/).
+* **4.x** Conjur 4 is a commercial, non-open-source product, which is documented at [https://developer.conjur.net/](https://developer.conjur.net/).
 * **5.x** Conjur 5 is open-source software, hosted and documented at [https://www.conjur.org/](https://www.conjur.org/). 
 
 You can use the `master` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
@@ -18,7 +18,7 @@ You can use the `master` branch of this project, which is `conjur-api` version `
 * Create hosts using host factory
 * Rotate API keys
 
-Use the configuration setting `Configuration.version` to select your server version, or set the environment variable `CONJUR_VERSION`. In either case, the valid values are `4` and `5`; the default is `5`.
+Use the configuration setting `Conjur.configuration.version` to select your server version, or set the environment variable `CONJUR_VERSION`. In either case, the valid values are `4` and `5`; the default is `5`.
 
 If you are using Conjur server version `4.x`, you can also choose to use the `conjur-api` version `4.x`. In this case, the `Configuration.version` setting is not required (actually, it doesn't exist).
 

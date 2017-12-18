@@ -15,6 +15,14 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.authn_url)[fully_escape account][fully_escape username]['authenticate']
         end
 
+        # For v5, the authn-local message is a JSON string with account, sub, and optional fields.
+        def authn_authenticate_local username, account, expiration, cidr, &block
+          { account: account, sub: username }.tap do |params|
+            params[:exp] = expiration if expiration
+            params[:cidr] = cidr if cidr
+          end.to_json
+        end
+
         def authn_update_password account, username, password
           RestClient::Resource.new(Conjur.configuration.authn_url, user: username, password: password)[fully_escape account]['password']
         end

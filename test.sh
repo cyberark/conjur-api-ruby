@@ -48,7 +48,6 @@ function runTests_4() {
   echo '-----'
   docker-compose run --rm \
     -e CONJUR_AUTHN_API_KEY="$api_key" \
-    -v $PWD/tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem \
     tester_4 rake jenkins_cucumber_v4
 }
 

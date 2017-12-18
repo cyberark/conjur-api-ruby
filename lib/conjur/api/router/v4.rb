@@ -16,6 +16,16 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.authn_url)['users'][fully_escape username]['authenticate']
         end
 
+        # For v4, the authn-local message is the username.
+        def authn_authenticate_local username, account, expiration, cidr, &block
+          verify_account(account)
+          
+          raise "'expiration' is not supported for authn-local v4" if expiration
+          raise "'cidr' is not supported for authn-local v4" if cidr
+
+          username
+        end
+
         def authn_rotate_api_key credentials, account, id
           verify_account(account)
           username = if id.kind == "user"
