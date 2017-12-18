@@ -173,17 +173,7 @@ module Conjur
       { headers: headers, username: username }
     end
 
-    module MonotonicTime
-      def monotonic_time
-        Process.clock_gettime Process::CLOCK_MONOTONIC
-      rescue
-        # fall back to normal clock if there's no CLOCK_MONOTONIC
-        Time.now.to_f
-      end
-    end
-
     module TokenExpiration
-      include MonotonicTime
 
       # The four minutes is to work around a bug in Conjur < 4.7 causing a 404 on 
       # long-running operations (when the token is used right around the 5 minute mark).
@@ -202,6 +192,13 @@ module Conjur
       def token_age
         gettime - token_born
       end
+
+      def gettime
+        Process.clock_gettime Process::CLOCK_MONOTONIC
+      rescue
+        # fall back to normal clock if there's no CLOCK_MONOTONIC
+        Time.now.to_f
+      end
     end
 
     # When the API is constructed with an API key, the token can be refreshed using
@@ -216,6 +213,7 @@ module Conjur
         @account = account
         @username = username
         @api_key = api_key
+        
         update_token_born
       end
 
@@ -223,10 +221,6 @@ module Conjur
         Conjur::API.authenticate(username, api_key, account: account).tap do
           update_token_born
         end
-      end
-
-      def gettime
-        monotonic_time
       end
     end
 
@@ -241,6 +235,7 @@ module Conjur
         @username = username
         @expiration = expiration
         @cidr = cidr
+
         update_token_born
       end
 
@@ -249,16 +244,10 @@ module Conjur
           update_token_born
         end
       end
-
-      def gettime
-        monotonic_time
-      end
     end
 
     # When the API is constructed with a token, the token cannot be refreshed.
     class UnableAuthenticator
-      include MonotonicTime
-      
       def refresh_token
         raise "Unable to re-authenticate using an access token"
       end
