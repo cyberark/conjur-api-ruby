@@ -391,7 +391,7 @@ module Conjur
       when "5"
         v5_logic.call
       else
-        raise "Unspported major version #{version}"
+        raise "Unsupported major version #{version}"
       end
     end
 
