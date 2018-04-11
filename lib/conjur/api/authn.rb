@@ -71,7 +71,7 @@ module Conjur
       # @param [String] username The username or host id for which we want a token
       # @param [String] account The organization account.
       # @return [String] A JSON formatted authentication token.
-      def authenticate_local username, account: Conjur.configuration.account, expiration: nil, cidr: nil
+      def authenticate_local username, account: Conjur.configuration.account, expiration: nil, cidr: nil, service_id: nil, authn_type: nil
         account ||= Conjur.configuration.account
         if Conjur.log
           Conjur.log << "Authenticating #{username} to account #{account} using authn_local\n"
@@ -79,7 +79,7 @@ module Conjur
 
         require 'json'
         require 'socket'
-        message = url_for(:authn_authenticate_local, username, account, expiration, cidr)
+        message = url_for(:authn_authenticate_local, username, account, expiration, cidr, service_id, authn_type)
         JSON.parse(UNIXSocket.open(Conjur.configuration.authn_local_socket) {|s| s.puts message; s.gets })        
       end
 

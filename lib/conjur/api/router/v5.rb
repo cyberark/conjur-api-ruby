@@ -16,10 +16,13 @@ module Conjur
         end
 
         # For v5, the authn-local message is a JSON string with account, sub, and optional fields.
-        def authn_authenticate_local username, account, expiration, cidr, &block
+        # Optional fields include the service_id and authn_type for a custom authenticator.
+        def authn_authenticate_local username, account, expiration, cidr, service_id, authn_type, &block
           { account: account, sub: username }.tap do |params|
             params[:exp] = expiration if expiration
             params[:cidr] = cidr if cidr
+            params[:service_id] = service_id if service_id
+            params[:authn_type] = authn_type if authn_type
           end.to_json
         end
 
