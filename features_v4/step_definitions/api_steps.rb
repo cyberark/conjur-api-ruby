@@ -9,9 +9,13 @@ Given(/^a new host$/) do
 end
 
 When(/^I(?: can)? run the code:$/) do |code|
-  @result = eval(code).tap do |result|
-    if ENV['DEBUG']
-      puts result
+  begin
+    @result = eval(code).tap do |result|
+      if ENV['DEBUG']
+        puts result
+      end
     end
+  rescue => e
+    @result = e.message
   end
 end

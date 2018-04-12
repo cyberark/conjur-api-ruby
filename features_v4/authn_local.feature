@@ -25,3 +25,18 @@ Feature: When co-located with the Conjur server, the API can use the authn-local
     """
     Then the JSON should have "data"
     And the JSON at "data" should be "alice"
+
+  Scenario: authn-local can't be used with service_id
+    When I run the code:
+    """
+    Conjur::API.authenticate_local "alice", service_id: "service-id"
+    """
+    Then the result should be "'service_id' is not supported for authn-local v4"
+
+  Scenario: authn-local can't be used with authn_type
+    When I run the code:
+    """
+    Conjur::API.authenticate_local "alice", authn_type: "authn-type"
+    """
+    Then the result should be "'authn_type' is not supported for authn-local v4"
+

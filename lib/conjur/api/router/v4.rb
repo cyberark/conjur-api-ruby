@@ -17,11 +17,14 @@ module Conjur
         end
 
         # For v4, the authn-local message is the username.
-        def authn_authenticate_local username, account, expiration, cidr, &block
+        # Optional fields include the service_id and authn_type for a custom authenticator.
+        def authn_authenticate_local username, account, expiration, cidr, service_id, authn_type, &block
           verify_account(account)
           
           raise "'expiration' is not supported for authn-local v4" if expiration
           raise "'cidr' is not supported for authn-local v4" if cidr
+          raise "'service_id' is not supported for authn-local v4" if service_id
+          raise "'authn_type' is not supported for authn-local v4" if authn_type
 
           username
         end
