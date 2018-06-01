@@ -21,13 +21,13 @@ Feature: Display role members and memberships.
     """
     [
       {
-        "admin_option": true,
-        "member": "cucumber:user:admin",
+        "admin_option": false,
+        "member": "cucumber:group:developers",
         "role": "cucumber:group:everyone"
       },
       {
-        "admin_option": false,
-        "member": "cucumber:group:developers",
+        "admin_option": true,
+        "member": "cucumber:user:admin",
         "role": "cucumber:group:everyone"
       }
     ]
