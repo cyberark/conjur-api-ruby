@@ -7,7 +7,7 @@ Programmatic Ruby access to the Conjur API.
 The Conjur server comes in two major versions:
 
 * **4.x** Conjur 4 is a commercial, non-open-source product, which is documented at [https://developer.conjur.net/](https://developer.conjur.net/).
-* **5.x** Conjur 5 is open-source software, hosted and documented at [https://www.conjur.org/](https://www.conjur.org/). 
+* **5.x** Conjur 5 is open-source software, hosted and documented at [https://www.conjur.org/](https://www.conjur.org/).
 
 You can use the `master` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
 
@@ -47,12 +47,12 @@ Connecting to Conjur is a two-step process:
 
 The simplest way to configure the Conjur API is to use the configuration file stored on the machine.
 If you have configured the machine with [conjur init](http://developer.conjur.net/reference/tools/init.html),
-it's default location is `~/.conjurrc`. 
+it's default location is `~/.conjurrc`.
 
 The Conjur configuration process also checks `/etc/conjur.conf` for global settings. This is typically used
 in server environments.
 
-For custom scenarios, the location of the file can be overridden using the `CONJURRC` environment variable. 
+For custom scenarios, the location of the file can be overridden using the `CONJURRC` environment variable.
 
 You can load the Conjur configuration file using the following Ruby code:
 
@@ -76,9 +76,9 @@ conjur = Conjur::Authn.connect nil, noask: true
 To [authenticate](http://developer.conjur.net/reference/services/authentication/authenticate.html), the API client must
 provide a `login` name and `api_key`. The `Conjur::Authn.connect` will attempt the following, in order:
 
-1. Look for `login` in environment variable `CONJUR_AUTHN_LOGIN`, and `api_key` in `CONJUR_AUTHN_API_KEY` 
+1. Look for `login` in environment variable `CONJUR_AUTHN_LOGIN`, and `api_key` in `CONJUR_AUTHN_API_KEY`
 2. Look for credentials on disk. The default credentials file is `~/.netrc`. The location of the credentials file
-can be overridden using the configuration file `netrc_path` option. 
+can be overridden using the configuration file `netrc_path` option.
 3. Prompt for credentials. This can be disabled using the option `noask: true`.
 
 ## Connecting Without Files
@@ -86,7 +86,7 @@ can be overridden using the configuration file `netrc_path` option.
 It's possible to configure and authenticate the Conjur connection without using any files, and without requiring
 the `conjur-cli` gem.
 
-To accomplish this, apply the configuration settings directly to the [Conjur::Configuration](https://github.com/conjurinc/api-ruby/blob/master/lib/conjur/configuration.rb) 
+To accomplish this, apply the configuration settings directly to the [Conjur::Configuration](https://github.com/conjurinc/api-ruby/blob/master/lib/conjur/configuration.rb)
 object.
 
 For example, specify the `account` and `appliance_url` (both of which are required) like this:
@@ -96,8 +96,8 @@ Conjur.configuration.account = 'my-account'
 Conjur.configuration.appliance_url = 'https://conjur.mydomain.com/api'
 ```
 
-You can also specify these values using environment variables, which is often a bit more convenient. 
-Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the 
+You can also specify these values using environment variables, which is often a bit more convenient.
+Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the
 configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT`.
 
 In either case, you will also need to configure certificate trust. For example:
@@ -112,10 +112,40 @@ Once Conjur is configured, you can create a new API client by providing a `login
 Conjur::API.new_from_key login, api_key
 ```
 
-Note that if you are connecting as a [Host](http://developer.conjur.net/reference/services/directory/host), the login should be 
+Note that if you are connecting as a [Host](http://developer.conjur.net/reference/services/directory/host), the login should be
 prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.example.com`.
 
-# Development
+
+# Development (V5)
+To develop and run tests against Conjur V5, use the `start` and `stop` scripts in the `dev` folder. The start script brings up an open source Conjur (and Postgres database), CLI container, and a "work" container, with the gem code mounted into the working directory.
+
+To begin:
+```sh
+$ cd dev
+$ ./start
+...
+root@9df0ac10ada2:/src/conjur-api#
+```
+You'll be dropped into development container upon completion. From there, install the development gems:
+
+```sh
+root@9df0ac10ada2:/src/conjur-api# bundle
+```
+
+Tests can be run with:
+```sh
+root@9df0ac10ada2:/src/conjur-api# cucumber features
+root@9df0ac10ada2:/src/conjur-api# rspec
+```
+
+Once you're done, exit the shell, and stop the containers:
+```sh
+root@9df0ac10ada2:/src/conjur-api# exit
+$ ./stop
+```
+
+
+# Development (V4)
 
 The file `docker-compose.yml` is a self-contained development environment for the project.
 
