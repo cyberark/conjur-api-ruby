@@ -47,7 +47,11 @@ Connecting to Conjur is a two-step process:
 
 The simplest way to configure the Conjur API is to use the configuration file stored on the machine.
 If you have configured the machine with [conjur init](http://developer.conjur.net/reference/tools/init.html),
+<<<<<<< HEAD
 its default location is `~/.conjurrc`.
+=======
+it's default location is `~/.conjurrc`.
+>>>>>>> Added development environment
 
 The Conjur configuration process also checks `/etc/conjur.conf` for global settings. This is typically used
 in server environments.
@@ -119,7 +123,6 @@ prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.
 # Development (V5)
 To develop and run tests against Conjur V5, use the `start` and `stop` scripts in the `dev` folder. The start script brings up an open source Conjur (and Postgres database), CLI container, and a "work" container, with the gem code mounted into the working directory.
 
-
 #### Starting a Shell
 To begin:
 ```sh
@@ -150,6 +153,7 @@ root@9df0ac10ada2:/src/conjur-api# bundle exec rspec
 
 #### Stopping & Environment Cleanup
 Once you're done, exit the shell, and stop the containers:
+
 ```sh
 root@9df0ac10ada2:/src/conjur-api# exit
 $ ./stop
