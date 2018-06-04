@@ -20,6 +20,7 @@
 #
 require 'active_support'
 require 'active_support/deprecation'
+require 'openssl'
 
 require 'conjur/configuration'
 require 'conjur/routing'

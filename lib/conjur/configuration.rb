@@ -20,6 +20,7 @@
 #
 
 require 'set'
+require 'openssl'
 
 require 'conjur/cert_utils'
 
