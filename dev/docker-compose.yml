@@ -32,13 +32,13 @@ services:
       CONJUR_APPLIANCE_URL: http://conjur_5
       CONJUR_VERSION: 5
       CONJUR_ACCOUNT: cucumber
-      RESTCLIENT_LOG: stdout
     links:
       - conjur_5:conjur_5
       - conjur_4:conjur_4
     volumes:
       - ..:/src/conjur-api
-      - authn_local_4:/run/authn-local
+      - authn_local_4:/run/authn-local-4
+      - authn_local_5:/run/authn-local-5
 
   client:
     image: conjurinc/cli5

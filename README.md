@@ -47,7 +47,7 @@ Connecting to Conjur is a two-step process:
 
 The simplest way to configure the Conjur API is to use the configuration file stored on the machine.
 If you have configured the machine with [conjur init](http://developer.conjur.net/reference/tools/init.html),
-it's default location is `~/.conjurrc`.
+its default location is `~/.conjurrc`.
 
 The Conjur configuration process also checks `/etc/conjur.conf` for global settings. This is typically used
 in server environments.
@@ -119,6 +119,8 @@ prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.
 # Development (V5)
 To develop and run tests against Conjur V5, use the `start` and `stop` scripts in the `dev` folder. The start script brings up an open source Conjur (and Postgres database), CLI container, and a "work" container, with the gem code mounted into the working directory.
 
+
+#### Starting a Shell
 To begin:
 ```sh
 $ cd dev
@@ -132,18 +134,26 @@ You'll be dropped into development container upon completion. From there, instal
 root@9df0ac10ada2:/src/conjur-api# bundle
 ```
 
+#### Running Tests
+*NOTE*: There are some existing challenges around running tests from the development console.  For now, run tests
+by using the `./test.sh` script utilized for Jenkins Pipelines.
+
+<!--
+Commented out until I can get tests running locally
+
 Tests can be run with:
 ```sh
-root@9df0ac10ada2:/src/conjur-api# cucumber features
-root@9df0ac10ada2:/src/conjur-api# rspec
+root@9df0ac10ada2:/src/conjur-api# bundle exec cucumber features
+root@9df0ac10ada2:/src/conjur-api# bundle exec rspec
 ```
+-->
 
+#### Stopping & Environment Cleanup
 Once you're done, exit the shell, and stop the containers:
 ```sh
 root@9df0ac10ada2:/src/conjur-api# exit
 $ ./stop
 ```
-
 
 # Development (V4)
 
