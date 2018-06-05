@@ -7,7 +7,7 @@ Feature: Constructing a new API object.
     """
     api = Conjur::API.new_from_key "host/#{@host_id}", @host_api_key
     expect(api.token).to be_instance_of(Hash)
-    expect(api.resource("cucumber:host:#{@host_id}")).to exist
+    expect($conjur.resource("cucumber:host:#{@host_id}")).to exist
     """
 
   Scenario: From access token.
@@ -18,7 +18,7 @@ Feature: Constructing a new API object.
     Then I run the code:
     """
     api = Conjur::API.new_from_token @token
-    expect(api.resource("cucumber:host:#{@host_id}")).to exist
+    expect($conjur.resource("cucumber:host:#{@host_id}")).to exist
     """
 
   Scenario: From access token file.
@@ -32,5 +32,5 @@ Feature: Constructing a new API object.
     Then I run the code:
     """
     api = Conjur::API.new_from_token_file @temp_file.path
-    expect(api.resource("cucumber:host:#{@host_id}")).to exist
+    expect($conjur.resource("cucumber:host:#{@host_id}")).to exist
     """
