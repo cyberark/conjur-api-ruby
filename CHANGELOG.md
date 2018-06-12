@@ -1,5 +1,9 @@
 # Latest
 
+# Unreleased
+
+* Adds support for the Role endpoint for searching and paging Role Members
+
 # v5.1.0
 
 * Introduces backwards compatibility with Conjur 4.x for most API methods.

@@ -134,7 +134,7 @@ module Conjur
         end
 
         def parse_members credentials, result
-          result['members'].collect do |json|
+          result.map do |json|
             RoleGrant.parse_from_json(json, credentials)
           end
         end
