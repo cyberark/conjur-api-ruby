@@ -33,12 +33,17 @@ module Conjur
       def build_object id, credentials, default_class:
         id = cast_to_id(id)
         class_name = id.kind.classify.to_sym
+        find_class(class_name, default_class)
+          .new(id, credentials)
+      end
+
+      def find_class class_name, default_class
         cls = if Conjur.constants.member?(class_name)
           Conjur.const_get(class_name)
         else
           default_class
         end
-        cls.new(id, credentials)
+        cls < BaseObject ? cls : default_class
       end
     end
 
