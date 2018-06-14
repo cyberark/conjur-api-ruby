@@ -82,7 +82,7 @@ module Conjur
           options = {}
           options[:check] = true
           options[:privilege] = privilege
-          options[:role] = cast_to_id(role) if role
+          options[:role] = path_escape(cast_to_id(role)) if role
           resources_resource(credentials, id)[options_querystring options].get
         end
 
