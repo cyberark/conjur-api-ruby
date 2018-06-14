@@ -1,9 +1,8 @@
 # Latest
 
-# Unreleased
+# v5.2.0
 
 * Adds support for the Role endpoint for searching and paging Role Members
-
 * Adds additional escaping to URL parameters on requests to handle special characters (e.g. spaces)
 
 # v5.1.0
