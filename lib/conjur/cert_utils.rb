@@ -19,6 +19,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+require 'openssl'
+
 module Conjur
   module CertUtils
     CERT_RE = /-----BEGIN CERTIFICATE-----\n.*?\n-----END CERTIFICATE-----\n/m

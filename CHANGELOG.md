@@ -1,5 +1,11 @@
 # Latest
 
+# v5.2.1
+
+* Fix `Conjur::BuildObject#build_object` so it only tries to create
+  instances of objects for classes that inherit from BaseObject.
+* require `openssl` before using it.
+
 # v5.2.0
 
 * Adds support for the Role endpoint for searching and paging Role Members
