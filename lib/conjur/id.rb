@@ -18,16 +18,19 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'conjur/escape'
 
 module Conjur
   # Encapsulates a Conjur id, which consists of account, kind, and identifier.
   class Id
+    include Conjur::Escape
+
     attr_reader :id
-    
+
     def initialize id
       @id = id
     end
-    
+
     # The organization account, obtained from the first component of the id.
     def account; id.split(':', 3)[0]; end
     # The object kind, obtained from the second component of the id.
@@ -52,7 +55,9 @@ module Conjur
 
     # Splits the id into 3 components, and then joins them with a forward-slash `/`.
     def to_url_path
-      id.split(':', 3).join('/')
+      id.split(':', 3)
+        .map(&method(:path_escape))
+        .join('/')
     end
     
     # @return [String] the id string
