@@ -1,6 +1,6 @@
 # Conjur::API
 
-Programmatic Ruby access to the Conjur API.
+Programmatic Ruby access to the Conjur API. RDocs are available from the through the RubyGem detail page: [Details](https://rubygems.org/gems/conjur-api)
 
 # Server Versions
 
