@@ -47,11 +47,7 @@ Connecting to Conjur is a two-step process:
 
 The simplest way to configure the Conjur API is to use the configuration file stored on the machine.
 If you have configured the machine with [conjur init](http://developer.conjur.net/reference/tools/init.html),
-<<<<<<< HEAD
 its default location is `~/.conjurrc`.
-=======
-it's default location is `~/.conjurrc`.
->>>>>>> Added development environment
 
 The Conjur configuration process also checks `/etc/conjur.conf` for global settings. This is typically used
 in server environments.
