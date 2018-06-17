@@ -71,11 +71,14 @@ module Conjur
       @attributes = nil
     end
 
-
+    def annotations
+      Hash[(attributes['annotations']||{}).collect {|e| [e['name'],e['value']]}]
+    end
+    
     protected
 
     def annotation_value name
-      HasAttributes.annotation_value attributes['annotations'], name
+      annotations[name]
     end
 
     # @api private
