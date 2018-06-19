@@ -1,5 +1,7 @@
 # Latest
 
+* Add `Conjur::API.ldap_sync_policy` for fetching the LDAP sync policy.
+
 # v5.2.1
 
 * Fix `Conjur::BuildObject#build_object` so it only tries to create
