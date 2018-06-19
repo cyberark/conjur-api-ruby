@@ -1,5 +1,7 @@
 # Latest
 
+# v5.3.0
+
 * Add `Conjur::API.ldap_sync_policy` for fetching the LDAP sync policy.
 
 # v5.2.1
