@@ -1,0 +1,8 @@
+plugins:
+  rubocop:
+    enabled: true
+    channel: rubocop-0-58
+  reek:
+    enabled: true
+  brakeman:
+    enabled: true
