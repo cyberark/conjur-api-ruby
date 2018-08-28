@@ -14,11 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'conjur/cast'
-
 module Conjur
   class BaseObject
-    include Cast
     include QueryString
     include LogSource
     include BuildObject
@@ -27,7 +24,7 @@ module Conjur
     attr_reader :id, :credentials
     
     def initialize id, credentials
-      @id = cast_to_id(id)
+      @id = Id.new id
       @credentials = credentials
     end
 

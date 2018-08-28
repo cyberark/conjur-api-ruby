@@ -24,7 +24,6 @@ module Conjur
   #
   class RoleGrant
     extend BuildObject::ClassMethods
-    extend Cast
 
     # The role which was granted.
     # @return [Conjur::Role]

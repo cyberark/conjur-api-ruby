@@ -20,7 +20,6 @@ module Conjur
       module V5
         extend Conjur::Escape::ClassMethods
         extend Conjur::QueryString
-        extend Conjur::Cast
         extend self
 
         def authn_login account, username, password
@@ -98,7 +97,7 @@ module Conjur
           options = {}
           options[:check] = true
           options[:privilege] = privilege
-          options[:role] = path_escape(cast_to_id(role)) if role
+          options[:role] = path_escape(Id.new(role)) if role
           resources_resource(credentials, id)[options_querystring options].get
         end
 

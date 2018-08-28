@@ -23,8 +23,8 @@ module Conjur
     
     #@!group Resources
 
-    # Find a resource by it's id.  The id given to this method must be qualified by a kind, but the account is
-    # optional.
+    # Find a resource by its id.
+    # @note The id given to this method must be fully qualified.
     #
     # ### Permissions
     #

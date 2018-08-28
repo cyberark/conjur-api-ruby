@@ -14,20 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'conjur/cast'
-
 module Conjur
   module BuildObject
     def self.included base
       base.module_eval do
-        extend Cast
         extend ClassMethods
       end
     end
 
     module ClassMethods
       def build_object id, credentials, default_class:
-        id = cast_to_id(id)
+        id = Id.new id
         class_name = id.kind.classify.to_sym
         find_class(class_name, default_class)
           .new(id, credentials)

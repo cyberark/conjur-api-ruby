@@ -36,9 +36,14 @@ module Conjur
       # @return [Host]
       def host_factory_create_host token, id, options = {}
         token = token.token if token.is_a?(HostFactoryToken)
-        response = url_for(:host_factory_create_host, token).post(options.merge(id: id)).body
+        response = url_for(:host_factory_create_host, token)
+          .post(options.merge(id: id)).body
+
         attributes = JSON.parse(response)
-        Host.new(attributes['id'], {}).tap do |host|
+        # in v4 'id' is just the identifier
+        host_id = attributes['roleid'] || attributes['id']
+
+        Host.new(host_id, {}).tap do |host|
           host.attributes = attributes
         end
       end

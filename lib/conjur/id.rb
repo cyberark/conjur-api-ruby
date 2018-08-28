@@ -24,7 +24,7 @@ module Conjur
     attr_reader :id
 
     def initialize id
-      @id = id
+      @id = Id.normalize id
     end
 
     # The organization account, obtained from the first component of the id.
@@ -59,6 +59,13 @@ module Conjur
     # @return [String] the id string
     def to_s
       id
+    end
+
+    def self.normalize id
+      Array(id).join(':').tap do |id|
+        raise ArgumentError, "id must be fully qualified: #{id}" \
+          unless id =~ /.*:.*:.*/
+      end
     end
   end
 end
