@@ -20,7 +20,13 @@ function main() {
 function startConjur() {
   echo 'Starting Conjur environment'
   echo '-----'
-  docker-compose pull
+
+  # We want to pull to make sure we're testing against the newest release;
+  # failing to ensure that has caused many mysterious failures in CI.
+  # However, unconditionally pulling prevents working offline even
+  # with a warm cache. So try to pull, but ignore failures.
+  docker-compose pull --ignore-pull-failures
+
   docker-compose build
   docker-compose up -d pg conjur_4 conjur_5
 }
