@@ -52,7 +52,7 @@ module Conjur
     # Splits the id into 3 components, and then joins them with a forward-slash `/`.
     def to_url_path
       id.split(':', 3)
-        .map(&method(:path_escape))
+        .map(&method(:fully_escape))
         .join('/')
     end
     

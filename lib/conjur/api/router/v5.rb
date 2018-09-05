@@ -43,7 +43,7 @@ module Conjur
         end
 
         def authn_rotate_api_key credentials, account, id
-          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authn'][path_escape account]["api_key?role=#{id}"]
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['authn'][fully_escape account]["api_key?role=#{id}"]
         end
 
         def authn_rotate_own_api_key account, username, password
@@ -66,18 +66,18 @@ module Conjur
         end
 
         def policies_load_policy credentials, account, id
-          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['policies'][path_escape account]['policy'][path_escape id]
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)['policies'][fully_escape account]['policy'][fully_escape id]
         end
 
         def public_keys_for_user account, username
-          RestClient::Resource.new(Conjur.configuration.core_url)['public_keys'][fully_escape account]['user'][path_escape username]
+          RestClient::Resource.new(Conjur.configuration.core_url)['public_keys'][fully_escape account]['user'][fully_escape username]
         end
 
         def resources credentials, account, kind, options
           credentials ||= {}
 
-          path = "/resources/#{path_escape account}" 
-          path += "/#{path_escape kind}" if kind
+          path = "/resources/#{fully_escape account}"
+          path += "/#{fully_escape kind}" if kind
 
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)[path][options_querystring options]
         end
@@ -97,7 +97,7 @@ module Conjur
           options = {}
           options[:check] = true
           options[:privilege] = privilege
-          options[:role] = path_escape(Id.new(role)) if role
+          options[:role] = query_escape(Id.new(role)) if role
           resources_resource(credentials, id)[options_querystring options].get
         end
 
