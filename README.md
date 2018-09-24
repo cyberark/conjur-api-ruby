@@ -1,6 +1,6 @@
 # Conjur::API
 
-Programmatic Ruby access to the Conjur API. 
+Programmatic Ruby access to the Conjur API.
 
 RDocs are available from the through the [Ruby Gem details page](https://rubygems.org/gems/conjur-api)
 
@@ -219,6 +219,24 @@ To bring it down, run:
 ```sh-session
 $ docker-compose down
 ```
+
+# Releasing
+Releasing a new version of this Gem involves a two step process:
+1. Tag and Release (using `bin/release`)
+2. Approving the push to RubyGems in Jenkins
+
+Before releasing, make sure:
+- The version file (`lib/conjur-api/version.rb`) has been updated with an appropriate Semantic version number.
+- The `CHANGELOG.md` file has been updated to reflect the release version and appropriate release notes.
+
+Save, but do not commit these the changes above. When your ready to release, run the following:
+```sh
+$ bin/release
+```
+
+Navigate to Jenkins, and approve: https://jenkins.conjur.net/job/cyberark--conjur-api-ruby/job/master/.
+
+Finally, verify that the new library is present in RubyGems: https://rubygems.org/gems/conjur-api
 
 # Contributing
 

@@ -1,5 +1,7 @@
 # Latest
 
+# v5.3.1
+
 * Updates URI path parameter escaping to consistently encode resource ids
 
 # v5.3.0
