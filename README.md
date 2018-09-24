@@ -221,24 +221,34 @@ $ docker-compose down
 ```
 
 # Releasing
+
 Releasing a new version of this Gem involves a two step process:
 1. Tag and Release (using `bin/release`)
 2. Approving the push to RubyGems in Jenkins
 
-Before releasing, make sure:
+## Step 1: Tag and Release
+
+First, update the following files:
+
 - The version file (`lib/conjur-api/version.rb`) has been updated with an appropriate Semantic version number.
 - The `CHANGELOG.md` file has been updated to reflect the release version and appropriate release notes.
 
-Save, but do not commit these the changes above. When your ready to release, run the following:
+Next, save -- but do not commit -- the changes above.
+
+Finally, when you're ready to release, run the following:
+
 ```sh
 $ bin/release
 ```
 
-Navigate to Jenkins, and approve: https://jenkins.conjur.net/job/cyberark--conjur-api-ruby/job/master/.
+## Step 2: Approve the push to RubyGems in Jenkins
 
-Once the pipeline reaches the `Publish to RubyGems?` stage, click the blue box, and then click 'Logs'. Open the confirmation step (`Wait for interactive input -- Publish to RubyGems?`), and click `Proceed`. Nothing appears to happen, but the "Publish" stage will be run. 
+- Navigate to Jenkins: https://jenkins.conjur.net/job/cyberark--conjur-api-ruby/job/master/.
+- Once the pipeline reaches the `Publish to RubyGems?` stage, click the blue box, and then click `Logs`.
+- Open the confirmation step (`Wait for interactive input -- Publish to RubyGems?`), and click `Proceed`. Nothing appears to happen, but the "Publish" stage will be run.
+- Finally, verify that the new library is present in RubyGems: https://rubygems.org/gems/conjur-api
 
-Finally, verify that the new library is present in RubyGems: https://rubygems.org/gems/conjur-api
+The release is now complete.
 
 # Contributing
 
