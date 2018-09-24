@@ -236,6 +236,8 @@ $ bin/release
 
 Navigate to Jenkins, and approve: https://jenkins.conjur.net/job/cyberark--conjur-api-ruby/job/master/.
 
+Once the pipeline reaches the `Publish to RubyGems?` stage, click the blue box, and then click 'Logs'. Open the confirmation step (`Wait for interactive input -- Publish to RubyGems?`), and click `Proceed`. Nothing appears to happen, but the "Publish" stage will be run. 
+
 Finally, verify that the new library is present in RubyGems: https://rubygems.org/gems/conjur-api
 
 # Contributing
