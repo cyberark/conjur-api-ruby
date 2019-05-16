@@ -41,5 +41,10 @@ module Conjur
     def username
       credentials[:username] or raise "No username found in credentials"
     end
+
+    def inspect
+      "<#{self.class.name} id='#{id.to_s}'>"
+    end
+
   end
 end
