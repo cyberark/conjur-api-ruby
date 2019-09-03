@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   pg:
-    image: postgres:9.3
+    image: postgres:9.4
 
   conjur_5:
     image: cyberark/conjur

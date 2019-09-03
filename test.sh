@@ -28,7 +28,7 @@ function startConjur() {
   docker-compose pull --ignore-pull-failures
 
   docker-compose build
-  docker-compose up -d pg conjur_4 conjur_5
+  docker-compose up -d pg audit conjur_4 conjur_5
 }
 
 function runTests_5() {

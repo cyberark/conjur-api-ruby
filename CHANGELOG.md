@@ -1,4 +1,5 @@
 # Latest
+* Add 'Conjur::API.audit_show' for fetching audit entries from database.
 
 # v5.3.1
 

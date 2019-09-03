@@ -54,4 +54,9 @@ value = host_api.resource("cucumber:variable:db-password").value
 puts value
 puts
 
+puts "Show audit entries for previous actions"
+audit_entries = api.audit_show
+puts audit_entries
+puts
+
 puts "Done!"
