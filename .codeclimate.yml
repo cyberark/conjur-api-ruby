@@ -5,4 +5,4 @@ plugins:
   reek:
     enabled: true
   brakeman:
-    enabled: true
+    enabled: false
