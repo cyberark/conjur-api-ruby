@@ -1,5 +1,9 @@
 # Latest
 
+# v5.4.0
+
+* Add 'Conjur::API.audit_show' for fetching audit entries from database.
+
 # v5.3.1
 
 * Updates URI path parameter escaping to consistently encode resource ids
