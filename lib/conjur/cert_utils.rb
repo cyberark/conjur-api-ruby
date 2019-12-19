@@ -44,6 +44,20 @@ module Conjur
           end
         end
       end
+
+      # Add a certificate to a given store. If the certificate has more than
+      # one certificate in its chain, it will be parsed and added to the store
+      # one by one. This is done because `OpenSSL::X509::Store.new.add_cert`
+      # adds only the intermediate certificate to the store.
+      def add_chained_cert store, chained_cert
+        parse_certs(chained_cert).each do |cert|
+          begin
+            store.add_cert cert
+          rescue OpenSSL::X509::StoreError => ex
+            raise unless ex.message == 'cert already in hash table'
+          end
+        end
+      end
     end
   end
 end
