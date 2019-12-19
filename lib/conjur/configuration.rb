@@ -402,13 +402,7 @@ module Conjur
     # @return [Boolean]  whether a certificate was added to the store.
     def apply_cert_config! store=OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
       if ssl_certificate
-        CertUtils.parse_certs(ssl_certificate).each do |cert|
-          begin
-            store.add_cert cert
-          rescue OpenSSL::X509::StoreError => ex
-            raise unless ex.message == 'cert already in hash table'
-          end
-        end
+        CertUtils.add_chained_cert(store, ssl_certificate)
       elsif cert_file
         ensure_cert_readable!(cert_file)
         store.add_file cert_file
