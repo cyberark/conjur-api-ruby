@@ -27,6 +27,7 @@ services:
     volumes:
       - ./spec/reports:/src/conjur-api/spec/reports
       - ./features/reports:/src/conjur-api/features/reports
+      - ./coverage:/src/conjur-api/coverage
       - authn_local_5:/run/authn-local-5
     environment:
       CONJUR_APPLIANCE_URL: http://conjur_5
@@ -38,6 +39,7 @@ services:
     volumes:
       - ./features_v4/reports:/src/conjur-api/features_v4/reports
       - ./tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem
+      - ./coverage_v4:/src/conjur-api/coverage
       - authn_local_4:/run/authn-local-4
     environment:
       CONJUR_APPLIANCE_URL: https://conjur_4/api
