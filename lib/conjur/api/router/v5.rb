@@ -14,9 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# rubocop:disable Metrics/ModuleLength
 module Conjur
   class API
     module Router
+      # V5 translates method arguments to rest-ful API request parameters.
+      # because of this, most of the methods suffer from :reek:LongParameterList:
+      # and :reek:UtilityFunction:
       module V5
         extend Conjur::Escape::ClassMethods
         extend Conjur::QueryString
@@ -28,6 +32,14 @@ module Conjur
 
         def authn_authenticate account, username
           RestClient::Resource.new(Conjur.configuration.authn_url)[fully_escape account][fully_escape username]['authenticate']
+        end
+
+        def authenticator account, authenticator, service_id, credentials
+          RestClient::Resource.new(Conjur.configuration.core_url, credentials)[fully_escape authenticator][fully_escape service_id][fully_escape account]
+        end
+
+        def authenticator account, authenticator, service_id
+          RestClient::Resource.new(Conjur.configuration.core_url)[authenticator.to_url_path][service_id.to_url_path]
         end
 
         # For v5, the authn-local message is a JSON string with account, sub, and optional fields.
@@ -167,3 +179,4 @@ module Conjur
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
