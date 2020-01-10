@@ -1,5 +1,10 @@
 # Latest
 
+# v5.3.2
+
+* Add `Conjur::API.authenticator_list`, `Conjur::API.authenticator_enable`, and
+  ``Conjur::API.authenticator_disable` to inspect and manage authenticator status.
+
 # v5.3.1
 
 * Updates URI path parameter escaping to consistently encode resource ids
