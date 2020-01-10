@@ -63,9 +63,9 @@ Layout/EndAlignment:
   EnforcedStyleAlignWith: start_of_line
 Layout/ExtraSpacing:
   AllowForAlignment: false
-Layout/FirstParameterIndentation:
+Layout/IndentFirstArgument:
   EnforcedStyle: consistent
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
