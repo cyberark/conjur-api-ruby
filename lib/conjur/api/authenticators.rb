@@ -8,6 +8,10 @@ module Conjur
   class API
     # @!group Authenticators
 
+    # List all configured authenticators
+    def authenticator_list
+      JSON.parse(url_for(:authenticators).get)
+    end
 
     # Enables an authenticator in Conjur. The authenticator must be defined and
     # loaded in Conjur policy prior to enabling it.

@@ -38,8 +38,8 @@ module Conjur
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)[fully_escape authenticator][fully_escape service_id][fully_escape account]
         end
 
-        def authenticator account, authenticator, service_id
-          RestClient::Resource.new(Conjur.configuration.core_url)[authenticator.to_url_path][service_id.to_url_path]
+        def authenticators
+          RestClient::Resource.new(Conjur.configuration.core_url)['authenticators']
         end
 
         # For v5, the authn-local message is a JSON string with account, sub, and optional fields.
