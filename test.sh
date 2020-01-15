@@ -8,6 +8,18 @@ function finish {
 
 trap finish EXIT
 
+function publishToCodeClimate() {
+  docker build -f ci/codeclimate.dockerfile -t cyberark/code-climate:latest .
+  docker run \
+    --rm \
+    --volume "$PWD:/src/conjur-api" \
+    -w "/src/conjur-api" \
+    cyberark/code-climate:latest \
+      after-build \
+        -r "$(<TRID)" \
+        -t "simplecov"
+}
+
 function main() {
   # Generate reports folders locally
   mkdir -p spec/reports features/reports features_v4/reports
@@ -15,6 +27,7 @@ function main() {
   startConjur
   runTests_5
   runTests_4
+  publishToCodeClimate
 }
 
 function startConjur() {
