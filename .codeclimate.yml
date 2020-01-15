@@ -1,8 +1,10 @@
 plugins:
   rubocop:
     enabled: true
-    channel: rubocop-0-58
+    channel: rubocop-0-76
   reek:
     enabled: true
   brakeman:
     enabled: false
+  shellcheck:
+    enabled: true
