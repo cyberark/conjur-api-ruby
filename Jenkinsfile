@@ -13,6 +13,13 @@ pipeline {
   }
 
   stages {
+    stage('Validate') {
+      parallel {
+        stage('Changelog') {
+          steps { sh './bin/parse-changelog.sh' }
+        }
+      }
+    }
 
     stage('Test') {
       steps {
@@ -72,6 +79,7 @@ pipeline {
         deleteDir()
       }
     }
+
   }
 
   post {
