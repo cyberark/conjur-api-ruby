@@ -18,6 +18,9 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 1.9'
 
+  # Filter out development only executables
+  gem.executables -= %w{parse-changelog.sh}
+
   gem.add_dependency 'rest-client'
   gem.add_dependency 'activesupport'
 
