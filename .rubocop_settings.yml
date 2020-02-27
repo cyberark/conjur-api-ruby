@@ -83,3 +83,4 @@ Metrics/BlockLength:
     - 'Rakefile'
     - '**/*.rake'
     - 'spec/**/*.rb'
+    - 'conjur-api.gemspec'
