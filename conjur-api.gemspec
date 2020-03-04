@@ -24,7 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'rest-client'
   gem.add_dependency 'activesupport'
 
-  gem.add_development_dependency 'rake', '~> 10.0'
+  gem.add_development_dependency 'rake', '>= 12.3.3'
   gem.add_development_dependency 'rspec', '~> 3'
   gem.add_development_dependency 'rspec-expectations', '~> 3.4'
   gem.add_development_dependency 'json_spec'
