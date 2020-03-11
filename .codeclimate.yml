@@ -135,8 +135,8 @@ plugins:
 # necessary files that the linter looks at
 
   # Ruby - requires presence of Gemfile and Gemfile.lock
-  bundler-audit:
-    enabled: true
+  # bundler-audit:
+  #   enabled: true
 
   # Rails - requires detecting a Rails application
   brakeman:
