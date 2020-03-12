@@ -255,7 +255,7 @@ The release is now complete.
 We welcome contributions of all kinds to this repository. For instructions on how to get started and descriptions of our development workflows, please see our [contributing
 guide][contrib].
 
-[contrib]: https://github.com/cyberark/conjur-api-ruby//blob/master/CONTRIBUTING.md
+[contrib]: https://github.com/cyberark/conjur-api-ruby/blob/master/CONTRIBUTING.md
 
 ## License
 
