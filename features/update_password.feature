@@ -5,8 +5,8 @@ Feature: Change a user's password.
   Scenario: A user can set/change her password using the current API key.
     When I run the code:
     """
-    Conjur::API.update_password @user_id, @user_api_key, 'secret'
-    @new_api_key = Conjur::API.login @user_id, 'secret'
+    Conjur::API.update_password @user_id, @user_api_key, 'SEcret12!!!!'
+    @new_api_key = Conjur::API.login @user_id, 'SEcret12!!!!'
     """
     Then I can run the code:
     """
