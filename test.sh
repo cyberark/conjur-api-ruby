@@ -12,6 +12,9 @@ function publishToCodeClimate() {
   docker build -f ci/codeclimate.dockerfile -t cyberark/code-climate:latest .
   docker run \
     --rm \
+    -e GIT_BRANCH \
+    -e GIT_COMMIT \
+    -e TRID \
     --volume "$PWD:/src/conjur-api" \
     -w "/src/conjur-api" \
     cyberark/code-climate:latest \
