@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.3.3] - 2020-08-18
+### Changed
+- Release process is updated to ensure that the published Ruby Gem matches a tag in this repository,
+  so that consumers of this gem can always reference the correct source code included in any given version.
+  [cyberark/conjur-api-ruby](https://github.com/cyberark/conjur-api-ruby/issues/173)
+
 ## 5.3.2 - 2018-09-24
 ### Added
 - Add `Conjur::API.authenticator_list`, `Conjur::API.authenticator_enable`, and
@@ -315,7 +321,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2013-13-12
 
-[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.3...HEAD
+[5.3.3]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.1...v5.3.3
 [5.3.1]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.0...v5.3.1
 [5.3.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.1.0...v5.3.0
 [5.1.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.0.0...v5.1.0
