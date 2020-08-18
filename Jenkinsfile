@@ -41,31 +41,13 @@ pipeline {
     }
 
     // Only publish to RubyGems if branch is 'master'
-    // AND someone confirms this stage within 5 minutes
+    // AND the tag begins with 'v' ex) v5.3.2
     stage('Publish to RubyGems?') {
       agent { label 'releaser-v2' }
 
       when {
         allOf {
-          branch 'master'
-          expression {
-            boolean publish = false
-
-            if (env.PUBLISH_GEM == "true") {
-                return true
-            }
-
-            try {
-              timeout(time: 5, unit: 'MINUTES') {
-                input(message: 'Publish to RubyGems?')
-                publish = true
-              }
-            } catch (final ignore) {
-              publish = false
-            }
-
-            return publish
-          }
+          branch 'master'; tag "v*"
         }
       }
       steps {
