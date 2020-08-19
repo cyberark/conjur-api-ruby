@@ -42,7 +42,7 @@ pipeline {
 
     // Only publish to RubyGems if the tag begins with 'v' ex) v5.3.2
     stage('Publish to RubyGems?') {
-      agent { label 'releaser-v2' }
+      agent { label 'executor-v2' }
 
       when { tag "v*" }
       steps {
