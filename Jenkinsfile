@@ -40,16 +40,11 @@ pipeline {
       }
     }
 
-    // Only publish to RubyGems if branch is 'master'
-    // AND the tag begins with 'v' ex) v5.3.2
+    // Only publish to RubyGems if the tag begins with 'v' ex) v5.3.2
     stage('Publish to RubyGems?') {
-      agent { label 'releaser-v2' }
+      agent { label 'executor-v2' }
 
-      when {
-        allOf {
-          branch 'master'; tag "v*"
-        }
-      }
+      when { tag "v*" }
       steps {
         // Clean up first
         sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'
