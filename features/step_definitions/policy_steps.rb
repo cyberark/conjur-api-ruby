@@ -13,6 +13,25 @@ Given(/^a new user$/) do
   expect(@user_api_key).to be
 end
 
+Given(/^a new delegated user$/) do
+  # Create a new host that is owned by that user
+  step 'a new user'
+  @user_owner = @user
+  @user_owner_id = @user_id
+  @user_owner_api_key = @user_api_key
+
+  # Create a new user that is owned by the user created earlier
+  @user_id = "user-#{random_hex}"
+  response = $conjur.load_policy 'root', <<-POLICY
+  - !user
+    id: #{@user_id}
+    owner: !user #{@user_owner_id}
+  POLICY
+  @user = $conjur.resource("cucumber:user:#{@user_id}")
+  @user_api_key = response.created_roles["cucumber:user:#{@user_id}"]['api_key']
+  expect(@user_api_key).to be
+end
+
 Given(/^a new group$/) do
   @group_id = "group-#{random_hex}"
   response = $conjur.load_policy 'root', <<-POLICY
@@ -28,6 +47,27 @@ Given(/^a new host$/) do
   response = $conjur.load_policy 'root', <<-POLICY
   - !host #{@host_id}
   POLICY
+  @host_api_key = response.created_roles["cucumber:host:#{@host_id}"]['api_key']
+  expect(@host_api_key).to be
+  @host = $conjur.resource("cucumber:host:#{@host_id}")
+  @host.attributes['api_key'] = @host_api_key
+end
+
+Given(/^a new delegated host$/) do
+  # Create an owner user
+  step 'a new user'
+  @host_owner = @user
+  @host_owner_id = @user_id
+  @host_owner_api_key = @user_api_key
+
+  # Create a new host that is owned by that user
+  @host_id = "app-#{random_hex}"
+  response = $conjur.load_policy 'root', <<-POLICY
+  - !host
+    id: #{@host_id}
+    owner: !user #{@host_owner_id}
+  POLICY
+
   @host_api_key = response.created_roles["cucumber:host:#{@host_id}"]['api_key']
   expect(@host_api_key).to be
   @host = $conjur.resource("cucumber:host:#{@host_id}")

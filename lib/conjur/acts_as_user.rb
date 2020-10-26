@@ -52,12 +52,16 @@ module Conjur
     # @note You will not be able to access the API key returned by this method later, so you should
     #   probably hang onto it it.
     #
-    # @note You cannot rotate your own API key with this method. To do so, use `Conjur::API.rotate_api_key`
+    # @note You cannot rotate your own API key with this method. To do so, use `Conjur::API.rotate_api_key`.
     #
     # @note This feature requires a Conjur appliance running version 4.6 or higher.
     #
     # @return [String] the new API key for this user.
     def rotate_api_key
+      if login == username
+        raise 'You cannot rotate your own API key via this method. To do so, use `Conjur::API.rotate_api_key`'
+      end
+
       url_for(:authn_rotate_api_key, credentials, account, id).put("").body
     end
   end

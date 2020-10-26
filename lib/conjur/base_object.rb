@@ -20,9 +20,9 @@ module Conjur
     include LogSource
     include BuildObject
     include Routing
-    
+
     attr_reader :id, :credentials
-    
+
     def initialize id, credentials
       @id = Id.new id
       @credentials = credentials
@@ -34,10 +34,18 @@ module Conjur
       }
     end
 
-    def account; id.account; end
-    def kind; id.kind; end
-    def identifier; id.identifier; end
-    
+    def account
+      id.account
+    end
+
+    def kind
+      id.kind
+    end
+
+    def identifier
+      id.identifier
+    end
+
     def username
       credentials[:username] or raise "No username found in credentials"
     end
@@ -45,6 +53,5 @@ module Conjur
     def inspect
       "<#{self.class.name} id='#{id.to_s}'>"
     end
-
   end
 end

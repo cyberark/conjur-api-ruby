@@ -60,11 +60,11 @@ describe Conjur::API do
       context "after expiration" do
         it 'it reads a new token' do
           expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
-          
+
           time_travel 6.minutes
           new_token = token.merge "timestamp" => Time.now.to_s
           write_token new_token
-          
+
           expect(api.token).to eq(new_token)
         end
       end
@@ -85,10 +85,10 @@ describe Conjur::API do
           it 'by refreshing' do
             allow(Conjur::API).to receive(:authenticate).with(login, api_key, account: account).and_return token
             expect(Time.parse(api.token['timestamp'])).to be_within(5.seconds).of(Time.now)
-            
+
             time_travel 6.minutes
             new_token = token.merge "timestamp" => Time.now.to_s
-            
+
             expect(Conjur::API).to receive(:authenticate).with(login, api_key, account: account).and_return new_token
             expect(api.token).to eq(new_token)
           end
@@ -118,7 +118,7 @@ describe Conjur::API do
         subject { super().credentials }
         it { is_expected.to eq({ headers: { authorization: "Token token=\"#{Base64.strict_encode64(token.to_json)}\"" }, username: login }) }
       end
-      
+
       context "with remote_ip" do
         let(:remote_ip) { "66.0.0.1" }
         describe '#credentials' do
@@ -153,7 +153,7 @@ describe Conjur::API do
       context 'basic functioning' do
         it_behaves_like 'it can clone itself'
       end
-      
+
       context "forwarded for" do
         let(:forwarded_for_header) { "66.0.0.1" }
         let(:headers) { base_headers.merge(x_forwarded_for: forwarded_for_header) }
@@ -169,6 +169,55 @@ describe Conjur::API do
 
     it "returns an appropriate role kind when username is qualified" do
       expect(Conjur::API.role_from_username(api, "host/foo/bar", account).id).to eq("#{account}:host:foo/bar")
+    end
+  end
+
+  describe "#username" do
+    let(:jwt_payload) do
+      'eyJzdWIiOiJ1c2VyLTlhYjBiYmZiOWJlNjA5Yzk2ZjUyN2Y1YiIsImlhdCI6MTYwMzQ5MDA4MH0='
+    end
+
+    let(:jwt_header) do
+      'eyJhbGciOiJjb25qdXIub3JnL3Nsb3NpbG8vdjIiLCJraWQiOiI2MWZjOGRiZDM4MjA4NDll' \
+      'ZDI4YTZhYTAwMzFjNjM5MjkxZjJmMDQzNDVjYTU0MWI5NzUxMGQ5NjkyM2I3NDlmIn0='
+    end
+
+    let(:conjur_token) do
+      {
+        'data' => 'conjur-user-1234',
+        'timestamp' => Time.now.to_s
+      }
+    end
+
+    let(:jwt_token) do
+      {
+        'protected' => jwt_header,
+        'payload' => jwt_payload,
+      }
+    end
+
+    it "can correctly extract the username from old Conjur token" do
+      expect(Conjur::API.new_from_token(conjur_token).username).to(
+        eq('conjur-user-1234')
+      )
+    end
+
+    context 'when using JWT token' do
+      it "can correctly extract username" do
+        expect(Conjur::API.new_from_token(jwt_token).username).to(
+          eq('user-9ab0bbfb9be609c96f527f5b')
+        )
+      end
+
+      it "returns nil when JWT token has no payload field" do
+        no_payload_jwt_token = { 'protected' => jwt_header }
+        expect(Conjur::API.new_from_token(no_payload_jwt_token).username).to be_nil
+      end
+
+      it "returns nil when JWT token has no 'sub' field in payload" do
+        no_sub_token = { 'payload' => 'eyJpYXQiOjE2MDM0OTAwODB9' }
+        expect(Conjur::API.new_from_token(no_sub_token).username).to be_nil
+      end
     end
   end
 

@@ -10,5 +10,4 @@ describe Conjur::BaseObject do
     expect(base_obj.inspect).to include("id='#{id_str}'")
     expect(base_obj.inspect).to include(Conjur::BaseObject.name)
   end
-
 end

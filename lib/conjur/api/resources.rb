@@ -20,7 +20,7 @@ module Conjur
   class API
     include QueryString
     include BuildObject
-    
+
     #@!group Resources
 
     # Find a resource by its id.
@@ -84,7 +84,7 @@ module Conjur
     def resources options = {}
       options = { host: Conjur.configuration.core_url, credentials: credentials }.merge options
       options[:account] ||= Conjur.configuration.account
-      
+
       host, credentials, account, kind = options.values_at(*[:host, :credentials, :account, :kind])
       fail ArgumentError, "host and account are required" unless [host, account].all?
       %w(host credentials account kind).each do |name|
