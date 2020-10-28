@@ -6,11 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- When rotating the currently logged in user's/host's API key, we now explictily
+  prevent use of `resource(<own_id>).rotate_api_key` for that action as the
+  `Conjur::API.rotate_api_key` should be used instead for that.
+  [cyberark/conjur-api-ruby#181](https://github.com/cyberark/conjur-api-ruby/issues/181)
+
 ## [5.3.3] - 2020-08-18
 ### Changed
 - Release process is updated to ensure that the published Ruby Gem matches a tag in this repository,
   so that consumers of this gem can always reference the correct source code included in any given version.
-  [cyberark/conjur-api-ruby](https://github.com/cyberark/conjur-api-ruby/issues/173)
+  [cyberark/conjur-api-ruby#173](https://github.com/cyberark/conjur-api-ruby/issues/173)
 
 ## 5.3.2 - 2018-09-24
 ### Added

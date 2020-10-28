@@ -123,19 +123,21 @@ module Conjur
     #
     # @return [String] the api key, or nil if this instance was created from a token.
     attr_reader :api_key
-    
+
     #@!attribute [r] remote_ip
     # An optional IP address to be recorded in the audit record for any actions performed by this API instance.
     attr_reader :remote_ip
 
     # The name of the user as which this api instance is authenticated.  This is available whether the api
-    # instance was created from credentials or an authentication token.
+    # instance was created from credentials or an authentication token. If the instance was created from
+    # credentials, we will use that value directly otherwise we will attempt to extract the username from
+    # the token (either the old-style data field or the new-style JWT `sub` field).
     #
     # @return [String] the login of the current user.
     def username
-      @username || token['data']
+      @username || token['data'] || jwt_username(token)
     end
-    
+
     # @api private
     # used to delegate to host providing subclasses.
     # @return [String] the host
@@ -213,7 +215,7 @@ module Conjur
         @account = account
         @username = username
         @api_key = api_key
-        
+
         update_token_born
       end
 
@@ -322,6 +324,18 @@ module Conjur
     attr_reader :authenticator
 
     private
+
+    # Tries to get the username (subject) from a JWT API token by examining
+    # its content.
+    #
+    # @return [String] of the 'sub' payload field from the JWT if present,
+    # otherwise return nil
+    def jwt_username raw_token
+      return nil unless raw_token
+      return nil unless raw_token.include? 'payload'
+
+      JSON.parse(Base64.strict_decode64(raw_token["payload"]))["sub"]
+    end
 
     # Tries to refresh the token if possible.
     #

@@ -169,7 +169,7 @@ module Conjur
         def ldap_sync_policy(credentials, config_name)
           RestClient::Resource.new(Conjur.configuration.core_url, credentials)['ldap-sync']["policy?config_name=#{fully_escape(config_name)}"]
         end
-        
+
         private
 
         def resource_annotations resource
