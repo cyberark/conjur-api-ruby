@@ -1,4 +1,4 @@
-# Copyright 2013-2017 Conjur Inc.
+# Copyright 2013-2020 Conjur Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,6 +19,6 @@
 
 module Conjur
   class API
-    VERSION = "5.3.3"
+    VERSION = "5.3.4"
   end
 end
