@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - When rotating the currently logged in user's/host's API key, we now explictily
-  prevent use of `resource(<own_id>).rotate_api_key` for that action as the
+  prevent use of `resource({own_id}).rotate_api_key` for that action as the
   `Conjur::API.rotate_api_key` should be used instead for that. This change is a
   downstream enforcement of the stricter key rotation requirements on the server
   covered by [this](https://github.com/cyberark/conjur/security/advisories/GHSA-qhjf-g9gm-64jq)
