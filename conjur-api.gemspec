@@ -2,8 +2,8 @@
 require File.expand_path('../lib/conjur-api/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["Rafal Rzepecki","Kevin Gilpin"]
-  gem.email         = ["rafal@conjur.net","kgilpin@conjur.net"]
+  gem.authors       = ["CyberArk Maintainers"]
+  gem.email         = ["conj_maintainers@cyberark.com"]
   gem.description   = %q{Conjur API}
   gem.summary       = %q{Conjur API}
   gem.homepage      = "https://github.com/cyberark/conjur-api-ruby/"
