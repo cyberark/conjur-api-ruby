@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Add `rest_client_options` option to `Conjur.configuration`. This allows users to
+  configure the RestClient instance used by Conjur API to communicate with the Conjur 
+  server.
+  [cyberark/conjur-api-ruby#188](https://github.com/cyberark/conjur-api-ruby/issues/188)
+
+### Changed
+- Replace monkey patching `RestClient::Request` with defaults on `Conjur.configuration.rest_client_options`
+  in order to limit the scope of the default `:ssl_cert_store` option only to inside
+  Conjur API. 
+  [cyberark/conjur-api-ruby#188](https://github.com/cyberark/conjur-api-ruby/issues/188)
+
 ## [5.3.4] - 2020-10-29
 
 ### Changed
