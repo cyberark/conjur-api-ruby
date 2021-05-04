@@ -29,6 +29,28 @@ describe Conjur::Configuration do
       configuration.account = "the-account"
       configuration.appliance_url = "https://conjur/api"
     }
+
+    it "rest_client_options defaults" do
+      expected = {
+        ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+      }
+      expect(configuration.rest_client_options).to eq(expected)
+    end
+
+    it "rest_client_options propagate to RestClient::Resource" do
+      expected = {
+        ssl_ca_file: "ca_certificate.pem",
+        proxy: "http://proxy.example.com/"
+      }
+      configuration.rest_client_options = {
+        ssl_ca_file: "ca_certificate.pem",
+        proxy: "http://proxy.example.com/"
+      }
+
+      resource = Conjur::API.url_for(:authn_login, *["account", "username", "password"])
+      expect(resource.options).to include(expected)
+    end
+
     it "can still be changed by changing the appliance_url" do
       configuration.appliance_url = "https://other/api"
       expect(configuration.core_url).to eq "https://other/api"
@@ -40,7 +62,7 @@ describe Conjur::Configuration do
       expect(configuration.authn_url).to eq "http://authn-docker"
     end
 
-    context "and duplicated" do 
+    context "and duplicated" do
       subject { configuration.clone override_options }
       let(:override_options) { Hash.new }
 
@@ -72,7 +94,7 @@ describe Conjur::Configuration do
       end
     end
   end
-    
+
   describe "url generation" do
     describe 'authn_url' do
       before {
@@ -281,7 +303,7 @@ RjvSxre4Xg2qlI9Laybb4oZ4g6DI8hRbL0VdFAsveg6SXg2RxgJcXeJUFw==
           expect(subject).to be_truthy
         end
       end
-      
+
     end
 
     context 'when cert file is not readable' do

@@ -50,7 +50,7 @@ module Conjur
         url_for(:authn_login, account, username, password).get
       end
 
-      # Exchanges Conjur the API key (refresh token) for an access token.  The access token can 
+      # Exchanges Conjur the API key (refresh token) for an access token.  The access token can
       # then be used to authenticate further API calls.
       #
       # @param [String] username The username or host id for which we want a token
@@ -65,7 +65,7 @@ module Conjur
         JSON.parse url_for(:authn_authenticate, account, username).post(api_key, content_type: 'text/plain')
       end
 
-      # Obtains an access token from the +authn_local+ service. The access token can 
+      # Obtains an access token from the +authn_local+ service. The access token can
       # then be used to authenticate further API calls.
       #
       # @param [String] username The username or host id for which we want a token
@@ -80,7 +80,7 @@ module Conjur
         require 'json'
         require 'socket'
         message = url_for(:authn_authenticate_local, username, account, expiration, cidr)
-        JSON.parse(UNIXSocket.open(Conjur.configuration.authn_local_socket) {|s| s.puts message; s.gets })        
+        JSON.parse(UNIXSocket.open(Conjur.configuration.authn_local_socket) {|s| s.puts message; s.gets })
       end
 
       # Change a user's password.  To do this, you must have the user's current password.  This does not change or rotate

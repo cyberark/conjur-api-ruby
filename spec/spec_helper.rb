@@ -84,7 +84,7 @@ end
 require 'conjur/api'
 
 KIND="asset_kind"
-ID="unique_id" 
+ID="unique_id"
 ROLE='<role>'
 MEMBER='<member>'
 PRIVILEGE='<privilege>'

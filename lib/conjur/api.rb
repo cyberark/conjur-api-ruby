@@ -50,24 +50,6 @@ require 'conjur/layer'
 require 'conjur/cache'
 require 'conjur-api/version'
 
-# Monkey patch RestClient::Request so it always uses
-# :ssl_cert_store. (RestClient::Resource uses Request to send
-# requests, so it sees :ssl_cert_store, too).
-# @api private
-class RestClient::Request
-  alias_method :initialize_without_defaults, :initialize
-
-  def default_args
-    {
-      ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
-    }
-  end
-
-  def initialize args
-    initialize_without_defaults default_args.merge(args)
-  end
-end
-
 # @api private
 class RestClient::Resource
   include Conjur::Escape

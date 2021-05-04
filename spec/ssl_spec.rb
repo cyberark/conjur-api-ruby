@@ -16,16 +16,14 @@ describe 'SSL connection' do
 
   context 'with certificate added to the default OpenSSL cert store' do
     before do
-      store = OpenSSL::X509::Store.new
-      store.add_cert cert
-      stub_const 'OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE', store
+      cert_store.add_cert(cert)
     end
 
     it 'works' do
       expect { Conjur::API.login 'foo', 'bar', account: "the-account" }.to raise_error RestClient::ResourceNotFound
     end
   end
-  
+
   let(:server) do
     server = WEBrick::HTTPServer.new \
         Port: 0, SSLEnable: true,
@@ -33,8 +31,14 @@ describe 'SSL connection' do
         SSLCertificate: cert, SSLPrivateKey: key
   end
   let(:port) { server.config[:Port] }
+  let(:cert_store) { OpenSSL::X509::Store.new }
 
   before do
+    # Reset configuration to allow each test to use its own stub
+    # of OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE.
+    Conjur.configuration = nil
+    stub_const 'OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE', cert_store
+
     allow(Conjur.configuration).to receive(:authn_url).and_return "https://localhost:#{port}"
   end
 
@@ -50,15 +54,23 @@ describe 'SSL connection' do
   let(:cert) do
     OpenSSL::X509::Certificate.new """
       -----BEGIN CERTIFICATE-----
-      MIIBpDCCAQ2gAwIBAgIJALVPXQuF0w39MA0GCSqGSIb3DQEBCwUAMBQxEjAQBgNV
-      BAMMCWxvY2FsaG9zdDAeFw0xNTAyMTQxNTE0MDFaFw0yNTAyMTExNTE0MDFaMBQx
-      EjAQBgNVBAMMCWxvY2FsaG9zdDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA
-      n+IqEsmbuZk7E2GdPZpBxETjXC+dGze5XlZHPyKviekQ9sachAsBWApVrjM2QDtf
-      KOwa6GuBqGQ0bdl4Ui7I0CIGB4a0UJHU/EvuDhI1cTzAVVWemW1QaqKxI/2xDgs9
-      bqY471iVirRiSYD+6lm2pFYqOnnR/d+QKIMXhPOi0DMCAwEAATANBgkqhkiG9w0B
-      AQsFAAOBgQCSPchDKAiVPNJlRkaY9KPIXfPbFX6h/+ilJRl1xtHqY+y4SxURbnU0
-      fbYVnapKiuMnrnxTWXwl1z1iMbuuzjUC0RDz8F9pZkQ9IJpBSOaSfyUmk1JrrBRU
-      INyaxnJjtc7YIzW1Yz7+aKtzZAQuFXNhiQa+CIIGeWrpzbExo2ce3Q==
+      MIIDCzCCAfOgAwIBAgIUaApjB95cJZlMTwDg4EBk4Mf1y4swDQYJKoZIhvcNAQEL
+      BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MCAXDTIxMDQyODIxNTA1OFoYDzQ3NTkw
+      MzI1MjE1MDU4WjAUMRIwEAYDVQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEB
+      AQUAA4IBDwAwggEKAoIBAQC+MIx1LCzBeAl7kHfI21wYmA6W8luyq14+DecaQPMd
+      bW7fMlHSMJC/nlFDQyqmfYfKlVCiJRV/QTdUtA9hCytPlEKjlVmm4WIYLKfjj8Sp
+      A+X9VURk75Fz+Z7UsF8u2J3pF9wFfhBzznwePlFdcWYyQMIRtghoHk/WSsbJVXVQ
+      so7+0BLFyMYB3otfCyK+H/iyoXWLZll2irYZJedVm/lyTlnc9dT1XDAWWI8kSeUV
+      lCkEulqOf8qZyU7wNUafRkzBuYkR7ddp1Qdkq+QYw7blmfZXyJbAYSt4gEMyDMk8
+      ArScP8j+Efz5D54wS7fZFwmQp41+iP5WTxGsSU3dh44fAgMBAAGjUzBRMB0GA1Ud
+      DgQWBBS4ZJDxXOs8rK3+SyfLopDFqK0IWDAfBgNVHSMEGDAWgBS4ZJDxXOs8rK3+
+      SyfLopDFqK0IWDAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAE
+      WuzjqQ/gyho/pluX31hq7EMAFgqqz7ECN6DqmvpqabMD6s1kQ662KTo7gCBEcNtA
+      nC7QycFp4v/Cr8+aUEa1W3+q2MqbmshORonUrLE/vxejK+NUvhSCWnmrM8v60zhR
+      pn9lSSgQCBKWDgaU0VQVn0I9MuexeAj64Qv2uUHnZK3QUx+Gk3uurTmhKEN5FI+D
+      sC7xO0qquTZ1Vv1EkLEso4dnFVW84EjdfmfeiW6JmHO7z1p1ebGsRwoQead/qTKw
+      ze+Y1A1w3GzuhDo55aHlWE/Wvnou0aM3O9gUd++a2j+XJ2P7qaTB/L7SJk4qZ9RA
+      t2PbKVP+tyZjXKtXmgzp
       -----END CERTIFICATE-----
     """.lines.map(&:strip).join("\n")
   end
@@ -66,19 +78,31 @@ describe 'SSL connection' do
   let(:key) do
     OpenSSL::PKey.read """
       -----BEGIN RSA PRIVATE KEY-----
-      MIICXAIBAAKBgQCf4ioSyZu5mTsTYZ09mkHERONcL50bN7leVkc/Iq+J6RD2xpyE
-      CwFYClWuMzZAO18o7Broa4GoZDRt2XhSLsjQIgYHhrRQkdT8S+4OEjVxPMBVVZ6Z
-      bVBqorEj/bEOCz1upjjvWJWKtGJJgP7qWbakVio6edH935AogxeE86LQMwIDAQAB
-      AoGAUCDb7zCFUB4gglUgpfgCT+gqflAKj9J8n2/kIxsyGI7rBpKBbJfLY6FCUZyu
-      6sAWr/6seaEviQI3WHpuF9oEn6gzb1XWpKH7h9ZAu5O2sscdrc5MrpFmBvGjMBnd
-      80u/TcsDHX453QbPgqOJTi+Qt15Y+Ot/iE8ccQjW6pMPiCECQQDLQvNekVF7YJ9e
-      iJNZSJMcx2c9hjAuywm/jPX+57k0xRlxGKCQxyujmxDfztDYU9kHMRHknbxz0sFr
-      0Vkaxo1DAkEAyV3z6vvTtUx7R5IYOUkZqIfeQ6k6ZItQoZdZPKoBW0s7QhqvJyZN
-      qeYJMaFR87A6273LwhpXZTvQwSYUUw6KUQJAQAIfXaJphG7TARQFQtKF8UQiEM/X
-      EIVD1pxvQwx52FJRRro4ph7ycRz93Vzli5or+AXN2q6Jj/fIjUlpw/LOvQJAfyPO
-      FUjpM+hVUiwhFVJdW/ZlVK0tzDvWLiDkXBQvBRhsEuHMQ1jA4ov2tBpaJxXXI9Uj
-      KKv/EFEDDmDfpk1g8QJBAIJhDsxKWgUy1lk+lGYdWRQi/D/BnkNbySklCypmZghu
-      Q6oXJNYB9NWLRWDJaGHlHrAn40Wq6MUx95Aomvj+uHA=
+      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
       -----END RSA PRIVATE KEY-----
     """.lines.map(&:strip).join("\n")
   end

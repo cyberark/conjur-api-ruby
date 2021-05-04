@@ -24,7 +24,6 @@ require 'set'
 require 'conjur/cert_utils'
 
 module Conjur
-  
   class << self
     # Saves the current thread local {Conjur::Configuration},
     # sets the thread local {Conjur::Configuration} to `config`, yields to the block, and ensures that
@@ -68,7 +67,7 @@ module Conjur
     ensure
       Thread.current[:conjur_configuration] = oldvalue
     end
-    
+
     # Gets the current thread-local or global configuration.
     #
     # The thread-local Conjur configuration can only be set using the {Conjur.with_configuration}
@@ -79,7 +78,7 @@ module Conjur
     def configuration
       Thread.current[:conjur_configuration] || (@config ||= Configuration.new)
     end
-    
+
     # Sets the global configuration.
     #
     # This method *has no effect* on the thread local configuration.  Use {Conjur.with_configuration} instead if
@@ -191,25 +190,25 @@ module Conjur
       @supplied = options.dup
       @computed = Hash.new
     end
-    
+
     class << self
       # @api private
       def accepted_options
         require 'set'
         @options ||= Set.new
       end
-      
+
       # @param [Symbol] name
       # @param [Hash] options
-      # @option options [Boolean] :boolean (false) whether this option should have a '?' accessor 
+      # @option options [Boolean] :boolean (false) whether this option should have a '?' accessor
       # @option options [Boolean, String] :env Environment variable for this option.  Set to false
       #   to disallow environment based configuration.  Default is CONJUR_<OPTION_NAME>.
       # @option options [Proc, *] :default Default value or proc to provide it
       # @option options [Boolean] :required (false) when true, raise an exception if the option is
       #   not set
-      # @option options [Proc, #to_proc] :convert proc-ish to convert environment 
+      # @option options [Proc, #to_proc] :convert proc-ish to convert environment
       #   values to appropriate types
-      # @param [Proc] def_proc block to provide default values 
+      # @param [Proc] def_proc block to provide default values
       # @api private
       def add_option name, options = {}, &def_proc
         accepted_options << name
@@ -217,7 +216,7 @@ module Conjur
         env_var = options[:env] || "CONJUR_#{name.to_s.upcase}"
         def_val = options[:default]
         opt_name = name
-        
+
         def_proc ||= if def_val.respond_to?(:call)
           def_val
         elsif options[:required]
@@ -225,10 +224,10 @@ module Conjur
         else
           proc { def_val }
         end
-        
+
         convert = options[:convert] || ->(x){ x }
         # Allow a Symbol, for example
-        convert = convert.to_proc if convert.respond_to?(:to_proc) 
+        convert = convert.to_proc if convert.respond_to?(:to_proc)
 
         define_method("#{name}=") do |value|
           set name, value
@@ -237,7 +236,7 @@ module Conjur
         define_method("#{name}_env_var") do
           allow_env ? env_var : nil
         end
-        
+
         define_method(name) do
           value = computed[name]
           return value unless value.nil?
@@ -246,7 +245,7 @@ module Conjur
             supplied[name]
           elsif allow_env && ENV.member?(env_var)
             instance_exec(ENV[env_var], &convert)
-          else 
+          else
             instance_eval(&def_proc)
           end.tap do |value|
             computed[name] = value
@@ -256,7 +255,7 @@ module Conjur
         alias_method("#{name}?", name) if options[:boolean]
       end
     end
-    
+
     # Return a copy of this {Conjur::Configuration} instance, optionally
     # updating the copy with options from the `override_options` hash.
     #
@@ -290,8 +289,8 @@ module Conjur
     #
     # The url for the {http://developer.conjur.net/reference/services/authentication Conjur authentication service}.
     #
-    # By default, this will be built from the +appliance_url+. To use a custom authenticator, 
-    # set this option in code or set `CONJUR_AUTHN_URL`. 
+    # By default, this will be built from the +appliance_url+. To use a custom authenticator,
+    # set this option in code or set `CONJUR_AUTHN_URL`.
     #
     #
     # @return [String] the authentication service url
@@ -369,10 +368,30 @@ module Conjur
     # @see cert_file
     add_option :ssl_certificate
 
+    # @!attribute rest_client_options
+    #
+    # Custom options for the underlying RestClient Requests. This defaults to:
+    # ```
+    # {
+    #   ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+    # }
+    # ``
+    #
+    # The `ssl_cert_store` value aligns with the default certificate store used by
+    # {#apply_cert_config!}.
+    #
+    # NOTE: When setting the value of rest_client_options the defaults are not retained,
+    # you must manually set them on the value you provide.
+    add_option :rest_client_options do
+      {
+        ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+      }
+    end
+
     # @!attribute version
     #
     # Selects the major API version of the Conjur server. With this setting, the API
-    # will use the routing scheme for API version `4` or `5`. 
+    # will use the routing scheme for API version `4` or `5`.
     #
     # Methods which are not available in the selected version will raise NoMethodError.
     add_option :version, default: 5
@@ -382,6 +401,12 @@ module Conjur
     # File path to the Unix socket used for local authentication.
     # This is only available when the API client is running on the Conjur server.
     add_option :authn_local_socket, default: "/run/authn-local/.socket"
+
+    # Create rest_client_options by merging the input with the
+    # rest_client_options present on the configuration object.
+    def create_rest_client_options options
+      rest_client_options.merge(options || {})
+    end
 
     # Calls a major-version-specific function.
     def version_logic v4_logic, v5_logic
@@ -397,6 +422,9 @@ module Conjur
 
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
     # store used by Conjur clients.
+    #
+    # NOTE: If you specify a non-default `store` value, you must manually set the
+    # `ssl_cert_store` value on {#rest_client_options} to the same value.
     #
     # @param [OpenSSL::X509::Store] store the certificate store that the certificate will be installed in.
     # @return [Boolean]  whether a certificate was added to the store.
