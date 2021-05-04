@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.3.5] - 2021-05-04
+
 ### Added
 - Add `rest_client_options` option to `Conjur.configuration`. This allows users to
   configure the RestClient instance used by Conjur API to communicate with the Conjur 
@@ -344,7 +346,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2013-13-12
 
-[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.4...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.5...HEAD
+[5.3.5]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.4...v5.3.5
 [5.3.4]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.3...v5.3.4
 [5.3.3]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.1...v5.3.3
 [5.3.1]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.0...v5.3.1
