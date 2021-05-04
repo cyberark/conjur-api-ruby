@@ -1,4 +1,4 @@
-title = "Secretless Broker gitleaks config"
+title = "Conjur API Ruby gitleaks config"
 
 # This is the config file for gitleaks. You can configure gitleaks what to search for and what to whitelist.
 # If GITLEAKS_CONFIG environment variable

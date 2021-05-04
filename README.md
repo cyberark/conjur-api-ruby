@@ -128,6 +128,28 @@ Conjur::API.new_from_key login, api_key
 Note that if you are connecting as a [Host](http://developer.conjur.net/reference/services/directory/host), the login should be
 prefixed with `host/`. For example: `host/myhost.example.com`, not just `myhost.example.com`.
 
+## Configuring RestClient
+
+[Conjur::Configuration](https://github.com/conjurinc/api-ruby/blob/master/lib/conjur/configuration.rb)
+allows optional configuration of the [RestClient](https://github.com/rest-client/rest-client)
+instance used by Conjur API to communicate with the Conjur server, via the options hash
+`Conjur.configuration.rest_client_options`.
+
+The default value for the options hash is:
+```ruby
+{
+  ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+}
+```
+
+For example, here's how you would configure the client to use a proxy and `ssl_ca_file` (instead of the default `ssl_cert_store`).
+```ruby
+Conjur.configuration.rest_client_options = {
+    ssl_ca_file: "ca_certificate.pem",
+    proxy: "http://proxy.example.com/"
+}
+```
+
 ## Contributing
 
 We welcome contributions of all kinds to this repository. For instructions on how to get started and descriptions of our development workflows, please see our [contributing
