@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+: "${RUBY_VERSION=2.5}"
+# My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
+RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
+
+
 function finish {
   echo 'Removing test environment'
   echo '---'
@@ -8,20 +13,6 @@ function finish {
 
 trap finish EXIT
 
-function publishToCodeClimate() {
-  docker build -f ci/codeclimate.dockerfile -t cyberark/code-climate:latest .
-  docker run \
-    --rm \
-    -e GIT_BRANCH \
-    -e GIT_COMMIT \
-    -e TRID \
-    --volume "$PWD:/src/conjur-api" \
-    -w "/src/conjur-api" \
-    cyberark/code-climate:latest \
-      after-build \
-        -r "$(<TRID)" \
-        -t "simplecov"
-}
 
 function main() {
   # Generate reports folders locally
@@ -30,7 +21,6 @@ function main() {
   startConjur
   runTests_5
   runTests_4
-  publishToCodeClimate
 }
 
 function startConjur() {
@@ -42,8 +32,7 @@ function startConjur() {
   # However, unconditionally pulling prevents working offline even
   # with a warm cache. So try to pull, but ignore failures.
   docker-compose pull --ignore-pull-failures
-
-  docker-compose build
+  docker-compose build --build-arg RUBY_VERSION="$RUBY_VERSION"
   docker-compose up -d pg conjur_4 conjur_5
 }
 

@@ -1,4 +1,5 @@
-FROM ruby:2.3
+ARG RUBY_VERSION
+FROM ruby:$RUBY_VERSION
 
 RUN apt-get update && apt-get install -y vim curl
 
