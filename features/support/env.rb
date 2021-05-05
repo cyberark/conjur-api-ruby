@@ -2,7 +2,9 @@ require 'simplecov'
 require 'simplecov-cobertura'
 
 SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-SimpleCov.start
+SimpleCov.start do
+  command_name "#{ENV['RUBY_VERSION']}"
+end
 
 require 'json_spec/cucumber'
 require 'conjur/api'

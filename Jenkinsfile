@@ -13,20 +13,24 @@ pipeline {
   }
 
   stages {
-    stage('Validate') {
-      parallel {
-        stage('Changelog') {
-          steps { sh './bin/parse-changelog.sh' }
+    stage('Validate Changelog') {
+      steps { sh './bin/parse-changelog.sh' }
+    }
+
+    stage('Prepare CC Report Dir'){
+      steps {
+        script {
+          ccCoverage.dockerPrep()
+          sh 'mkdir -p coverage'
         }
       }
     }
 
-    stage('Test') {
+    stage('Test 2.4') {
+      environment {
+        RUBY_VERSION = '2.4'
+      }
       steps {
-        script {
-          ccCoverage.setGitEnvVars();
-        }
-        milestone(1)
         sh './test.sh'
       }
 
@@ -35,7 +39,57 @@ pipeline {
           junit 'spec/reports/*.xml'
           junit 'features/reports/*.xml'
           junit 'features_v4/reports/*.xml'
-          cobertura autoUpdateHealth: true, autoUpdateStability: true, coberturaReportFile: 'coverage/coverage.xml', conditionalCoverageTargets: '100, 0, 0', failUnhealthy: true, failUnstable: false, lineCoverageTargets: '99, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '100, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+        }
+      }
+    }
+
+    stage('Test 2.5') {
+      environment {
+        RUBY_VERSION = '2.5'
+      }
+      steps {
+        sh './test.sh'
+      }
+
+      post {
+        always {
+          junit 'spec/reports/*.xml'
+          junit 'features/reports/*.xml'
+          junit 'features_v4/reports/*.xml'
+        }
+      }
+    }
+
+    stage('Test 2.6') {
+      environment {
+        RUBY_VERSION = '2.6'
+      }
+      steps {
+        sh './test.sh'
+      }
+
+      post {
+        always {
+          junit 'spec/reports/*.xml'
+          junit 'features/reports/*.xml'
+          junit 'features_v4/reports/*.xml'
+          cobertura autoUpdateHealth: true, autoUpdateStability: true, coberturaReportFile: 'coverage/coverage.xml',
+            conditionalCoverageTargets: '100, 0, 0', failUnhealthy: true, failUnstable: false, lineCoverageTargets: '99, 0, 0',
+            maxNumberOfBuilds: 0, methodCoverageTargets: '100, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+        }
+      }
+    }
+
+    stage('Submit Coverage Report'){
+      steps{
+        sh 'ci/submit-coverage'
+        publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '',
+          allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+      }
+
+      post {
+        always {
+          archiveArtifacts artifacts: "coverage/.resultset.json", fingerprint: false
         }
       }
     }
