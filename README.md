@@ -11,7 +11,7 @@ The Conjur server comes in two major versions:
 * **4.x** Conjur 4 is a commercial, non-open-source product, which is documented at [https://developer.conjur.net/](https://developer.conjur.net/).
 * **5.x** Conjur 5 is open-source software, hosted and documented at [https://www.conjur.org/](https://www.conjur.org/).
 
-You can use the `master` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
+You can use the `main` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
 
 * Authenticate
 * Fetch secrets
@@ -155,7 +155,7 @@ Conjur.configuration.rest_client_options = {
 We welcome contributions of all kinds to this repository. For instructions on how to get started and descriptions of our development workflows, please see our [contributing
 guide][contrib].
 
-[contrib]: https://github.com/cyberark/conjur-api-ruby/blob/master/CONTRIBUTING.md
+[contrib]: https://github.com/cyberark/conjur-api-ruby/blob/main/CONTRIBUTING.md
 
 ## License
 
