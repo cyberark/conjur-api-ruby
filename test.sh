@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-: "${RUBY_VERSION=2.5}"
+: "${RUBY_VERSION=2.7}"
 # My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
 RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
 

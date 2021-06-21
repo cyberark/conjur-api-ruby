@@ -26,23 +26,6 @@ pipeline {
       }
     }
 
-    stage('Test 2.4') {
-      environment {
-        RUBY_VERSION = '2.4'
-      }
-      steps {
-        sh './test.sh'
-      }
-
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
-        }
-      }
-    }
-
     stage('Test 2.5') {
       environment {
         RUBY_VERSION = '2.5'
@@ -63,6 +46,23 @@ pipeline {
     stage('Test 2.6') {
       environment {
         RUBY_VERSION = '2.6'
+      }
+      steps {
+        sh './test.sh'
+      }
+
+      post {
+        always {
+          junit 'spec/reports/*.xml'
+          junit 'features/reports/*.xml'
+          junit 'features_v4/reports/*.xml'
+        }
+      }
+    }
+
+    stage('Test 2.7') {
+      environment {
+        RUBY_VERSION = '2.7'
       }
       steps {
         sh './test.sh'
