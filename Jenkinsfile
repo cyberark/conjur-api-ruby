@@ -77,6 +77,23 @@ pipeline {
       }
     }
 
+    stage('Test 3.0') {
+      environment {
+        RUBY_VERSION = '3.0'
+      }
+      steps {
+        sh './test.sh'
+      }
+
+      post {
+        always {
+          junit 'spec/reports/*.xml'
+          junit 'features/reports/*.xml'
+          junit 'features_v4/reports/*.xml'
+        }
+      }
+    }
+
     stage('Submit Coverage Report'){
       steps{
         sh 'ci/submit-coverage'
