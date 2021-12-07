@@ -4,20 +4,20 @@ require 'fakefs/spec_helpers'
 describe Conjur::API do
 
   let(:account) { 'api-spec-acount' }
+  let(:remote_ip) { nil }
   before { allow(Conjur.configuration).to receive_messages account: account }
 
   shared_context "logged in", logged_in: true do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => Time.now.to_s } }
-    let(:remote_ip) { nil }
-    let(:api_args) { [ token, { remote_ip: remote_ip } ] }
+    let(:api_args) { [ token, remote_ip ] }
     subject(:api) { Conjur::API.new_from_token(*api_args) }
   end
 
   shared_context "logged in with an API key", logged_in: :api_key do
     include_context "logged in"
     let(:api_key) { "theapikey" }
-    let(:api_args) { [ login, api_key, { remote_ip: remote_ip, account: account } ] }
+    let(:api_args) { [ login, api_key, remote_ip, account ] }
     subject(:api) { Conjur::API.new_from_key(*api_args) }
   end
 
@@ -25,7 +25,7 @@ describe Conjur::API do
     include FakeFS::SpecHelpers
     include_context "logged in"
     let(:token_file) { "token_file" }
-    let(:api_args) { [ token_file, { remote_ip: remote_ip } ] }
+    let(:api_args) { [ token_file, remote_ip ] }
     subject(:api) { Conjur::API.new_from_token_file(*api_args) }
   end
 

@@ -82,6 +82,7 @@ module Conjur
         # Leave colons and forward slashes alone
         require 'uri'
         pattern = URI::PATTERN::UNRESERVED + ":\\/@"
+        #Addressable::URI.escape(str.to_s, Regexp.new("[^#{pattern}]"))
         URI.escape(str.to_s, Regexp.new("[^#{pattern}]"))
       end
     end
