@@ -80,9 +80,9 @@ module Conjur
         return "false" unless str
         str = str.id if str.respond_to?(:id)
         # Leave colons and forward slashes alone
-        require 'uri'
+        require 'addressable/uri'
         pattern = URI::PATTERN::UNRESERVED + ":\\/@"
-        Addressable::URI.escape(str.to_s, Regexp.new("[^#{pattern}]"))
+        Addressable::URI.encode(str.to_s)
       end
     end
 
