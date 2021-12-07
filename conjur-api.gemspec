@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.executables -= %w{parse-changelog.sh}
 
   gem.add_dependency 'rest-client'
-  gem.add_dependency 'activesupport'
+  gem.add_dependency 'activesupport', '>= 4.2'
 
   gem.add_development_dependency 'rake', '>= 12.3.3'
   gem.add_development_dependency 'rspec', '~> 3'
