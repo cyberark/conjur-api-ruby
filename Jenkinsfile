@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+import hudson.model.*
 
 pipeline {
   agent { label 'executor-v2' }
@@ -26,72 +27,74 @@ pipeline {
       }
     }
 
-    stage('Test 2.5') {
-      environment {
-        RUBY_VERSION = '2.5'
-      }
-      steps {
-        sh './test.sh'
-      }
+    stage('Tests for different ruby versions') {
+        parallel {
+          stage('Ruby 2.5') {
+            environment {
+        	  RUBY_VERSION = '2.5'
+        	}
+        	steps {
+        	  sh("./test.sh")
+        	}
+        	post {
+        	  always {
+        	    junit 'spec/reports/*.xml'
+        	    junit 'features/reports/*.xml'
+        	    junit 'features_v4/reports/*.xml'
+        	  }
+        	}
+          }
 
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+          stage('Ruby 2.6') {
+            environment {
+              RUBY_VERSION = '2.6'
+        	}
+        	steps {
+        	  sh("./test.sh")
+        	}
+        	post {
+        	  always {
+        	    junit 'spec/reports/*.xml'
+        		junit 'features/reports/*.xml'
+        		junit 'features_v4/reports/*.xml'
+        	  }
+        	}
+          }
+
+          stage('Ruby 2.7') {
+            environment {
+              RUBY_VERSION = '2.7'
+        	}
+            steps {
+        	  sh("./test.sh")
+        	}
+
+        	post {
+        	  always {
+        	    junit 'spec/reports/*.xml'
+        	    junit 'features/reports/*.xml'
+        	    junit 'features_v4/reports/*.xml'
+        	  }
+        	}
+          }
+
+          stage('Ruby 3.0.2') {
+            environment {
+        	  RUBY_VERSION = '3.0.2'
+        	}
+        	steps {
+        	  sh("./test.sh")
+        	}
+
+        	post {
+        	  always {
+        	    junit 'spec/reports/*.xml'
+        	    junit 'features/reports/*.xml'
+        	    junit 'features_v4/reports/*.xml'
+        	  }
+        	}
+          }
         }
-      }
-    }
-
-    stage('Test 2.6') {
-      environment {
-        RUBY_VERSION = '2.6'
-      }
-      steps {
-        sh './test.sh'
-      }
-
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
-        }
-      }
-    }
-
-    stage('Test 2.7') {
-      environment {
-        RUBY_VERSION = '2.7'
-      }
-      steps {
-        sh './test.sh'
-      }
-
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
-        }
-      }
-    }
-
-    stage('Test 3.0') {
-      environment {
-        RUBY_VERSION = '3.0.2'
-      }
-      steps {
-        sh './test.sh'
-      }
-
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
-        }
-      }
     }
 
     stage('Submit Coverage Report'){
