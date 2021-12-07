@@ -79,7 +79,7 @@ pipeline {
 
     stage('Test 3.0') {
       environment {
-        RUBY_VERSION = '3.0'
+        RUBY_VERSION = '3.0.2'
       }
       steps {
         sh './test.sh'
