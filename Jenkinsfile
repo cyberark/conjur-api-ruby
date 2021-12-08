@@ -26,6 +26,8 @@ pipeline {
       }
     }
 
+    stage ("Parallel") {
+    parallel {
     stage('Test 2.5') {
       environment {
         RUBY_VERSION = '2.5'
@@ -36,9 +38,9 @@ pipeline {
 
       post {
         always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+          junit '**/spec/reports/*.xml'
+          junit '**/features/reports/*.xml'
+          junit '**/features_v4/reports/*.xml'
         }
       }
     }
@@ -53,9 +55,9 @@ pipeline {
 
       post {
         always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+          junit '**/spec/reports/*.xml'
+          junit '**/features/reports/*.xml'
+          junit '**/features_v4/reports/*.xml'
         }
       }
     }
@@ -70,11 +72,13 @@ pipeline {
 
       post {
         always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+          junit '**/spec/reports/*.xml'
+          junit '**/features/reports/*.xml'
+          junit '**/features_v4/reports/*.xml'
         }
       }
+    }
+    }
     }
 
     stage('Submit Coverage Report'){

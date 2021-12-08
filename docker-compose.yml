@@ -19,15 +19,11 @@ services:
     security_opt:
       - seccomp:unconfined
     volumes:
-      - ./features_v4/support/policy.yml:/etc/policy.yml
+      - ../features_v4/support/policy.yml:/etc/policy.yml
       - authn_local_4:/run/authn-local
 
   tester_5:
-    build:
-        context: .
-        dockerfile: Dockerfile
-        args:
-          RUBY_VERSION: ${RUBY_VERSION}
+    image: tester:${RUBY_VERSION}
     volumes:
       - ./spec/reports:/src/conjur-api/spec/reports
       - ./features/reports:/src/conjur-api/features/reports
@@ -39,14 +35,10 @@ services:
       CONJUR_ACCOUNT: cucumber
 
   tester_4:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        RUBY_VERSION: ${RUBY_VERSION}
+    image: tester:${RUBY_VERSION}
     volumes:
       - ./features_v4/reports:/src/conjur-api/features_v4/reports
-      - ./tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem
+      - ./../tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem
       - ./coverage_v4:/src/conjur-api/coverage
       - authn_local_4:/run/authn-local-4
     environment:
