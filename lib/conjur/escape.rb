@@ -81,7 +81,6 @@ module Conjur
         str = str.id if str.respond_to?(:id)
         # Leave colons and forward slashes alone
         require 'addressable/uri'
-        pattern = URI::PATTERN::UNRESERVED + ":\\/@"
         Addressable::URI.encode(str.to_s)
       end
     end
