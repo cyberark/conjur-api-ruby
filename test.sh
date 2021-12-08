@@ -3,7 +3,7 @@
 : "${RUBY_VERSION=2.7}"
 # My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
 RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
-TAG="$RUBY_VERSION-$(git rev-parse --short=8 HEAD)"
+export TAG="$RUBY_VERSION-$(git rev-parse --short=8 HEAD)"
 
 function finish {
   echo 'Removing test environment'

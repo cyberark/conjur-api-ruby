@@ -23,7 +23,7 @@ services:
       - authn_local_4:/run/authn-local
 
   tester_5:
-    image: tester:${RUBY_VERSION}
+    image: tester:${TAG}
     volumes:
       - ./spec/reports:/src/conjur-api/spec/reports
       - ./features/reports:/src/conjur-api/features/reports
@@ -35,7 +35,7 @@ services:
       CONJUR_ACCOUNT: cucumber
 
   tester_4:
-    image: tester:${RUBY_VERSION}
+    image: tester:${TAG}
     volumes:
       - ./features_v4/reports:/src/conjur-api/features_v4/reports
       - ./../tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem
