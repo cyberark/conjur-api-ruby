@@ -15,6 +15,10 @@ trap finish EXIT
 
 
 function main() {
+  if ! docker info >/dev/null 2>&1; then
+    echo "Docker does not seem to be running, run it first and retry"
+    exit 1
+  fi
   # Generate reports folders locally
   mkdir -p spec/reports features/reports features_v4/reports
 
