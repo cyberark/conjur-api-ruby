@@ -19,6 +19,6 @@
 
 module Conjur
   class API
-    VERSION = "5.3.5"
+    VERSION = "5.3.6"
   end
 end
