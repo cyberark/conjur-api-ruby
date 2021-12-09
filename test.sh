@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-: "${RUBY_VERSION=2.7}"
+: "${RUBY_VERSION=3.0}"
 # My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
 RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
 
@@ -15,6 +15,10 @@ trap finish EXIT
 
 
 function main() {
+  if ! docker info >/dev/null 2>&1; then
+    echo "Docker does not seem to be running, run it first and retry"
+    exit 1
+  fi
   # Generate reports folders locally
   mkdir -p spec/reports features/reports features_v4/reports
 
