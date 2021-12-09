@@ -10,23 +10,20 @@ describe Conjur::API do
   shared_context "logged in", logged_in: true do
     let(:login) { "bob" }
     let(:token) { { 'data' => login, 'timestamp' => Time.now.to_s } }
-    let(:api_args) { [ token, remote_ip ] }
-    subject(:api) { Conjur::API.new_from_token(*api_args) }
+    subject(:api) { Conjur::API.new_from_token(token, remote_ip: remote_ip) }
   end
 
   shared_context "logged in with an API key", logged_in: :api_key do
     include_context "logged in"
     let(:api_key) { "theapikey" }
-    let(:api_args) { [ login, api_key, remote_ip, account ] }
-    subject(:api) { Conjur::API.new_from_key(*api_args) }
+    subject(:api) { Conjur::API.new_from_key(login, api_key, account: account ,remote_ip: remote_ip) }
   end
 
   shared_context "logged in with a token file", logged_in: :token_file do
     include FakeFS::SpecHelpers
     include_context "logged in"
     let(:token_file) { "token_file" }
-    let(:api_args) { [ token_file, remote_ip ] }
-    subject(:api) { Conjur::API.new_from_token_file(*api_args) }
+    subject(:api) { Conjur::API.new_from_token_file(token_file, remote_ip: remote_ip) }
   end
 
   def time_travel delta
