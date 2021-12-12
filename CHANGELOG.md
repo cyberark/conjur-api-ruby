@@ -5,8 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [5.3.6] - 2021-12-09
 ### Changed
-- Upgrade and set ruby-3.0.2 as default.
+- Support ruby-3.0.2.
   [cyberark/conjur-api-ruby#197](https://github.com/cyberark/conjur-api-ruby/pull/197)
 
 ## [5.3.5] - 2021-05-04
@@ -349,7 +351,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2013-13-12
 
-[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...HEAD
+[5.3.6]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.5...v5.3.6
 [5.3.5]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.4...v5.3.5
 [5.3.4]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.3...v5.3.4
 [5.3.3]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.1...v5.3.3
