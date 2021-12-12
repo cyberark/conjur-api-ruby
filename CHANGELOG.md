@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [5.3.6] - 2021-12-09
 ### Changed
-- Support ruby-3.0.2 - functionality and rspec/cucumber.
+- Support ruby-3.0.2.
   [cyberark/conjur-api-ruby#197](https://github.com/cyberark/conjur-api-ruby/pull/197)
 
 ## [5.3.5] - 2021-05-04
