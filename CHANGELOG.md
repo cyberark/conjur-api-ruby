@@ -6,7 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Change addressable gem dependency.
+  [cyberark/conjur-api-ruby#199](https://github.com/cyberark/conjur-api-ruby/pull/199)
+
 ## [5.3.6] - 2021-12-09
+
 ### Changed
 - Support ruby-3.0.2.
   [cyberark/conjur-api-ruby#197](https://github.com/cyberark/conjur-api-ruby/pull/197)
