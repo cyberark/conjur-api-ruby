@@ -4,6 +4,8 @@ Feature: Check if a role has permission on a resource.
     Given I run the code:
     """
     @host_id = "app-#{random_hex}"
+    @test_user = "user$#{random_hex}"
+    @test_host = "host?#{random_hex}"
     response = $conjur.load_policy 'root', <<-POLICY
     - !variable db-password
 
@@ -13,6 +15,17 @@ Feature: Check if a role has permission on a resource.
 
     - !permit
       role: !layer myapp
+      privilege: execute
+      resource: !variable db-password
+
+    - !policy
+      id: test
+      body:
+        - !user #{@test_user}
+        - !host #{@test_host}
+
+    - !permit
+      role: !user #{@test_user}@test
       privilege: execute
       resource: !variable db-password
     POLICY
@@ -31,6 +44,20 @@ Feature: Check if a role has permission on a resource.
     When I run the code:
     """
     $conjur.resource('cucumber:variable:db-password').permitted? 'execute', role: "cucumber:host:#{@host_id}"
+    """
+    Then the result should be "false"
+
+  Scenario: Check if a different user from subpolicy has the privilege.
+    When I run the code:
+    """
+    $conjur.resource('cucumber:variable:db-password').permitted? 'execute', role: "cucumber:user:#{@test_user}@test"
+    """
+    Then the result should be "true"
+
+  Scenario: Check if a different host from subpolicy has the privilege.
+    When I run the code:
+    """
+    $conjur.resource('cucumber:variable:db-password').permitted? 'execute', role: "cucumber:host:test/#{@test_host}"
     """
     Then the result should be "false"
 
