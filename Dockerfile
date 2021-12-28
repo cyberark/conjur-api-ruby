@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y vim curl
 
 WORKDIR /src/conjur-api
 
-COPY Gemfile conjur-api.gemspec ./
+COPY Gemfile conjur-api.gemspec VERSION ./
 COPY lib/conjur-api/version.rb ./lib/conjur-api/
 
 RUN bundle
