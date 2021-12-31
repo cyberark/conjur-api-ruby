@@ -149,7 +149,10 @@ pipeline {
       steps {
         release {
           // Clean up all but the calculated VERSION
-          sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd -e VERSION'
+          sh '''docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd \
+                -e VERSION \
+                -e bom-assets/ \
+                -e release-assets/ '''
           sh './publish.sh'
         }
       }
