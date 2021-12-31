@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Changed
-- Nothing should go in this section, please add to the latest unreleased version, or
-  add a new version.
+- Nothing should go in this section, please add to the latest unreleased version
+  (and update the corresponding date), or add a new version.
 
 ## [5.3.7] - 2021-12-28
 
@@ -363,6 +363,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.0] - 2013-13-12
 
 [Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...HEAD
+[5.3.7]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...v5.3.7
 [5.3.6]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.5...v5.3.6
 [5.3.5]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.4...v5.3.5
 [5.3.4]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.3...v5.3.4
