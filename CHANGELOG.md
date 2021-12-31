@@ -4,11 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
+### Changed
+- Nothing should go in this section, please add to the latest unreleased version
+  (and update the corresponding date), or add a new version.
+
+## [5.3.7] - 2021-12-28
 
 ### Changed
 - Change addressable gem dependency.
   [cyberark/conjur-api-ruby#199](https://github.com/cyberark/conjur-api-ruby/pull/199)
+- Update to use automated release process
 
 ## [5.3.6] - 2021-12-09
 
@@ -357,6 +363,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.0] - 2013-13-12
 
 [Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...HEAD
+[5.3.7]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...v5.3.7
 [5.3.6]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.5...v5.3.6
 [5.3.5]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.4...v5.3.5
 [5.3.4]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.3...v5.3.4

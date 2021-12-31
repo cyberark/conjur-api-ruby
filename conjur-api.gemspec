@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://github.com/cyberark/conjur-api-ruby/"
   gem.license       = "Apache-2.0"
 
-  gem.files         = `git ls-files`.split($\) + Dir['build_number']
+  gem.files         = `git ls-files`.split($\).append("VERSION") + Dir['build_number']
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "conjur-api"

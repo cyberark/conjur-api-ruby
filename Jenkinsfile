@@ -1,5 +1,17 @@
 #!/usr/bin/env groovy
 
+// Automated release, promotion and dependencies
+properties([
+  release.addParams()
+])
+
+if (params.MODE == "PROMOTE") {
+  release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
+    sh './publish.sh'
+  }
+  return
+}
+
 pipeline {
   agent { label 'executor-v2' }
 
@@ -12,9 +24,29 @@ pipeline {
     cron(getDailyCronString())
   }
 
+  environment {
+    MODE = release.canonicalizeMode()
+  }
+
   stages {
-    stage('Validate Changelog') {
-      steps { sh './bin/parse-changelog.sh' }
+    stage ("Skip build if triggering job didn't create a release") {
+      when {
+        expression {
+          MODE == "SKIP"
+        }
+      }
+      steps {
+        script {
+          currentBuild.result = 'ABORTED'
+          error("Aborting build because this build was triggered from upstream, but no release was built")
+        }
+      }
+    }
+    stage('Validate Changelog and set version') {
+      steps {
+        sh './bin/parse-changelog.sh'
+        updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
+      }
     }
 
     stage('Prepare CC Report Dir'){
@@ -107,23 +139,21 @@ pipeline {
       }
     }
 
-    // Only publish to RubyGems if the tag begins with 'v' ex) v5.3.2
-    stage('Publish to RubyGems?') {
-      agent { label 'executor-v2' }
+    stage('Release') {
+      when {
+        expression {
+          MODE == "RELEASE"
+        }
+      }
 
-      when { tag "v*" }
       steps {
-        // Clean up first
-        sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'
-
-        sh './publish.sh'
-
-        // Clean up again...
-        sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'
-        deleteDir()
+        release {
+          // Clean up all but the calculated VERSION
+          sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd -e VERSION'
+          sh './publish.sh'
+        }
       }
     }
-
   }
 
   post {

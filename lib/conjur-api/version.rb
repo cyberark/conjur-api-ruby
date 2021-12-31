@@ -19,6 +19,6 @@
 
 module Conjur
   class API
-    VERSION = "5.3.6"
+    VERSION = File.read(File.expand_path('../../VERSION', __dir__))
   end
 end
