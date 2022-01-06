@@ -154,6 +154,7 @@ pipeline {
                 -e bom-assets/ \
                 -e release-assets/ '''
           sh './publish.sh'
+          sh 'cp conjur-api-*.gem release-assets/.'
         }
       }
     }
