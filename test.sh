@@ -13,6 +13,10 @@ function finish {
 
 trap finish EXIT
 
+# Set up VERSION file for local development
+if [ ! -f "../VERSION" ]; then
+  echo -n "0.0.dev" > ../VERSION
+fi
 
 function main() {
   if ! docker info >/dev/null 2>&1; then
