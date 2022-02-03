@@ -57,73 +57,101 @@ pipeline {
         }
       }
     }
+    stage('Test supported versions') {
+      matrix {
+        agent any
+        axes {
+          axis {
+            name 'VERSION'
+              values '2.6', '2.7', '3.0', '3.1'
+            }
+        }
+        stages {
+          stage("Test Ruby ${VERSION}") {
+            environment {
+              RUBY_VERSION = "${VERSION}"
+            }
+            steps {
+              sh './test.sh'
+            }
 
-    stage('Test Ruby 2.5') {
-      environment {
-        RUBY_VERSION = '2.5'
-      }
-      steps {
-        sh './test.sh'
-      }
-
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+            post {
+              always {
+                junit 'spec/reports/*.xml'
+                junit 'features/reports/*.xml'
+                junit 'features_v4/reports/*.xml'
+              }
+            }
+          }
         }
       }
     }
+    // stage('Test Ruby 2.5') {
+    //   environment {
+    //     RUBY_VERSION = '2.5'
+    //   }
+    //   steps {
+    //     sh './test.sh'
+    //   }
 
-    stage('Test Ruby 2.6') {
-      environment {
-        RUBY_VERSION = '2.6'
-      }
-      steps {
-        sh './test.sh'
-      }
+    //   post {
+    //     always {
+    //       junit 'spec/reports/*.xml'
+    //       junit 'features/reports/*.xml'
+    //       junit 'features_v4/reports/*.xml'
+    //     }
+    //   }
+    // }
 
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
-        }
-      }
-    }
+    // stage('Test Ruby 2.6') {
+    //   environment {
+    //     RUBY_VERSION = '2.6'
+    //   }
+    //   steps {
+    //     sh './test.sh'
+    //   }
 
-    stage('Test Ruby 2.7') {
-      environment {
-        RUBY_VERSION = '2.7'
-      }
-      steps {
-        sh './test.sh'
-      }
+    //   post {
+    //     always {
+    //       junit 'spec/reports/*.xml'
+    //       junit 'features/reports/*.xml'
+    //       junit 'features_v4/reports/*.xml'
+    //     }
+    //   }
+    // }
 
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
-        }
-      }
-    }
+    // stage('Test Ruby 2.7') {
+    //   environment {
+    //     RUBY_VERSION = '2.7'
+    //   }
+    //   steps {
+    //     sh './test.sh'
+    //   }
 
-    stage('Test Ruby 3.0') {
-      environment {
-        RUBY_VERSION = '3.0'
-      }
-      steps {
-        sh("./test.sh")
-      }
-      post {
-        always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
-        }
-      }
-    }
+    //   post {
+    //     always {
+    //       junit 'spec/reports/*.xml'
+    //       junit 'features/reports/*.xml'
+    //       junit 'features_v4/reports/*.xml'
+    //     }
+    //   }
+    // }
+
+    // stage('Test Ruby 3.0') {
+    //   environment {
+    //     RUBY_VERSION = '3.0'
+    //   }
+    //   steps {
+    //     sh("./test.sh")
+    //   }
+    //   post {
+    //     always {
+    //       junit 'spec/reports/*.xml'
+    //       junit 'features/reports/*.xml'
+    //       junit 'features_v4/reports/*.xml'
+    //     }
+    //   }
+    // }
 
     stage('Submit Coverage Report'){
       steps{

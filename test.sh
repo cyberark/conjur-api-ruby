@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-: "${RUBY_VERSION=3.0}"
+: "${RUBY_VERSION=3.1}"
 # My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
 RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
 
@@ -14,8 +14,8 @@ function finish {
 trap finish EXIT
 
 # Set up VERSION file for local development
-if [ ! -f "../VERSION" ]; then
-  echo -n "0.0.dev" > ../VERSION
+if [ ! -f "./VERSION" ]; then
+  echo -n "0.0.dev" > ./VERSION
 fi
 
 function main() {

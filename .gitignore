@@ -24,9 +24,7 @@ tmp
 .kateproject.d
 .rvmrc
 .idea
+VERSION
 
 # rspec
 .rspec
-
-# Script to connect to jon's lxc appliances
-lxcsh.rb
