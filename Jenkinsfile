@@ -67,7 +67,7 @@ pipeline {
             }
         }
         stages {
-          stage("Test Ruby ${VERSION}") {
+          stage("Test") {
             environment {
               RUBY_VERSION = "${VERSION}"
             }
