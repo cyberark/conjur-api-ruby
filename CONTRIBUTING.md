@@ -123,11 +123,8 @@ $ docker-compose down
 ### Update the version and changelog
 
 1. Create a new branch for the version bump.
-1. Based on the unreleased content, determine the new version number and update
-    the [version.rb](lib/conjur-api/version.rb) file.
 1. Commit these changes - `Bump version to x.y.z` is an acceptable commit message - and open a PR
-   for review. Your PR should include updates to `lib/conjur-api/version.rb`, and
-    `CHANGELOG.md`.
+   for review. Your PR should include updates to `CHANGELOG.md`.
 
 ### Add a git tag
 
