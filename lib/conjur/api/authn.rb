@@ -22,6 +22,11 @@ require 'conjur/user'
 
 module Conjur
   class API
+
+    def whoami
+      JSON.parse(url_for(:whoami, credentials).get)
+    end
+
     class << self
       #@!group Authentication
 
@@ -48,6 +53,21 @@ module Conjur
           Conjur.log << "Logging in #{username} to account #{account} via Basic authentication\n"
         end
         url_for(:authn_login, account, username, password).get
+      end
+
+      # Authenticates using a third party authenticator like authn-oidc.  It will return an
+      # access token to be used to authenticate further API calls.
+      #
+      # @param [String] authenticator
+      # @param [String] service_id
+      # @param [String] account The organization account.
+      # @param [Hash] params Additional params to send to authenticator
+      # @return [String] A JSON formatted authentication token.
+      def authenticator_authenticate(authenticator, service_id, account: Conjur.configuration.account, options: {})
+        if Conjur.log
+          Conjur.log << "Authenticating to account #{account} using #{authenticator}/#{service_id}\n"
+        end
+        JSON.parse url_for(:authenticator_authenticate, account, service_id, authenticator, options).post({})
       end
 
       # Exchanges Conjur the API key (refresh token) for an access token.  The access token can
