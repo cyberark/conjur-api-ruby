@@ -73,3 +73,41 @@ Given(/^a new delegated host$/) do
   @host = $conjur.resource("cucumber:host:#{@host_id}")
   @host.attributes['api_key'] = @host_api_key
 end
+
+Given(/^I setup a keycloak authenticator$/) do
+    $conjur.load_policy 'root', <<-POLICY
+    - !policy 
+      id: conjur/authn-oidc/keycloak
+      body: 
+      - !webservice  
+     
+      - !variable provider-uri 
+      - !variable client-id 
+      - !variable client-secret 
+      - !variable name
+     
+      - !variable claim-mapping 
+       
+      - !variable scope 
+       
+      - !variable nonce 
+      - !variable state
+    POLICY
+    @provider_uri = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/provider-uri")
+    @client_id = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/client-id")
+    @client_secret = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/client-secret")
+    @name = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/name")
+    @claim_mapping = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/claim-mapping")
+    @scope = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/scope")
+    @nonce = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/nonce")
+    @state = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/state")
+
+    @provider_uri.add_value "https://keycloak:8443/auth/realms/master"
+    @client_id.add_value "conjurClient"
+    @client_secret.add_value "1234"
+    @claim_mapping.add_value "map"
+    @scope.add_value "openid"
+    @nonce.add_value "dont-use-this-again"
+    @state.add_value "test-state"
+    @name.add_value "keycloak"
+end

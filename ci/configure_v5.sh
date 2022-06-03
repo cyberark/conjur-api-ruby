@@ -11,4 +11,5 @@ done
 
 # So we fail if the server isn't up yet:
 curl -o /dev/null -fs -X OPTIONS http://localhost > /dev/null
+/scripts/fetch_certificate
 CONFIGURE

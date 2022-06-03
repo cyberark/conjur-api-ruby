@@ -7,6 +7,7 @@ Feature: List and manage authenticators
     - !webservice conjur/authn-k8s/my-auth
     POLICY
     """
+    And I setup a keycloak authenticator
 
   Scenario: Authenticator list includes the authenticator status
     When I run the code:
@@ -31,3 +32,10 @@ Feature: List and manage authenticators
     $conjur.authenticator_list
     """
     Then the JSON at "enabled" should be ["authn"]
+
+  Scenario: Get a list of OIDC providers
+    When I run the code:
+    """
+    $conjur.authentication_providers("authn-oidc")
+    """
+    Then the providers list contains service id "keycloak"

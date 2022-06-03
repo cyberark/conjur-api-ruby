@@ -16,7 +16,7 @@ module Conjur
     # Fetches the available authentication providers for the authenticator and account.
     # The authenticators must be loaded in Conjur policy prior to fetching.
     #
-    # @param [String] authenticator the authenticator type to enable (e.g. authn-k8s)
+    # @param [String] authenticator the authenticator type to retrieve providers for
     def authentication_providers(authenticator, account: Conjur.configuration.account)
       JSON.parse(url_for(:authentication_providers, account, authenticator, credentials).get)
     end
@@ -33,6 +33,7 @@ module Conjur
     # Disables an authenticator in Conjur.
     # 
     # @param [String] authenticator the authenticator type to disable (e.g. authn-k8s)
+    # @param [String] id the service ID of the authenticator to disable
     def authenticator_disable authenticator, id, account: Conjur.configuration.account
       url_for(:authenticator, account, authenticator, id, credentials).patch(enabled: false)
     end
