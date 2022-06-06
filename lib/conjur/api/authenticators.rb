@@ -17,7 +17,7 @@ module Conjur
     # The authenticators must be loaded in Conjur policy prior to fetching.
     #
     # @param [String] authenticator the authenticator type to retrieve providers for
-    def authentication_providers(authenticator, account: Conjur.configuration.account)
+    def authentication_providers authenticator, account: Conjur.configuration.account
       JSON.parse(url_for(:authentication_providers, account, authenticator, credentials).get)
     end
 

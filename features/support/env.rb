@@ -1,4 +1,5 @@
 require 'simplecov'
+require 'nokogiri'
 
 SimpleCov.start do
   command_name "#{ENV['RUBY_VERSION']}"

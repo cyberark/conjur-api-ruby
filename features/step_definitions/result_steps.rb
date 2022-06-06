@@ -7,9 +7,5 @@ Then(/^the result should be the public key$/) do
 end
 
 Then(/^the providers list contains service id "([^"]+)"$/) do |service_id|
-  service_ids = []
-  @result.each do |provider|
-    service_ids.append(provider["service_id"])
-  end
-  expect(service_ids).to include(service_id)
+  expect(@result.map{ |x| x["service_id"]}).to include(service_id)
 end

@@ -4,6 +4,7 @@
 # My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
 RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
 
+source ./ci/oauth/keycloak/keycloak_functions.sh
 
 function finish {
   echo 'Removing test environment'
@@ -54,7 +55,9 @@ function runTests_5() {
   echo '-----'
   docker-compose run --rm \
     -e CONJUR_AUTHN_API_KEY="$api_key" \
-    tester_5 rake jenkins_init jenkins_spec jenkins_cucumber_v5
+    -e SSL_CERT_FILE=/etc/ssl/certs/keycloak.pem \
+    tester_5 \
+    "/scripts/fetch_certificate && rake jenkins_init jenkins_spec jenkins_cucumber_v5"
 }
 
 function runTests_4() {

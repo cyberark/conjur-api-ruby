@@ -55,24 +55,6 @@ function create_keycloak_users() {
     '$KEYCLOAK_APP_USER' \
     '$KEYCLOAK_APP_USER_PASSWORD' \
     '$KEYCLOAK_APP_USER_EMAIL'
-
-  echo "Creating second user 'bob' in Keycloak"
-
-  # Note: We want to pass the bash command thru without expansion here.
-  # shellcheck disable=SC2016
-  _create_keycloak_user \
-    '$KEYCLOAK_SECOND_APP_USER' \
-    '$KEYCLOAK_SECOND_APP_USER_PASSWORD' \
-    '$KEYCLOAK_SECOND_APP_USER_EMAIL'
-
-  echo "Creating user in Keycloak that will not exist in conjur"
-
-  # Note: We want to pass the bash command thru without expansion here.
-  # shellcheck disable=SC2016
-  _create_keycloak_user \
-    '$KEYCLOAK_NON_CONJUR_APP_USER' \
-    '$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD' \
-    '$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL'
 }
 
 function wait_for_keycloak_server() {
@@ -85,5 +67,5 @@ function fetch_keycloak_certificate() {
   # Fetch SSL cert to communicate with keycloak (OIDC provider).
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec -T \
-    conjur /oauth/keycloak/scripts/fetch_certificate
+    conjur_5 /scripts/fetch_certificate
 }
