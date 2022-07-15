@@ -43,6 +43,13 @@ module Conjur
           )[fully_escape account][fully_escape username]['authenticate']
         end
 
+        def authenticator_authenticate(account, service_id, authenticator, options)
+          RestClient::Resource.new(
+            Conjur.configuration.core_url,
+            Conjur.configuration.rest_client_options
+          )[fully_escape authenticator][fully_escape service_id][fully_escape account]['authenticate'][options_querystring options]
+        end
+
         def authenticator account, authenticator, service_id, credentials
           RestClient::Resource.new(
             Conjur.configuration.core_url,
@@ -55,6 +62,13 @@ module Conjur
             Conjur.configuration.core_url,
             Conjur.configuration.rest_client_options
           )['authenticators']
+        end
+
+        def authentication_providers(account, authenticator, credentials)
+          RestClient::Resource.new(
+            Conjur.configuration.core_url,
+            Conjur.configuration.create_rest_client_options(credentials)
+          )[fully_escape authenticator][fully_escape account]['providers']
         end
 
         # For v5, the authn-local message is a JSON string with account, sub, and optional fields.
@@ -234,6 +248,13 @@ module Conjur
             Conjur.configuration.core_url,
             Conjur.configuration.create_rest_client_options(credentials)
           )['ldap-sync']["policy?config_name=#{fully_escape(config_name)}"]
+        end
+
+        def whoami(credentials)
+          RestClient::Resource.new(
+            Conjur.configuration.core_url,
+            Conjur.configuration.create_rest_client_options(credentials)
+          )['whoami']
         end
 
         private

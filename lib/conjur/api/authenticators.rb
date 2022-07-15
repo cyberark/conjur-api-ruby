@@ -13,6 +13,14 @@ module Conjur
       JSON.parse(url_for(:authenticators).get)
     end
 
+    # Fetches the available authentication providers for the authenticator and account.
+    # The authenticators must be loaded in Conjur policy prior to fetching.
+    #
+    # @param [String] authenticator the authenticator type to retrieve providers for
+    def authentication_providers authenticator, account: Conjur.configuration.account
+      JSON.parse(url_for(:authentication_providers, account, authenticator, credentials).get)
+    end
+
     # Enables an authenticator in Conjur. The authenticator must be defined and
     # loaded in Conjur policy prior to enabling it.
     # 
