@@ -5,9 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Changed
-- Nothing should go in this section, please add to the latest unreleased version
-  (and update the corresponding date), or add a new version.
+### Added
+- Added support for OIDC V2 authentication endpoint.
+  [cyberark/cojnur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
+- Added support for OIDC authenticator providers endpoint.
+  [cyberark/cojnur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
 
 ## [5.3.9] - 2022-05-12
 
