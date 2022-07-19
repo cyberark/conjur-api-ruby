@@ -5,22 +5,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Nothing should go in this section, please add to the latest unreleased version
+  (and update the corresponding date), or add a new version.
+
+## [5.3.8] - 2022-07-19
+
 ### Added
 - Added support for OIDC V2 authentication endpoint.
   [cyberark/cojnur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
 - Added support for OIDC authenticator providers endpoint.
   [cyberark/cojnur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
 
-## [5.3.9] - 2022-05-12
-
-### Changed
-- Adding operation call to fetch authentication providers
-  [cyberark/conjur-api-ruby#206](https://github.com/cyberark/conjur-api-ruby/pull/206)
-
-## [5.3.8] - 2022-04-26
-
 ### Changed
 - Remove support for Ruby versions <2.7 which are [end of life](https://endoflife.date/ruby).
+  [cyberark/conjur-api-ruby#206](https://github.com/cyberark/conjur-api-ruby/pull/206)
+- Adding operation call to fetch authentication providers
   [cyberark/conjur-api-ruby#206](https://github.com/cyberark/conjur-api-ruby/pull/206)
 
 ## [5.3.7] - 2021-12-28

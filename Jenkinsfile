@@ -115,10 +115,12 @@ pipeline {
       steps {
         release {
           // Clean up all but the calculated VERSION
-          sh '''docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd \
-                -e VERSION \
-                -e bom-assets/ \
-                -e release-assets/ '''
+          sh '''docker run -i --rm -v $(pwd):/src -w /src --entrypoint /bin/sh alpine/git \
+                -c "git config --global --add safe.directory /src && \
+                    git clean -fdx \
+                      -e VERSION \
+                      -e bom-assets/ \
+                      -e release-assets" '''
           sh './publish.sh'
           sh 'cp conjur-api-*.gem release-assets/.'
         }
