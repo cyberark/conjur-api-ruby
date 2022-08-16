@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [5.3.8] - 2022-07-19
+## [5.3.9] - 2022-08-16
+
+## [5.3.8] - 2022-08-16
 
 ### Added
 - Added support for OIDC V2 authentication endpoint.
