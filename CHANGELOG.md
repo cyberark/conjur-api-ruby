@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [5.3.8] - 2022-07-19
+## [5.4.0] - 2022-08-16
 
 ### Added
 - Added support for OIDC V2 authentication endpoint.
@@ -376,8 +376,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2013-13-12
 
-[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.8...HEAD
-[5.3.8]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.7...v5.3.8
+[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.0...HEAD
+[5.4.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.7...v5.4.0
 [5.3.7]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...v5.3.7
 [5.3.6]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.5...v5.3.6
 [5.3.5]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.4...v5.3.5
