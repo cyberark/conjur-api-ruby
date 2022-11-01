@@ -17,9 +17,11 @@ Then(/^this code should fail with "([^"]*)"$/) do |error_msg, code|
   end
 end
 
-Given(/^I retrieve the login url for OIDC authenticator "([^"]+)"$/) do |service_id|
+Given(/^I retrieve the provider details for OIDC authenticator "([^"]+)"$/) do |service_id|
   provider = $conjur.authentication_providers("authn-oidc").select {|provider_details| provider_details["service_id"] == service_id}
   @login_url = provider[0]["redirect_uri"]
+  @nonce = provider[0]["nonce"]
+  @code_verifier = provider[0]["code_verifier"]
   puts @login_url
 end
 
@@ -47,6 +49,6 @@ Given(/^I retrieve auth info for the OIDC provider with username: "([^"]+)" and 
 
   if response.is_a?(Net::HTTPRedirection)
     response_details = URI.decode_www_form(URI(response['location']).query)
-    @auth_body = {state: response_details.assoc('state')[1], code: response_details.assoc('code')[1]}
+    @auth_body = {code: response_details.assoc('code')[1], nonce: @nonce, code_verifier: @code_verifier}
   end
 end

@@ -4,7 +4,7 @@ Feature: Authenticate with Conjur
     Given I setup a keycloak authenticator
 
   Scenario: Authenticate with OIDC state and code
-    When I retrieve the login url for OIDC authenticator "keycloak"
+    When I retrieve the provider details for OIDC authenticator "keycloak"
     And I retrieve auth info for the OIDC provider with username: "alice" and password: "alice"
     And I run the code:
     """
