@@ -52,3 +52,11 @@ Given(/^I retrieve auth info for the OIDC provider with username: "([^"]+)" and 
     @auth_body = {code: response_details.assoc('code')[1], nonce: @nonce, code_verifier: @code_verifier}
   end
 end
+
+Then(/^the response body contains: "([^"]+)"$/) do |element|
+  expect(@result).to include(element)
+end
+
+Then(/^the response includes headers$/) do
+  expect(@result.headers).not_to be_empty
+end

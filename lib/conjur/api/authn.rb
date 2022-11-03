@@ -63,10 +63,22 @@ module Conjur
       # @param [Hash] params Additional params to send to authenticator
       # @return [String] A JSON formatted authentication token.
       def authenticator_authenticate authenticator, service_id, account: Conjur.configuration.account, options: {}
+        JSON.parse authenticator_authenticate_get authenticator, service_id, account: account, options: options
+      end
+
+      # Authenticates using a third party authenticator like authn-oidc via GET request.
+      # It will return an response object containing access/refresh token data.
+      #
+      # @param [String] authenticator
+      # @param [String] service_id
+      # @param [String] account The organization account.
+      # @param [Hash] params Additional params to send to authenticator
+      # @return [RestClient::Response] Response object
+      def authenticator_authenticate_get authenticator, service_id, account: Conjur.configuration.account, options: {}
         if Conjur.log
           Conjur.log << "Authenticating to account #{account} using #{authenticator}/#{service_id}\n"
         end
-        JSON.parse url_for(:authenticator_authenticate, account, service_id, authenticator, options).get
+        url_for(:authenticator_authenticate, account, service_id, authenticator, options).get
       end
 
       # Exchanges Conjur the API key (refresh token) for an access token.  The access token can
