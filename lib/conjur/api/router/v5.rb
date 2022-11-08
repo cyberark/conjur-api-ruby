@@ -43,11 +43,18 @@ module Conjur
           )[fully_escape account][fully_escape username]['authenticate']
         end
 
-        def authenticator_authenticate(account, service_id, authenticator, options)
+        def authenticator_authenticate_get(account, service_id, authenticator, options)
           RestClient::Resource.new(
             Conjur.configuration.core_url,
             Conjur.configuration.rest_client_options
           )[fully_escape authenticator][fully_escape service_id][fully_escape account]['authenticate'][options_querystring options]
+        end
+
+        def authenticator_authenticate_post(account, service_id, authenticator)
+          RestClient::Resource.new(
+            Conjur.configuration.core_url,
+            Conjur.configuration.rest_client_options
+          )[fully_escape authenticator][fully_escape service_id][fully_escape account]['authenticate']
         end
 
         def authenticator account, authenticator, service_id, credentials
