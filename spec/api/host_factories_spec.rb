@@ -13,7 +13,7 @@ describe "Conjur::API.host_factory_create_host", api: :dummy do
         resource = instance_double(RestClient::Resource, "hosts")
       )
 
-    allow(resource).to receive(:post).with(id: id).and_return(
+    allow(resource).to receive(:post).with({id: id}).and_return(
       instance_double(RestClient::Response, "host response", body: '
         {
           "id": "test-host",
