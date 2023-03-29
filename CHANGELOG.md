@@ -9,13 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [5.4.1] - 2023-03-29
+### Added
+- Added authenticate wrapper to access unparsed response object (including headers).
+  [cyberark/conjur-api-ruby#213](https://github.com/cyberark/conjur-api-ruby/pull/213)
+
 ## [5.4.0] - 2022-08-16
 
 ### Added
 - Added support for OIDC V2 authentication endpoint.
-  [cyberark/cojnur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
+  [cyberark/conjur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
 - Added support for OIDC authenticator providers endpoint.
-  [cyberark/cojnur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
+  [cyberark/conjur-api-ruby#207](https://github.com/cyberark/conjur-api-ruby/pull/207)
 
 ### Changed
 - Remove support for Ruby versions <2.7 which are [end of life](https://endoflife.date/ruby).
