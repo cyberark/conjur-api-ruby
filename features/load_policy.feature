@@ -56,6 +56,7 @@ Feature: Load a policy.
     Then the JSON should be:
     """
     [
-      "cucumber:policy:root"
+      "cucumber:policy:root",
+      "cucumber:user:admin"
     ]
     """
