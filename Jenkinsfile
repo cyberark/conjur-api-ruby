@@ -44,7 +44,7 @@ pipeline {
     }
     stage('Validate Changelog and set version') {
       steps {
-        sh './bin/parse-changelog.sh'
+        parseChangelog()
         updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
       }
     }
