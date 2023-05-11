@@ -38,4 +38,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'fakefs'
   gem.add_development_dependency 'pry-byebug'
   gem.add_development_dependency 'nokogiri'
+  gem.add_development_dependency 'webrick'
 end
