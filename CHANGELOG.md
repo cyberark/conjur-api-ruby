@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added authenticate wrapper to access unparsed response object (including headers).
   [cyberark/conjur-api-ruby#213](https://github.com/cyberark/conjur-api-ruby/pull/213)
+- Support Ruby v3.1 and v3.2.
+  [cyberark/conjur-api-ruby#220](https://github.com/cyberark/conjur-api-ruby/pull/220)
 
 ## [5.4.0] - 2022-08-16
 
@@ -381,7 +383,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2013-13-12
 
-[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.1...HEAD
+[5.4.1]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.0...v5.4.1
 [5.4.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.7...v5.4.0
 [5.3.7]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...v5.3.7
 [5.3.6]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.5...v5.3.6
