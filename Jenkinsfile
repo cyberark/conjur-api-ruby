@@ -58,14 +58,13 @@ pipeline {
       }
     }
 
-    stage('Test Ruby 2.7') {
+    stage('Test Ruby 3.0') {
       environment {
-        RUBY_VERSION = '2.7'
+        RUBY_VERSION = '3.0'
       }
       steps {
-        sh './test.sh'
+        sh("./test.sh")
       }
-
       post {
         always {
           junit 'spec/reports/*.xml'
@@ -75,9 +74,25 @@ pipeline {
       }
     }
 
-    stage('Test Ruby 3.0') {
+    stage('Test Ruby 3.1') {
       environment {
-        RUBY_VERSION = '3.0'
+        RUBY_VERSION = '3.1'
+      }
+      steps {
+        sh("./test.sh")
+      }
+      post {
+        always {
+          junit 'spec/reports/*.xml'
+          junit 'features/reports/*.xml'
+          junit 'features_v4/reports/*.xml'
+        }
+      }
+    }
+
+    stage('Test Ruby 3.2') {
+      environment {
+        RUBY_VERSION = '3.2'
       }
       steps {
         sh("./test.sh")
