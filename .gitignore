@@ -30,3 +30,5 @@ tmp
 
 # Script to connect to jon's lxc appliances
 lxcsh.rb
+
+VERSION
