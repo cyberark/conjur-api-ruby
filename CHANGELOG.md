@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [5.4.1] - 2023-03-29
+## [5.4.1] - 2023-06-14
+
 ### Added
 - Added authenticate wrapper to access unparsed response object (including headers).
   [cyberark/conjur-api-ruby#213](https://github.com/cyberark/conjur-api-ruby/pull/213)
