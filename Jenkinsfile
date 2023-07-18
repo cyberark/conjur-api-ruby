@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+@Library("product-pipelines-shared-library") _
+
 // Automated release, promotion and dependencies
 properties([
   release.addParams()
@@ -9,11 +11,14 @@ if (params.MODE == "PROMOTE") {
   release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
     sh './publish.sh'
   }
+
+  // Copy Github Enterprise release to Github
+  release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
   return
 }
 
 pipeline {
-  agent { label 'executor-v2' }
+  agent { label 'conjur-enterprise-common-agent' }
 
   options {
     timestamps()
@@ -42,18 +47,26 @@ pipeline {
         }
       }
     }
+
+    stage('Get InfraPool Agent') {
+      steps {
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 1, duration: 1)[0]
+        }
+      }
+    }
+
     stage('Validate Changelog and set version') {
       steps {
-        parseChangelog()
-        updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
+        parseChangelog(INFRAPOOL_EXECUTORV2_AGENT_0)
+        updateVersion(INFRAPOOL_EXECUTORV2_AGENT_0, "CHANGELOG.md", "${BUILD_NUMBER}")
       }
     }
 
     stage('Prepare CC Report Dir'){
       steps {
         script {
-          ccCoverage.dockerPrep()
-          sh 'mkdir -p coverage'
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'mkdir -p coverage'
         }
       }
     }
@@ -63,13 +76,14 @@ pipeline {
         RUBY_VERSION = '3.0'
       }
       steps {
-        sh("./test.sh")
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./test.sh"
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'reports3.0', includes: '**/reports/*.xml'
+        }
       }
       post {
         always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+          unstash 'reports3.0'
         }
       }
     }
@@ -79,13 +93,14 @@ pipeline {
         RUBY_VERSION = '3.1'
       }
       steps {
-        sh("./test.sh")
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./test.sh"
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'reports3.1', includes: '**/reports/*.xml'
+        }
       }
       post {
         always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+          unstash 'reports3.1'
         }
       }
     }
@@ -95,27 +110,49 @@ pipeline {
         RUBY_VERSION = '3.2'
       }
       steps {
-        sh("./test.sh")
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./test.sh"
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'reports3.2', includes: '**/reports/*.xml'
+        }
       }
       post {
         always {
-          junit 'spec/reports/*.xml'
-          junit 'features/reports/*.xml'
-          junit 'features_v4/reports/*.xml'
+          unstash 'reports3.2'
         }
       }
     }
 
     stage('Submit Coverage Report'){
       steps{
-        sh 'ci/submit-coverage'
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'coverage', includes: '**/coverage/**'
+        }
+        unstash 'coverage'
+
+        cobertura autoUpdateHealth: false,
+          autoUpdateStability: false,
+          coberturaReportFile: 'coverage/coverage.xml',
+          conditionalCoverageTargets: '70, 0, 0',
+          failUnhealthy: false,
+          failUnstable: false,
+          maxNumberOfBuilds: 0,
+          lineCoverageTargets: '70, 0, 0',
+          methodCoverageTargets: '70, 0, 0',
+          onlyStable: false,
+          sourceEncoding: 'ASCII',
+          zoomCoverageChart: false
+
         publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '',
           allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+        codacy action: 'reportCoverage', filePath: "coverage/coverage.xml"
       }
 
       post {
         always {
-          archiveArtifacts artifacts: "coverage/.resultset.json", fingerprint: false
+          // only call junit once to submit all reports, otherwise it will only submit reports
+          // from the last junit call as it overwrites the previously submitted reports
+          junit '**/reports/*.xml'
+          archiveArtifacts artifacts: "coverage/coverage.xml", fingerprint: false
         }
       }
     }
@@ -128,16 +165,18 @@ pipeline {
       }
 
       steps {
-        release {
-          // Clean up all but the calculated VERSION
-          sh '''docker run -i --rm -v $(pwd):/src -w /src --entrypoint /bin/sh alpine/git \
-                -c "git config --global --add safe.directory /src && \
-                    git clean -fdx \
-                      -e VERSION \
-                      -e bom-assets/ \
-                      -e release-assets" '''
-          sh './publish.sh'
-          sh 'cp conjur-api-*.gem release-assets/.'
+        script {
+          release(INFRAPOOL_EXECUTORV2_AGENT_0) {
+            // Clean up all but the calculated VERSION
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh '''docker run -i --rm -v $(pwd):/src -w /src --entrypoint /bin/sh alpine/git \
+                  -c "git config --global --add safe.directory /src && \
+                      git clean -fdx \
+                        -e VERSION \
+                        -e bom-assets/ \
+                        -e release-assets" '''
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish.sh'
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'cp conjur-api-*.gem release-assets/.'
+          }
         }
       }
     }
@@ -145,7 +184,7 @@ pipeline {
 
   post {
     always {
-      cleanupAndNotify(currentBuild.currentResult)
+      releaseInfraPoolAgent(".infrapool/release_agents")
     }
   }
 }
