@@ -108,7 +108,29 @@ pipeline {
 
     stage('Submit Coverage Report'){
       steps{
+
+        println "NRK: Search files 1"
+        sh "find . -name '.resultset.json' || true"
+        sh "find . -name 'index.html' || true"
+        sh "find . -iname 'coverage*' || true"
+        sh "find spec/reports/ -iname '*.xml' || true"
+        sh "find features/reports/ -iname '*.xml' || true"
+        sh "ls -alh coverage/*/*/*"
+        sh "ls -alh coverage/**"
+
+
         sh 'ci/submit-coverage'
+
+        println "NRK: Search files 2"
+        sh "find . -name '.resultset.json' || true"
+        sh "find . -name '.resultset.json' || true"
+        sh "find . -name 'index.html' || true"
+        sh "find . -iname 'coverage*' || true"
+        sh "find spec/reports/ -iname '*.xml' || true"
+        sh "find features/reports/ -iname '*.xml' || true"
+        sh "ls -alh coverage/*/*/*"
+        sh "ls -alh coverage/**"
+
         publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '',
           allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
       }
