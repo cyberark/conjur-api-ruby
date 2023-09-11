@@ -85,20 +85,19 @@ end
 
 Given(/^I setup a keycloak authenticator$/) do
     $conjur.load_policy 'root', <<-POLICY
-    - !policy 
+    - !policy
       id: conjur/authn-oidc/keycloak
-      body: 
-      - !webservice  
-     
-      - !variable provider-uri 
-      - !variable client-id 
-      - !variable client-secret 
+      body:
+      - !webservice
+
+      - !variable provider-uri
+      - !variable client-id
+      - !variable client-secret
       - !variable name
-     
-      - !variable claim-mapping 
-       
-      - !variable nonce 
+      - !variable claim-mapping
+      - !variable nonce
       - !variable state
+      - !variable ca-cert
 
       - !variable redirect-uri
 
@@ -122,6 +121,7 @@ Given(/^I setup a keycloak authenticator$/) do
     @nonce = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/nonce")
     @state = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/state")
     @redirect_uri = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/redirect-uri")
+    @ca_cert = $conjur.resource("cucumber:variable:conjur/authn-oidc/keycloak/ca-cert")
 
     @provider_uri.add_value "https://keycloak:8443/auth/realms/master"
     @client_id.add_value "conjurClient"
@@ -131,4 +131,5 @@ Given(/^I setup a keycloak authenticator$/) do
     @state.add_value SecureRandom.uuid
     @name.add_value "keycloak"
     @redirect_uri.add_value "http://conjur_5/authn-oidc/keycloak/cucumber/authenticate"
+    @ca_cert.add_value File.read("/etc/ssl/certs/keycloak.pem")
 end
