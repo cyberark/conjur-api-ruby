@@ -5,6 +5,7 @@
 RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
 
 source ./ci/oauth/keycloak/keycloak_functions.sh
+TOP_LEVEL=$(git rev-parse --show-toplevel)
 
 function finish {
   echo 'Removing test environment'
@@ -15,8 +16,8 @@ function finish {
 trap finish EXIT
 
 # Set up VERSION file for local development
-if [ ! -f "../VERSION" ]; then
-  echo -n "0.0.dev" > ../VERSION
+if [ ! -f "${TOP_LEVEL}/VERSION" ]; then
+  echo -n "0.0.dev" > "${TOP_LEVEL}/VERSION"
 fi
 
 function main() {
