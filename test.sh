@@ -10,7 +10,7 @@ TOP_LEVEL=$(git rev-parse --show-toplevel)
 function finish {
   echo 'Removing test environment'
   echo '---'
-  docker-compose down --rmi 'local' --volumes
+  docker compose down --rmi 'local' --volumes
 }
 
 trap finish EXIT
@@ -41,20 +41,20 @@ function startConjur() {
   # failing to ensure that has caused many mysterious failures in CI.
   # However, unconditionally pulling prevents working offline even
   # with a warm cache. So try to pull, but ignore failures.
-  docker-compose pull --ignore-pull-failures
-  docker-compose build --build-arg RUBY_VERSION="$RUBY_VERSION"
-  docker-compose up -d pg conjur_4 conjur_5
+  docker compose pull --ignore-pull-failures
+  docker compose build --build-arg RUBY_VERSION="$RUBY_VERSION"
+  docker compose up -d pg conjur_4 conjur_5
 }
 
 function runTests_5() {
   echo 'Waiting for Conjur v5 to come up, and configuring it...'
   ./ci/configure_v5.sh
 
-  local api_key=$(docker-compose exec -T conjur_5 rake 'role:retrieve-key[cucumber:user:admin]')
+  local api_key=$(docker compose exec -T conjur_5 rake 'role:retrieve-key[cucumber:user:admin]')
 
   echo 'Running tests'
   echo '-----'
-  docker-compose run --rm \
+  docker compose run --rm \
     -e CONJUR_AUTHN_API_KEY="$api_key" \
     -e SSL_CERT_FILE=/etc/ssl/certs/keycloak.pem \
     tester_5 \
@@ -65,11 +65,11 @@ function runTests_4() {
   echo 'Waiting for Conjur v4 to come up, and configuring it...'
   ./ci/configure_v4.sh
 
-  local api_key=$(docker-compose exec -T conjur_4 su conjur -c "conjur-plugin-service authn env RAILS_ENV=appliance rails r \"puts User['admin'].api_key\" 2>/dev/null")
+  local api_key=$(docker compose exec -T conjur_4 su conjur -c "conjur-plugin-service authn env RAILS_ENV=appliance rails r \"puts User['admin'].api_key\" 2>/dev/null")
 
   echo 'Running tests'
   echo '-----'
-  docker-compose run --rm \
+  docker compose run --rm \
     -e CONJUR_AUTHN_API_KEY="$api_key" \
     tester_4 rake jenkins_cucumber_v4
 }

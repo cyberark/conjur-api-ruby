@@ -2,7 +2,7 @@
 
 source ./ci/oauth/keycloak/keycloak_functions.sh
 
-cat << "CONFIGURE" | docker exec -i $(docker-compose ps -q conjur_5) bash
+cat << "CONFIGURE" | docker exec -i $(docker compose ps -q conjur_5) bash
 set -e
 
 for _ in $(seq 20); do

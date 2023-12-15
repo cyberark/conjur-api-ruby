@@ -2,4 +2,4 @@
 
 echo 'Removing test environment'
 echo '---'
-docker-compose down --rmi 'local' --volumes
+docker compose down --rmi 'local' --volumes

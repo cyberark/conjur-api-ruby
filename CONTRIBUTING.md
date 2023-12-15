@@ -64,8 +64,8 @@ The file `docker-compose.yml` is a self-contained development environment for th
 To bring it up, run:
 
 ```sh-session
-$ docker-compose build
-$ docker-compose up -d pg conjur_4 conjur_5
+$ docker compose build
+$ docker compose up -d pg conjur_4 conjur_5
 ```
 
 Then configure the v4 and v5 servers:
@@ -82,7 +82,7 @@ $ ./ci/configure_v5.sh
 Obtain the API key for the v5 admin user:
 
 ```
-$ docker-compose exec conjur_5 rake 'role:retrieve-key[cucumber:user:admin]'
+$ docker compose exec conjur_5 rake 'role:retrieve-key[cucumber:user:admin]'
 3aezp05q3wkem3hmegymwzz8wh3bs3dr6xx3y3m2q41k5ymebkc
 ```
 
@@ -91,7 +91,7 @@ The password of the v4 admin user is "secret".
 Now you can run the client `dev` container:
 
 ```sh-session
-$ docker-compose run --rm dev
+$ docker compose run --rm dev
 ```
 
 This gives you a shell session with `conjur_4` and `conjur_5` available as linked containers.
@@ -115,7 +115,7 @@ $ bundle exec ./example/demo_v4.rb
 To bring it down, run:
 
 ```sh-session
-$ docker-compose down
+$ docker compose down
 ```
 
 ## Releasing
