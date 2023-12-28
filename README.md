@@ -4,26 +4,6 @@ Programmatic Ruby access to the Conjur API.
 
 RDocs are available from the through the [Ruby Gem details page](https://rubygems.org/gems/conjur-api)
 
-# Server Versions
-
-The Conjur server comes in two major versions:
-
-* **4.x** Conjur 4 is a commercial, non-open-source product, which is documented at [https://developer.conjur.net/](https://developer.conjur.net/).
-* **5.x** Conjur 5 is open-source software, hosted and documented at [https://www.conjur.org/](https://www.conjur.org/).
-
-You can use the `main` branch of this project, which is `conjur-api` version `5.x`, to do all of the following things against either type of Conjur server:
-
-* Authenticate
-* Fetch secrets
-* Check permissions
-* List roles, resources, members, memberships and permitted roles.
-* Create hosts using host factory
-* Rotate API keys
-
-Use the configuration setting `Conjur.configuration.version` to select your server version, or set the environment variable `CONJUR_VERSION`. In either case, the valid values are `4` and `5`; the default is `5`.
-
-If you are using Conjur server version `4.x`, you can also choose to use the `conjur-api` version `4.x`. In this case, the `Configuration.version` setting is not required (actually, it doesn't exist).
-
 ## Using conjur-api-ruby with Conjur Open Source 
 
 Are you using this project with [Conjur Open Source](https://github.com/cyberark/conjur)? Then we 
@@ -33,7 +13,7 @@ Conjur maintainers perform additional testing on the suite release versions to e
 compatibility. When possible, upgrade your Conjur version to match the 
 [latest suite release](https://docs.conjur.org/Latest/en/Content/ReleaseNotes/ConjurOSS-suite-RN.htm); 
 when using integrations, choose the latest suite release that matches your Conjur version. For any 
-questions, please contact us on [Discourse](https://discuss.cyberarkcommons.org/c/conjur/5).
+questions, please contact us on [Discourse](https://discuss.cyberarkcommons.org/).
 
 # Installation
 

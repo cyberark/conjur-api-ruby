@@ -1,12 +1,12 @@
 #!/bin/bash -ex
 
-function v5_development() {
-  docker compose up -d --no-deps conjur_5 pg gem client
+function development() {
+  docker compose up -d --no-deps conjur pg gem client
 
-  docker compose exec -T conjur_5 conjurctl wait
+  docker compose exec -T conjur conjurctl wait
 
-  local api_key=$(docker compose exec -T conjur_5 rake 'role:retrieve-key[cucumber:user:admin]')
-  api_key=$(docker compose exec -T conjur_5 conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
+  local api_key=$(docker compose exec -T conjur rake 'role:retrieve-key[cucumber:user:admin]')
+  api_key=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
 
   docker exec -e CONJUR_AUTHN_API_KEY="$api_key" -it --detach-keys 'ctrl-\' $(docker compose ps -q gem) bash
 }
@@ -19,4 +19,4 @@ fi
 docker compose pull
 docker compose build
 
-v5_development
+development

@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [5.4.2] - 2023-09-11
+## [6.0.0] - 2023-12-28
+
+### Removed
+- Remove support for Conjur V4 (CNJR-2935)
 
 ## [5.4.1] - 2023-06-14
 
@@ -386,8 +389,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2013-13-12
 
-[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.1...HEAD
-[5.4.2]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.1...v5.4.2
+[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v6.0.0...HEAD
+[6.0.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.1...v6.0.0
 [5.4.1]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.0...v5.4.1
 [5.4.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.7...v5.4.0
 [5.3.7]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.6...v5.3.7

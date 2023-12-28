@@ -130,6 +130,6 @@ Given(/^I setup a keycloak authenticator$/) do
     @nonce.add_value SecureRandom.uuid
     @state.add_value SecureRandom.uuid
     @name.add_value "keycloak"
-    @redirect_uri.add_value "http://conjur_5/authn-oidc/keycloak/cucumber/authenticate"
+    @redirect_uri.add_value "http://conjur/authn-oidc/keycloak/cucumber/authenticate"
     @ca_cert.add_value File.read("/etc/ssl/certs/keycloak.pem")
 end
