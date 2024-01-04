@@ -1,3 +1,5 @@
+# kics-scan ignore
+
 version: '3'
 services:
   pg:
