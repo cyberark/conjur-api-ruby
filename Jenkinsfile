@@ -8,8 +8,8 @@ properties([
 ])
 
 if (params.MODE == "PROMOTE") {
-  release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
-    sh './publish.sh'
+  release.promote(params.VERSION_TO_PROMOTE) { infrapool, sourceVersion, targetVersion, assetDirectory ->
+    infrapool.agentSh './publish.sh'
   }
 
   // Copy Github Enterprise release to Github
@@ -51,22 +51,22 @@ pipeline {
     stage('Get InfraPool Agent') {
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 1, duration: 1)[0]
+          infrapool = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 1, duration: 1)[0]
         }
       }
     }
 
     stage('Validate Changelog and set version') {
       steps {
-        parseChangelog(INFRAPOOL_EXECUTORV2_AGENT_0)
-        updateVersion(INFRAPOOL_EXECUTORV2_AGENT_0, "CHANGELOG.md", "${BUILD_NUMBER}")
+        parseChangelog(infrapool)
+        updateVersion(infrapool, "CHANGELOG.md", "${BUILD_NUMBER}")
       }
     }
 
     stage('Prepare CC Report Dir'){
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'mkdir -p coverage'
+          infrapool.agentSh 'mkdir -p coverage'
         }
       }
     }
@@ -77,8 +77,8 @@ pipeline {
       }
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./test.sh"
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'reports3.0', includes: '**/reports/*.xml'
+          infrapool.agentSh "./test.sh"
+          infrapool.agentStash name: 'reports3.0', includes: '**/reports/*.xml'
         }
       }
       post {
@@ -94,8 +94,8 @@ pipeline {
       }
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./test.sh"
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'reports3.1', includes: '**/reports/*.xml'
+          infrapool.agentSh "./test.sh"
+          infrapool.agentStash name: 'reports3.1', includes: '**/reports/*.xml'
         }
       }
       post {
@@ -111,8 +111,8 @@ pipeline {
       }
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./test.sh"
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'reports3.2', includes: '**/reports/*.xml'
+          infrapool.agentSh "./test.sh"
+          infrapool.agentStash name: 'reports3.2', includes: '**/reports/*.xml'
         }
       }
       post {
@@ -125,7 +125,7 @@ pipeline {
     stage('Submit Coverage Report'){
       steps{
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'coverage', includes: '**/coverage/**'
+          infrapool.agentStash name: 'coverage', includes: '**/coverage/**'
         }
         unstash 'coverage'
 
@@ -166,16 +166,16 @@ pipeline {
 
       steps {
         script {
-          release(INFRAPOOL_EXECUTORV2_AGENT_0) {
+          release(infrapool) {
             // Clean up all but the calculated VERSION
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh '''docker run -i --rm -v $(pwd):/src -w /src --entrypoint /bin/sh alpine/git \
+            infrapool.agentSh '''docker run -i --rm -v $(pwd):/src -w /src --entrypoint /bin/sh alpine/git \
                   -c "git config --global --add safe.directory /src && \
                       git clean -fdx \
                         -e VERSION \
                         -e bom-assets/ \
                         -e release-assets" '''
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish.sh'
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'cp conjur-api-*.gem release-assets/.'
+            infrapool.agentSh './publish.sh'
+            infrapool.agentSh 'cp conjur-api-*.gem release-assets/.'
           }
         }
       }
