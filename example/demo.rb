@@ -7,19 +7,14 @@ username = "admin"
 
 arguments = ARGV.dup
 
-api_key = arguments.shift or raise "Usage: ./demo_v5 <admin-api-key>"
+api_key = arguments.shift or raise "Usage: ./demo <admin-api-key>"
 
-Conjur.configuration.appliance_url = "http://conjur_5"
+Conjur.configuration.appliance_url = "http://conjur"
 Conjur.configuration.account = "cucumber"
-# This is the default
-# Conjur.configuration.version = 5
-
-puts "Configured with Conjur version: #{Conjur.configuration.version}"
-puts
 
 api = Conjur::API.new_from_key username, api_key
 
-policy = File.read("features_v4/support/policy.yml")
+policy = File.read("features/support/policy.yml")
 
 puts "Loading policy 'root'"
 policy_result = api.load_policy "root", policy

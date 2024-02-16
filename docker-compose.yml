@@ -1,16 +1,19 @@
 version: '2.1'
 services:
   pg:
-    image: postgres:9.3
+    image: postgres:15
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
 
-  conjur_5:
+  conjur:
     image: cyberark/conjur:edge
+    # TODO: Test with a version that supports authn-sut
     command: server -a cucumber
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
     volumes:
-      - authn_local_5:/run/authn-local
+      - authn_local:/run/authn-local
       - ./ci/oauth/keycloak:/scripts
     depends_on:
       - pg
@@ -26,7 +29,7 @@ services:
       - KEYCLOAK_APP_USER_EMAIL=alice@conjur.net
       - DB_VENDOR=H2
       - KEYCLOAK_CLIENT_ID=conjurClient
-      - KEYCLOAK_REDIRECT_URI=http://conjur_5/authn-oidc/keycloak/cucumber/authenticate
+      - KEYCLOAK_REDIRECT_URI=http://conjur/authn-oidc/keycloak/cucumber/authenticate
       - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
     ports:
@@ -35,15 +38,7 @@ services:
       - ./ci/oauth/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
       - ./ci/oauth/keycloak:/scripts
 
-  conjur_4:
-    image: registry2.itci.conjur.net/conjur-appliance-cuke-master:4.9-stable
-    security_opt:
-      - seccomp:unconfined
-    volumes:
-      - ./features_v4/support/policy.yml:/etc/policy.yml
-      - authn_local_4:/run/authn-local
-
-  tester_5:
+  tester:
     build:
         context: .
         dockerfile: Dockerfile
@@ -53,27 +48,10 @@ services:
       - ./spec/reports:/src/conjur-api/spec/reports
       - ./features/reports:/src/conjur-api/features/reports
       - ./coverage:/src/conjur-api/coverage
-      - authn_local_5:/run/authn-local-5
+      - authn_local:/run/authn-local
       - ./ci/oauth/keycloak:/scripts
     environment:
-      CONJUR_APPLIANCE_URL: http://conjur_5
-      CONJUR_VERSION: 5
-      CONJUR_ACCOUNT: cucumber
-
-  tester_4:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        RUBY_VERSION: ${RUBY_VERSION}
-    volumes:
-      - ./features_v4/reports:/src/conjur-api/features_v4/reports
-      - ./tmp/conjur.pem:/src/conjur-api/tmp/conjur.pem
-      - ./coverage_v4:/src/conjur-api/coverage
-      - authn_local_4:/run/authn-local-4
-    environment:
-      CONJUR_APPLIANCE_URL: https://conjur_4/api
-      CONJUR_VERSION: 4
+      CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
 
   dev:
@@ -85,14 +63,11 @@ services:
     entrypoint: bash
     volumes:
       - .:/src/conjur-api
-      - authn_local_4:/run/authn-local-4
-      - authn_local_5:/run/authn-local-5
+      - authn_local:/run/authn-local
     environment:
       CONJUR_ACCOUNT: cucumber
     depends_on:
-      - conjur_4
-      - conjur_5
+      - conjur
 
 volumes:
-  authn_local_4:
-  authn_local_5:
+  authn_local:

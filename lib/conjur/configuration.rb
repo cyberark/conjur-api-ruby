@@ -388,14 +388,6 @@ module Conjur
       }
     end
 
-    # @!attribute version
-    #
-    # Selects the major API version of the Conjur server. With this setting, the API
-    # will use the routing scheme for API version `4` or `5`.
-    #
-    # Methods which are not available in the selected version will raise NoMethodError.
-    add_option :version, default: 5
-
     # @!attribute authn_local_socket
     #
     # File path to the Unix socket used for local authentication.
@@ -406,18 +398,6 @@ module Conjur
     # rest_client_options present on the configuration object.
     def create_rest_client_options options
       rest_client_options.merge(options || {})
-    end
-
-    # Calls a major-version-specific function.
-    def version_logic v4_logic, v5_logic
-      case version.to_s
-      when "4"
-        v4_logic.call
-      when "5"
-        v5_logic.call
-      else
-        raise "Unsupported major version #{version}"
-      end
     end
 
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate

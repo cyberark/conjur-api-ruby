@@ -67,5 +67,5 @@ function fetch_keycloak_certificate() {
   # Fetch SSL cert to communicate with keycloak (OIDC provider).
   echo "Initialize keycloak certificate in conjur server"
   docker compose exec -T \
-    conjur_5 /scripts/fetch_certificate
+    conjur /scripts/fetch_certificate
 }

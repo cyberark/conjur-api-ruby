@@ -309,8 +309,7 @@ Lint/UnneededSplatExpansion:
 Lint/UnusedMethodArgument:
   Exclude:
     - 'lib/conjur/api.rb'
-    - 'lib/conjur/api/router/v4.rb'
-    - 'lib/conjur/api/router/v5.rb'
+    - 'lib/conjur/api/router.rb'
     - 'lib/conjur/base_object.rb'
     - 'lib/conjur/cache.rb'
     - 'lib/conjur/has_attributes.rb'
@@ -538,7 +537,7 @@ Style/MethodDefParentheses:
     - 'lib/conjur/acts_as_rolsource.rb'
     - 'lib/conjur/acts_as_user.rb'
     - 'lib/conjur/api.rb'
-    - 'lib/conjur/api/router/v5.rb'
+    - 'lib/conjur/api/router.rb'
     - 'lib/conjur/configuration.rb'
     - 'lib/conjur/escape.rb'
     - 'lib/conjur/has_attributes.rb'
@@ -552,8 +551,7 @@ Style/MethodDefParentheses:
 # SupportedStyles: module_function, extend_self
 Style/ModuleFunction:
   Exclude:
-    - 'lib/conjur/api/router/v4.rb'
-    - 'lib/conjur/api/router/v5.rb'
+    - 'lib/conjur/api/router.rb'
 
 # Offense count: 1
 Style/MultilineBlockChain:

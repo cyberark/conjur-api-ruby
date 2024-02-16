@@ -110,8 +110,8 @@ module Conjur
       # @param [String] username the username to use when making authenticated requests.
       # @param [String] account The organization account.
       # @param [String] remote_ip the optional IP address to be recorded in the audit record.
-      # @param [String] expiration the optional expiration time of the token (supported in V5 only).
-      # @param [String] cidr the optional CIDR restriction on the token (supported in V5 only).
+      # @param [String] expiration the optional expiration time of the token.
+      # @param [String] cidr the optional CIDR restriction on the token.
       # @return [Conjur::API] an api that will authenticate with the given username.
       def new_from_authn_local username, account: Conjur.configuration.account, remote_ip: nil, expiration: nil, cidr: nil
         self.new.init_from_authn_local username, account: account, remote_ip: remote_ip, expiration: expiration, cidr: cidr

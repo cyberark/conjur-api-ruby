@@ -26,11 +26,10 @@ function main() {
     exit 1
   fi
   # Generate reports folders locally
-  mkdir -p spec/reports features/reports features_v4/reports
+  mkdir -p spec/reports features/reports
 
   startConjur
-  runTests_5
-  runTests_4
+  runTests
 }
 
 function startConjur() {
@@ -43,35 +42,22 @@ function startConjur() {
   # with a warm cache. So try to pull, but ignore failures.
   docker compose pull --ignore-pull-failures
   docker compose build --build-arg RUBY_VERSION="$RUBY_VERSION"
-  docker compose up -d pg conjur_4 conjur_5
+  docker compose up -d pg conjur
 }
 
-function runTests_5() {
-  echo 'Waiting for Conjur v5 to come up, and configuring it...'
-  ./ci/configure_v5.sh
+function runTests() {
+  echo 'Waiting for Conjur to come up, and configuring it...'
+  ./ci/configure.sh
 
-  local api_key=$(docker compose exec -T conjur_5 rake 'role:retrieve-key[cucumber:user:admin]')
+  local api_key=$(docker compose exec -T conjur rake 'role:retrieve-key[cucumber:user:admin]')
 
   echo 'Running tests'
   echo '-----'
   docker compose run --rm \
     -e CONJUR_AUTHN_API_KEY="$api_key" \
     -e SSL_CERT_FILE=/etc/ssl/certs/keycloak.pem \
-    tester_5 \
-    "/scripts/fetch_certificate && rake jenkins_init jenkins_spec jenkins_cucumber_v5"
-}
-
-function runTests_4() {
-  echo 'Waiting for Conjur v4 to come up, and configuring it...'
-  ./ci/configure_v4.sh
-
-  local api_key=$(docker compose exec -T conjur_4 su conjur -c "conjur-plugin-service authn env RAILS_ENV=appliance rails r \"puts User['admin'].api_key\" 2>/dev/null")
-
-  echo 'Running tests'
-  echo '-----'
-  docker compose run --rm \
-    -e CONJUR_AUTHN_API_KEY="$api_key" \
-    tester_4 rake jenkins_cucumber_v4
+    tester \
+    "/scripts/fetch_certificate && rake jenkins_init jenkins_spec jenkins_cucumber"
 }
 
 main
