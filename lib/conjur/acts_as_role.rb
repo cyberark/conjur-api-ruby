@@ -108,7 +108,7 @@ module Conjur
           if item.is_a?(String)
             build_object(item, default_class: Role)
           else
-            RoleGrant.parse_from_json(item, self.options)
+            RoleGrant.parse_from_json(item, self.credentials)
           end
         end
       end
