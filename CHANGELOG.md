@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Pass valid field in #memberships to fix listing roles (CNJR-2109)
+- Pull keycloak image from internal repository
 
 ## [5.4.1] - 2023-06-14
 
