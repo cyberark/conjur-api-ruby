@@ -49,3 +49,10 @@ Feature: Display role members and memberships.
       }
     ]
     """
+
+  Scenario: Show a role's memberships non-recursive.
+    When I run the code:
+    """
+    $conjur.role('cucumber:group:developers').memberships(recursive: false).any?
+    """
+    Then the result should be "true"
