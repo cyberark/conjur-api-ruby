@@ -146,6 +146,7 @@ describe Conjur::API do
       let(:token_encoded) { Base64.strict_encode64(token.to_json) }
       let(:base_headers) { { authorization: authz_header } }
       let(:headers) { base_headers }
+      # deepcode ignore InsecureTransmission: This is test code
       let(:resource) { RestClient::Resource.new("http://example.com", { headers: headers })}
       context 'basic functioning' do
         it_behaves_like 'it can clone itself'
