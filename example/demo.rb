@@ -3,6 +3,7 @@
 require 'conjur-api'
 require 'securerandom'
 
+# deepcode ignore HardcodedCredential: This is demo code
 username = "admin"
 
 arguments = ARGV.dup
