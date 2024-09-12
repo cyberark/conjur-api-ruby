@@ -22,6 +22,7 @@
 require 'openssl'
 require 'set'
 require 'conjur/cert_utils'
+require 'base64'
 
 module Conjur
   class << self
@@ -368,6 +369,19 @@ module Conjur
     # @see cert_file
     add_option :ssl_certificate
 
+    # add custom header to request containing customer detail and sdk version
+    add_option :integration_name, default: "SecretsManagerRuby SDK" 
+    
+    add_option :integration_type, default: "cybr-secretsmanager"
+
+    add_option :integration_version, default: Conjur::API::VERSION
+    
+    add_option :vendor_name, default: "CyberArk"
+
+    add_option :vendor_version, default: nil
+    
+    add_option :final_telemetry_header
+
     # @!attribute rest_client_options
     #
     # Custom options for the underlying RestClient Requests. This defaults to:
@@ -384,7 +398,10 @@ module Conjur
     # you must manually set them on the value you provide.
     add_option :rest_client_options do
       {
-        ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+        ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE,
+        headers: { 
+          'x-cybr-telemetry': get_telemetry_header
+        }
       }
     end
 
@@ -397,7 +414,8 @@ module Conjur
     # Create rest_client_options by merging the input with the
     # rest_client_options present on the configuration object.
     def create_rest_client_options options
-      rest_client_options.merge(options || {})
+      options ||= {}
+      rest_client_options.merge(options) { |key, left, right| left.merge(right) }
     end
 
     # Add the certificate configured by the {#ssl_certificate} and {#cert_file} options to the certificate
@@ -435,6 +453,44 @@ module Conjur
       # readable. Don't rescue exceptions from it, just let them
       # propagate.
       File.open(path) {}
+    end
+
+    # get_telemetry_header constructs and returns a base64-encoded telemetry header string.
+    #
+    # The method checks the values of various instance variables (`integration_name`,
+    # `integration_version`, `integration_type`, `vendor_name`, `vendor_version`) and
+    # constructs the header accordingly. If any of these values are not provided (empty or nil),
+    # they will be omitted from the final header string.
+    #
+    # The telemetry header is formatted as a series of key-value pairs separated by "&". Each key-value
+    # pair corresponds to one of the following fields:
+    #   - `in`: Integration Name
+    #   - `iv`: Integration Version
+    #   - `it`: Integration Type
+    #   - `vn`: Vendor Name
+    #   - `vv`: Vendor Version
+    #
+    # The final header string is base64-encoded using URL-safe encoding (without padding).
+    # If the header has been previously generated and cached in `final_telemetry_header`, it is returned directly.
+    #
+    # Returns:
+    #   - String: The base64-encoded telemetry header string.
+    def get_telemetry_header
+      unless final_telemetry_header.nil?
+        return final_telemetry_header
+      end
+      final_telemetry_header = ""
+      if integration_name && !integration_name.strip.empty?
+        final_telemetry_header += "in=#{integration_name}" 
+        final_telemetry_header += "&iv=#{integration_version}"  if integration_version && !integration_version.strip.empty?
+        final_telemetry_header += "&it=#{integration_type}" if integration_type && !integration_type.strip.empty?
+      end
+
+      if vendor_name && !vendor_name.strip.empty?
+        final_telemetry_header += "&vn=#{vendor_name}"
+        final_telemetry_header += "&vv=#{vendor_version}" if vendor_version && !vendor_version.strip.empty?
+      end
+      Base64.urlsafe_encode64(final_telemetry_header, padding: false)
     end
   end
 end

@@ -1,7 +1,7 @@
 ARG RUBY_VERSION
 FROM ruby:$RUBY_VERSION
 
-RUN apt-get update && apt-get install -y --no-install-recommends vim curl
+RUN apt-get update && apt-get install -y --no-install-recommends vim curl libyaml-dev
 
 WORKDIR /src/conjur-api
 
