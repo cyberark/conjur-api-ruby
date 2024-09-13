@@ -82,6 +82,7 @@ pipeline {
     stage('Test Ruby 3.0') {
       environment {
         RUBY_VERSION = '3.0'
+        INFRAPOOL_REGISTRY_URL = "registry.tld"
       }
       steps {
         script {
@@ -99,6 +100,7 @@ pipeline {
     stage('Test Ruby 3.1') {
       environment {
         RUBY_VERSION = '3.1'
+        INFRAPOOL_REGISTRY_URL = "registry.tld"
       }
       steps {
         script {
@@ -116,6 +118,7 @@ pipeline {
     stage('Test Ruby 3.2') {
       environment {
         RUBY_VERSION = '3.2'
+        INFRAPOOL_REGISTRY_URL = "registry.tld"
       }
       steps {
         script {
