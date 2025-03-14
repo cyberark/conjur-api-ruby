@@ -1,10 +1,11 @@
 #!/bin/bash -e
 
-: "${RUBY_VERSION=3.0}"
+: "${RUBY_VERSION=3.2}"
 # My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
 RUBY_VERSION="$(cut -d '-' -f 2 <<< "$RUBY_VERSION")"
 
 export REGISTRY_URL=${INFRAPOOL_REGISTRY_URL:-"docker.io"}
+export RUBY_VERSION="${INFRAPOOL_RUBY_VERSION:-$RUBY_VERSION}"
 
 source ./ci/oauth/keycloak/keycloak_functions.sh
 TOP_LEVEL=$(git rev-parse --show-toplevel)
@@ -51,7 +52,7 @@ function runTests() {
   echo 'Waiting for Conjur to come up, and configuring it...'
   ./ci/configure.sh
 
-  local api_key=$(docker compose exec -T conjur rake 'role:retrieve-key[cucumber:user:admin]')
+  local api_key=$(docker compose exec -T conjur bundle exec rake 'role:retrieve-key[cucumber:user:admin]')
 
   echo 'Running tests'
   echo '-----'
