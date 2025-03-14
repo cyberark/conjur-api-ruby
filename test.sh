@@ -51,7 +51,7 @@ function runTests() {
   echo 'Waiting for Conjur to come up, and configuring it...'
   ./ci/configure.sh
 
-  local api_key=$(docker compose exec -T conjur rake 'role:retrieve-key[cucumber:user:admin]')
+  local api_key=$(docker compose exec -T conjur bundle exec rake 'role:retrieve-key[cucumber:user:admin]')
 
   echo 'Running tests'
   echo '-----'

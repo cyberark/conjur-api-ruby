@@ -15,5 +15,7 @@ done
 curl -o /dev/null -fs -X OPTIONS http://localhost > /dev/null
 CONFIGURE
 
+wait_for_keycloak_server
+
 fetch_keycloak_certificate
 create_keycloak_users
