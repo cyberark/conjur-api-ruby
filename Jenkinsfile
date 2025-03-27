@@ -25,12 +25,13 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '30'))
   }
 
-  triggers {
-    cron(getDailyCronString())
-  }
-
   environment {
     MODE = release.canonicalizeMode()
+  }
+
+  triggers {
+    cron(getDailyCronString())
+    parameterizedCron(getWeeklyCronString("H(1-5)","%MODE=RELEASE"))
   }
 
   stages {
