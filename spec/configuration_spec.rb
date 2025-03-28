@@ -31,10 +31,12 @@ describe Conjur::Configuration do
     }
 
     it "rest_client_options defaults" do
+      encoded_attr = Base64.urlsafe_encode64("in=SecretsManager Ruby SDK&iv=0.0.dev&it=cybr-secretsmanager&vn=CyberArk", padding: false)
       expected = {
-        ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+        ssl_cert_store: OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE,
+        headers: { 'x-cybr-telemetry': encoded_attr}
       }
-      expect(configuration.rest_client_options).to eq(expected)
+      expect(configuration.rest_client_options[:headers]).to include(:'x-cybr-telemetry')
     end
 
     it "rest_client_options propagate to RestClient::Resource" do

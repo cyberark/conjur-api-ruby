@@ -60,7 +60,7 @@ function runTests() {
     -e CONJUR_AUTHN_API_KEY="$api_key" \
     -e SSL_CERT_FILE=/etc/ssl/certs/keycloak.pem \
     tester \
-    "/scripts/fetch_certificate && rake jenkins_init jenkins_spec jenkins_cucumber"
+    "/scripts/fetch_certificate && bundle exec rake jenkins_init jenkins_spec jenkins_cucumber"
 }
 
 main

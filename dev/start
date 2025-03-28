@@ -5,7 +5,7 @@ function development() {
 
   docker compose exec -T conjur conjurctl wait
 
-  local api_key=$(docker compose exec -T conjur rake 'role:retrieve-key[cucumber:user:admin]')
+  local api_key=$(docker compose exec -T conjur bundle exec rake 'role:retrieve-key[cucumber:user:admin]')
   api_key=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
 
   docker exec -e CONJUR_AUTHN_API_KEY="$api_key" -it --detach-keys 'ctrl-\' $(docker compose ps -q gem) bash
