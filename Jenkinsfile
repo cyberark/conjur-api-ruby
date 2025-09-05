@@ -67,7 +67,6 @@ pipeline {
 
     stage('Validate Changelog and set version') {
       steps {
-        parseChangelog(infrapool)
         updateVersion(infrapool, "CHANGELOG.md", "${BUILD_NUMBER}")
       }
     }

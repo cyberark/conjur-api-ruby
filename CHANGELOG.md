@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [6.0.1] - 2024-03-25
+## [6.0.1] - 2025-09-05
 
 ### Fixed
+- Updated README.md, CONTRIBUTING.md, and SECURITY.md to align with Conjur Enterprise name change to Secrets Manager. (CNJR-10968)
 - Pass valid field in #memberships to fix listing roles (CNJR-2109)
 - Pull keycloak image from internal repository
 
@@ -395,7 +396,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2013-13-12
 
-[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v6.0.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-ruby/compare/v6.0.1...HEAD
+[6.0.1]: https://github.com/cyberark/conjur-api-ruby/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.1...v6.0.0
 [5.4.1]: https://github.com/cyberark/conjur-api-ruby/compare/v5.4.0...v5.4.1
 [5.4.0]: https://github.com/cyberark/conjur-api-ruby/compare/v5.3.7...v5.4.0
