@@ -17,7 +17,7 @@ contributor!
 
 ## Development
 
-To develop and run tests against Conjur, use the `start` and `stop` scripts in the `dev` folder. The start script brings up an open source Conjur (and Postgres database), CLI container, and a "work" container, with the gem code mounted into the working directory.
+To develop and run tests against Conjur OSS, use the `start` and `stop` scripts in the `dev` folder. The start script brings up a Conjur OSS (and Postgres database), CLI container, and a "work" container, with the gem code mounted into the working directory.
 
 ### Starting a Shell
 
