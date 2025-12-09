@@ -47,7 +47,6 @@ For custom scenarios, the location of the file can be overridden using the `CONJ
 You can load the Secrets Manager configuration file using the following Ruby code:
 
 ```ruby
-require 'conjur/cli'
 Conjur::Config.load
 Conjur::Config.apply
 ```
