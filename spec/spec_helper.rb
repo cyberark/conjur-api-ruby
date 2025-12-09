@@ -1,8 +1,27 @@
+
+require 'conjur/api'
+
+shared_context "fresh config" do
+  before {
+    ENV.delete_if do |k,v|
+      next if k == 'CONJUR_ACCOUNT'
+
+      k =~ /^CONJUR_/
+    end
+
+    @configuration = Conjur.configuration
+    Conjur.configuration = Conjur::Configuration.new
+  }
+  after {
+    Conjur::Config.clear
+    Conjur.configuration = @configuration
+  }
+end
+
 require 'simplecov'
 require 'simplecov-cobertura'
 
 SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-
 
 SimpleCov.start do
   command_name "#{ENV['RUBY_VERSION']}"
