@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [6.1.0] - 2025-09-05
+## [6.1.0] - 2025-12-10
+
+### Fixed
+- Fixed problem with missing Conjur::API package (CNJR-12082).
+  [cyberark/conjur-api-ruby#224](https://github.com/cyberark/conjur-api-ruby/issues/224)
 
 ### Added
 - Added Config code and tests to repository (CNJR-10552).

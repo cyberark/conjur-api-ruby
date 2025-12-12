@@ -39,6 +39,11 @@ describe Conjur::Configuration do
       expect(configuration.rest_client_options[:headers]).to include(:'x-cybr-telemetry')
     end
 
+    it "API version check" do
+      VERSION = File.read(File.expand_path('../VERSION', __dir__))
+      expect(configuration.integration_version).to eq VERSION
+    end
+
     it "rest_client_options propagate to RestClient::Resource" do
       expected = {
         ssl_ca_file: "ca_certificate.pem",
