@@ -23,6 +23,7 @@ require 'openssl'
 require 'set'
 require 'conjur/cert_utils'
 require 'base64'
+require 'conjur-api/version'
 
 module Conjur
   class << self
