@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Retrieve the Cucumber admin API key via `conjurctl` in `test.sh` instead of rake,
   avoiding Rails boot output corrupting the key on current Conjur images.
 
+## [6.2.0] - 2026-06-05
+
 ## [6.1.0] - 2025-12-10
 
 ### Fixed
