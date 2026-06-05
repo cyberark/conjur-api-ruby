@@ -35,6 +35,11 @@ module Conjur
       # ## Permissions
       # You do not need any special permissions to call this method, since public keys are, well, public.
       #
+      # ## Conjur Enterprise
+      # Conjur Enterprise 1.27.0 and later removed the +GET /public_keys+ endpoint
+      # (CNJR-11339). Calls against those servers return 404. Store SSH keys with
+      # +POST /secrets/:account/public_key/...+, or use your LDAP sync workflow.
+      #
       #
       # @example
       #   puts api.public_keys('jon')

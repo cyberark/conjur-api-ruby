@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Changed
-- Nothing should go in this section, please add to the latest unreleased version
-  (and update the corresponding date), or add a new version.
+- CI uses Conjur Enterprise 1.27.0+, which removed the `GET /public_keys` endpoint
+  (CNJR-11339). Dropped the Cucumber scenario that exercised that API; the client
+  method remains for open-source Conjur.
+- Retrieve the Cucumber admin API key via `conjurctl` in `test.sh` instead of rake,
+  avoiding Rails boot output corrupting the key on current Conjur images.
+
+## [6.2.0] - 2026-06-05
 
 ## [6.1.0] - 2025-12-10
 

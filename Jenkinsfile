@@ -141,18 +141,16 @@ pipeline {
         }
         unstash 'coverage'
 
-        cobertura autoUpdateHealth: false,
-          autoUpdateStability: false,
-          coberturaReportFile: 'coverage/coverage.xml',
-          conditionalCoverageTargets: '70, 0, 0',
-          failUnhealthy: false,
-          failUnstable: false,
-          maxNumberOfBuilds: 0,
-          lineCoverageTargets: '70, 0, 0',
-          methodCoverageTargets: '70, 0, 0',
-          onlyStable: false,
-          sourceEncoding: 'ASCII',
-          zoomCoverageChart: false
+        recordCoverage(
+          tools: [[parser: 'COBERTURA', pattern: 'coverage/coverage.xml']],
+          sourceCodeEncoding: 'ASCII',
+          qualityGates: [
+            [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', unstable: true],
+            [threshold: 70.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true],
+            [threshold: 70.0, metric: 'METHOD', baseline: 'PROJECT', unstable: true]
+          ],
+          skipPublishingChecks: false
+        )
 
         publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '',
           allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
