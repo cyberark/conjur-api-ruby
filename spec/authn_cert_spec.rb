@@ -2,24 +2,26 @@
 
 require 'spec_helper'
 require 'openssl'
+require 'tempfile'
 require 'conjur/api/router'
+
+# Generate once for the entire spec file — RSA key generation is expensive.
+TEST_KEY = OpenSSL::PKey::RSA.new(512)
+TEST_CERT = OpenSSL::X509::Certificate.new.tap do |c|
+  c.subject = c.issuer = OpenSSL::X509::Name.parse('/CN=test')
+  c.not_before = Time.now - 1
+  c.not_after  = Time.now + 3600
+  c.public_key = TEST_KEY.public_key
+  c.serial     = 1
+  c.sign(TEST_KEY, OpenSSL::Digest::SHA256.new)
+end
 
 describe Conjur::API, api: :dummy do
   let(:service_id) { 'my-service' }
   let(:host_id)    { 'host/workloads/vm-01' }
 
-  # Minimal self-signed cert and key for unit tests (no real TLS needed).
-  let(:key)  { OpenSSL::PKey::RSA.new(2048) }
-  let(:cert) do
-    c = OpenSSL::X509::Certificate.new
-    c.subject = c.issuer = OpenSSL::X509::Name.parse('/CN=test')
-    c.not_before = Time.now - 1
-    c.not_after  = Time.now + 3600
-    c.public_key = key.public_key
-    c.serial     = 1
-    c.sign(key, OpenSSL::Digest::SHA256.new)
-    c
-  end
+  let(:key)  { TEST_KEY }
+  let(:cert) { TEST_CERT }
 
   let(:raw_token) { { 'protected' => 'p', 'payload' => 'pl', 'signature' => 's' } }
 

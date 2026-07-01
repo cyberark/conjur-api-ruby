@@ -72,6 +72,8 @@ module Conjur
       def authenticate_cert(service_id, cert, key,
                             account: Conjur.configuration.account,
                             host_id: nil)
+        raise ArgumentError, "service_id is required" if service_id.nil? || service_id.empty?
+
         if Conjur.log
           Conjur.log << "Authenticating via authn-cert/#{service_id} to account #{account}\n"
         end
