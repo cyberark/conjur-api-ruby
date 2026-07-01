@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'openssl'
+require 'conjur/api/router'
 
 describe Conjur::API, api: :dummy do
   let(:service_id) { 'my-service' }
