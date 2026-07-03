@@ -30,6 +30,7 @@ describe Conjur::API, api: :dummy do
     let(:resource) { double('resource') }
 
     before do
+      allow(Conjur::API).to receive(:require).with('aws-sdk-core')
       allow(Conjur::API).to receive(:url_for)
         .with(:authn_iam_authenticate, account, service_id, identity)
         .and_return(resource)
