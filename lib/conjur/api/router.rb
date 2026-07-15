@@ -148,6 +148,13 @@ module Conjur
         )['policies'][fully_escape account]['policy'][fully_escape id]
       end
 
+      def policies_fetch_policy credentials, account, id, options = {}
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.create_rest_client_options(credentials)
+        )['policies'][fully_escape account]['policy'][fully_escape id][options_querystring options]
+      end
+
       def public_keys_for_user account, username
         RestClient::Resource.new(
           Conjur.configuration.core_url,

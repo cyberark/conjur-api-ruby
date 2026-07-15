@@ -60,3 +60,35 @@ Feature: Load a policy.
       "cucumber:user:admin"
     ]
     """
+
+  Scenario: A loaded subpolicy can be fetched back as YAML.
+    Given I run the code:
+    """
+    $conjur.load_policy 'root', <<-POLICY
+    - !policy
+      id: fetch-policy-yaml
+      body:
+      - !group fetch-policy-group
+    POLICY
+    """
+    Then I can run the code:
+    """
+    $conjur.fetch_policy 'fetch-policy-yaml'
+    """
+    Then the result should contain "fetch-policy-group"
+
+  Scenario: A loaded subpolicy can be fetched back as JSON.
+    Given I run the code:
+    """
+    $conjur.load_policy 'root', <<-POLICY
+    - !policy
+      id: fetch-policy-json
+      body:
+      - !group fetch-policy-json-group
+    POLICY
+    """
+    Then I can run the code:
+    """
+    $conjur.fetch_policy 'fetch-policy-json', return_json: true
+    """
+    Then the result should contain "fetch-policy-json-group"
