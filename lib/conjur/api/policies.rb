@@ -51,6 +51,23 @@ module Conjur
       PolicyLoadResult.new JSON.parse(request.send(method, policy))
     end
 
+    # Fetch the current policy data from the server.
+    #
+    # @param id [String] id of the policy to fetch.
+    # @param account [String] Conjur organization account
+    # @param return_json [Boolean] Return the policy as JSON instead of the default YAML.
+    # @param depth [Integer, nil] Maximum depth of the returned policy tree (nil for the full tree).
+    # @param limit [Integer, nil] Maximum number of policy objects to return (nil for no limit).
+    # @return [String] the policy document, formatted as YAML or JSON.
+    def fetch_policy id, account: Conjur.configuration.account, return_json: false, depth: nil, limit: nil
+      options = {}
+      options[:depth] = depth if depth
+      options[:limit] = limit if limit
+      request = url_for(:policies_fetch_policy, credentials, account, id, options)
+      content_type = return_json ? 'application/json' : 'application/x-yaml'
+      request.get('Content-Type' => content_type).body
+    end
+
     #@!endgroup
   end
 end
