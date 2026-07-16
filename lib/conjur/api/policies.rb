@@ -20,6 +20,7 @@
 #
 require 'conjur/policy_load_result'
 require 'conjur/policy'
+require 'conjur/saas'
 
 module Conjur
   class API
@@ -51,6 +52,29 @@ module Conjur
       PolicyLoadResult.new JSON.parse(request.send(method, policy))
     end
 
+    # Validate a policy load without applying it to the server, reporting what
+    # would change.
+    #
+    # @param id [String] id of the policy to load.
+    # @param policy [String] YAML-formatted policy definition.
+    # @param account [String] Conjur organization account
+    # @param method [Symbol] Policy load method to use: {POLICY_METHOD_POST} (default), {POLICY_METHOD_PATCH}, or {POLICY_METHOD_PUT}.
+    # @return [Hash] the dry run result, with keys such as "status", "created", "updated",
+    #   "deleted", and "errors". Invalid policy YAML is reported in the result rather than
+    #   raised, with "status" set to "Invalid YAML" and details in "errors". This applies
+    #   only to the 422 response the server uses for invalid YAML; other error responses
+    #   (e.g. 403 for insufficient privileges, 400 for bad request params) have a different
+    #   body shape and are raised as the corresponding RestClient exception.
+    # @raise [Conjur::FeatureNotAvailable] if the appliance is CyberArk Secrets Manager, SaaS,
+    #   or the Conjur server is older than 1.21.1.
+    def dry_run_policy id, policy, account: Conjur.configuration.account, method: POLICY_METHOD_POST
+      verify_policy_dry_run_support!
+      request = url_for(:policies_dry_run_policy, credentials, account, id)
+      JSON.parse(request.send(method, policy))
+    rescue RestClient::UnprocessableEntity => e
+      JSON.parse(e.response.body)
+    end
+
     # Fetch the current policy data from the server.
     #
     # @param id [String] id of the policy to fetch.
@@ -59,7 +83,10 @@ module Conjur
     # @param depth [Integer, nil] Maximum depth of the returned policy tree (nil for the full tree).
     # @param limit [Integer, nil] Maximum number of policy objects to return (nil for no limit).
     # @return [String] the policy document, formatted as YAML or JSON.
+    # @raise [Conjur::FeatureNotAvailable] if the appliance is CyberArk Secrets Manager, SaaS,
+    #   or the Conjur server is older than 1.21.1.
     def fetch_policy id, account: Conjur.configuration.account, return_json: false, depth: nil, limit: nil
+      verify_policy_dry_run_support!
       options = {}
       options[:depth] = depth if depth
       options[:limit] = limit if limit
@@ -69,5 +96,15 @@ module Conjur
     end
 
     #@!endgroup
+
+    private
+
+    def verify_policy_dry_run_support!
+      if Conjur::Saas.appliance_url?(Conjur.configuration.appliance_url)
+        raise Conjur::FeatureNotAvailable, "Policy dry run and fetch are not supported in CyberArk Secrets Manager, SaaS"
+      end
+
+      verify_min_server_version!('1.21.1')
+    end
   end
 end

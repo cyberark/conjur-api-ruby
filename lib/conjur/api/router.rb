@@ -148,6 +148,13 @@ module Conjur
         )['policies'][fully_escape account]['policy'][fully_escape id]
       end
 
+      def policies_dry_run_policy credentials, account, id
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.create_rest_client_options(credentials)
+        )['policies'][fully_escape account]['policy'][fully_escape id]['?dryRun=true']
+      end
+
       def policies_fetch_policy credentials, account, id, options = {}
         RestClient::Resource.new(
           Conjur.configuration.core_url,
@@ -273,6 +280,20 @@ module Conjur
           Conjur.configuration.core_url,
           Conjur.configuration.create_rest_client_options(credentials)
         )['whoami']
+      end
+
+      def server_info
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.rest_client_options
+        )['info']
+      end
+
+      def server_root
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.rest_client_options
+        )['/']
       end
 
       private

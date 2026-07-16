@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.3.1] - 2026-07-16
+
+### Added
+- Added `Conjur::API#dry_run_policy` for validating a policy load without applying it,
+  reporting what would be created/updated/deleted or, for invalid YAML, the parse errors.
+
+### Changed
+- `Conjur::API#dry_run_policy` and `Conjur::API#fetch_policy` now raise
+  `Conjur::FeatureNotAvailable` when called against CyberArk Secrets Manager, SaaS, or
+  against a Conjur server older than 1.21.1, matching conjur-api-go's behavior for the
+  equivalent methods.
+
 ## [6.3.0] - 2026-07-15
 
 ### Added
