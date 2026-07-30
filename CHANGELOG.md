@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Cloud-native authenticators for Azure Managed Identity (`authn-azure`),
+  AWS IAM (`authn-iam`), and GCP workload identity (`authn-jwt/gcp`), exposed
+  via `Conjur::API.new_from_azure`, `.new_from_iam`, and `.new_from_gcp`
+  (CNJR-14213).
+
 ### Changed
 - CI uses Conjur Enterprise 1.27.0+, which removed the `GET /public_keys` endpoint
   (CNJR-11339). Dropped the Cucumber scenario that exercised that API; the client
