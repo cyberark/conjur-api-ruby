@@ -42,6 +42,30 @@ module Conjur
         )[fully_escape account][fully_escape username]['authenticate']
       end
 
+      # POST /authn-azure/{service_id}/{account}/{login}/authenticate
+      def authn_azure_authenticate account, service_id, identity
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.rest_client_options
+        )['authn-azure'][fully_escape service_id][fully_escape account][fully_escape identity]['authenticate']
+      end
+
+      # POST /authn-iam/{service_id}/{account}/{login}/authenticate
+      def authn_iam_authenticate account, service_id, identity
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.rest_client_options
+        )['authn-iam'][fully_escape service_id][fully_escape account][fully_escape identity]['authenticate']
+      end
+
+      # POST /authn-jwt/{service_id}/{account}/{login}/authenticate
+      def authn_gcp_authenticate account, service_id, identity
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.rest_client_options
+        )['authn-jwt'][fully_escape service_id][fully_escape account][fully_escape identity]['authenticate']
+      end
+
       # Builds the RestClient::Resource for an authn-cert authentication request.
       # cert_options must include :ssl_client_cert and :ssl_client_key so that
       # the client certificate is presented during the TLS handshake.

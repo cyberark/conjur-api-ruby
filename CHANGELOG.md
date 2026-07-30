@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Cloud-native authenticators for Azure Managed Identity (`authn-azure`),
+  AWS IAM (`authn-iam`), and GCP workload identity (`authn-jwt/gcp`), exposed
+  via `Conjur::API.new_from_azure`, `.new_from_iam`, and `.new_from_gcp`
+  (CNJR-14213).
+
+### Changed
+- CI uses Conjur Enterprise 1.27.0+, which removed the `GET /public_keys` endpoint
+  (CNJR-11339). Dropped the Cucumber scenario that exercised that API; the client
+  method remains for open-source Conjur.
+- Retrieve the Cucumber admin API key via `conjurctl` in `test.sh` instead of rake,
+  avoiding Rails boot output corrupting the key on current Conjur images.
+- CI now tests against Ruby 3.3, 3.4, and 4.0. Dropped Ruby 3.2 (end of life)
+  and raised the minimum supported Ruby version accordingly.
 
 ## [6.3.1] - 2026-07-16
 
@@ -23,15 +37,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added `Conjur::API#fetch_policy` for retrieving policy data from the server,
   as YAML or JSON, with optional tree depth and size limits.
-
-### Changed
-- CI uses Conjur Enterprise 1.27.0+, which removed the `GET /public_keys` endpoint
-  (CNJR-11339). Dropped the Cucumber scenario that exercised that API; the client
-  method remains for open-source Conjur.
-- Retrieve the Cucumber admin API key via `conjurctl` in `test.sh` instead of rake,
-  avoiding Rails boot output corrupting the key on current Conjur images.
-- CI now tests against Ruby 3.3, 3.4, and 4.0. Dropped Ruby 3.2 (end of life)
-  and raised the minimum supported Ruby version accordingly.
 
 ## [6.2.0] - 2026-06-05
 
