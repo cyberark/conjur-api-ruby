@@ -72,7 +72,8 @@ describe Conjur::API, api: :dummy do
                 account: account,
                 service_id: service_id,
                 jwt: gcp_jwt,
-                gcp_identity_url: Conjur::API::GCPAuthenticator::DEFAULT_METADATA_URL)
+                gcp_identity_url: Conjur::API::GCPAuthenticator::DEFAULT_METADATA_URL,
+                audience: nil)
           .and_return(raw_token)
         expect(authenticator.refresh_token).to eq(raw_token)
       end
@@ -89,7 +90,27 @@ describe Conjur::API, api: :dummy do
                 account: account,
                 service_id: service_id,
                 jwt: nil,
-                gcp_identity_url: Conjur::API::GCPAuthenticator::DEFAULT_METADATA_URL)
+                gcp_identity_url: Conjur::API::GCPAuthenticator::DEFAULT_METADATA_URL,
+                audience: nil)
+          .and_return(raw_token)
+        expect(authenticator.refresh_token).to eq(raw_token)
+      end
+    end
+
+    context 'with a custom audience' do
+      subject(:authenticator) do
+        Conjur::API::GCPAuthenticator.new(account, service_id, identity,
+                                          audience: 'my-custom-audience')
+      end
+
+      it 'passes the stored audience to authenticate_gcp' do
+        expect(Conjur::API).to receive(:authenticate_gcp)
+          .with(identity,
+                account: account,
+                service_id: service_id,
+                jwt: nil,
+                gcp_identity_url: Conjur::API::GCPAuthenticator::DEFAULT_METADATA_URL,
+                audience: 'my-custom-audience')
           .and_return(raw_token)
         expect(authenticator.refresh_token).to eq(raw_token)
       end
@@ -97,13 +118,36 @@ describe Conjur::API, api: :dummy do
   end
 
   describe 'GCPAuthenticator audience building' do
-    it 'strips the host/ prefix when building the metadata URL audience' do
+    it 'passes the identity and nil audience to fetch_gcp_jwt by default' do
       allow(Conjur::API).to receive(:url_for).and_return(double(post: raw_token.to_json))
-      allow(Conjur::API).to receive(:fetch_gcp_jwt) do |acct, ident, gcp_identity_url:|
+      allow(Conjur::API).to receive(:fetch_gcp_jwt) do |acct, ident, gcp_identity_url:, audience:|
         expect(ident).to eq(identity)
+        expect(audience).to be_nil
         gcp_jwt
       end
       Conjur::API.authenticate_gcp(identity, account: account, service_id: service_id)
+    end
+
+    it 'forwards an explicit audience to fetch_gcp_jwt' do
+      allow(Conjur::API).to receive(:url_for).and_return(double(post: raw_token.to_json))
+      allow(Conjur::API).to receive(:fetch_gcp_jwt) do |acct, ident, gcp_identity_url:, audience:|
+        expect(audience).to eq('my-custom-audience')
+        gcp_jwt
+      end
+      Conjur::API.authenticate_gcp(identity, account: account, service_id: service_id,
+                                             audience: 'my-custom-audience')
+    end
+  end
+
+  describe '.default_gcp_audience' do
+    it 'strips a leading host/ and rebuilds the conjur audience' do
+      expect(Conjur::API.send(:default_gcp_audience, account, 'host/data/app'))
+        .to eq("conjur/#{account}/host/data/app")
+    end
+
+    it 'assumes a host identity when the host/ prefix is absent' do
+      expect(Conjur::API.send(:default_gcp_audience, account, 'data/app'))
+        .to eq("conjur/#{account}/host/data/app")
     end
   end
 end
