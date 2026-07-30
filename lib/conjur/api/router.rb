@@ -66,6 +66,18 @@ module Conjur
         )['authn-jwt'][fully_escape service_id][fully_escape account][fully_escape identity]['authenticate']
       end
 
+      # Builds the RestClient::Resource for an authn-cert authentication request.
+      # cert_options must include :ssl_client_cert and :ssl_client_key so that
+      # the client certificate is presented during the TLS handshake.
+      def authn_cert_authenticate account, service_id, host_id, cert_options
+        options = Conjur.configuration.create_rest_client_options(cert_options)
+        resource = RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          options
+        )['authn-cert'][fully_escape service_id][fully_escape account]
+        host_id ? resource[fully_escape host_id]['authenticate'] : resource['authenticate']
+      end
+
       def authenticator_authenticate(account, service_id, authenticator, options)
         RestClient::Resource.new(
           Conjur.configuration.core_url,
@@ -158,6 +170,20 @@ module Conjur
           Conjur.configuration.core_url,
           Conjur.configuration.create_rest_client_options(credentials)
         )['policies'][fully_escape account]['policy'][fully_escape id]
+      end
+
+      def policies_dry_run_policy credentials, account, id
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.create_rest_client_options(credentials)
+        )['policies'][fully_escape account]['policy'][fully_escape id]['?dryRun=true']
+      end
+
+      def policies_fetch_policy credentials, account, id, options = {}
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.create_rest_client_options(credentials)
+        )['policies'][fully_escape account]['policy'][fully_escape id][options_querystring options]
       end
 
       def public_keys_for_user account, username
@@ -278,6 +304,20 @@ module Conjur
           Conjur.configuration.core_url,
           Conjur.configuration.create_rest_client_options(credentials)
         )['whoami']
+      end
+
+      def server_info
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.rest_client_options
+        )['info']
+      end
+
+      def server_root
+        RestClient::Resource.new(
+          Conjur.configuration.core_url,
+          Conjur.configuration.rest_client_options
+        )['/']
       end
 
       private

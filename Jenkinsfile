@@ -80,24 +80,6 @@ pipeline {
       }
     }
 
-    stage('Test Ruby 3.2') {
-      environment {
-        INFRAPOOL_RUBY_VERSION = '3.2'
-        INFRAPOOL_REGISTRY_URL = "registry.tld"
-      }
-      steps {
-        script {
-          infrapool.agentSh "./test.sh"
-          infrapool.agentStash name: 'reports3.2', includes: '**/reports/*.xml'
-        }
-      }
-      post {
-        always {
-          unstash 'reports3.2'
-        }
-      }
-    }
-
     stage('Test Ruby 3.3') {
       environment {
         INFRAPOOL_RUBY_VERSION = '3.3'
@@ -130,6 +112,24 @@ pipeline {
       post {
         always {
           unstash 'reports3.4'
+        }
+      }
+    }
+
+    stage('Test Ruby 4.0') {
+      environment {
+        INFRAPOOL_RUBY_VERSION = '4.0'
+        INFRAPOOL_REGISTRY_URL = "registry.tld"
+      }
+      steps {
+        script {
+          infrapool.agentSh "./test.sh"
+          infrapool.agentStash name: 'reports4.0', includes: '**/reports/*.xml'
+        }
+      }
+      post {
+        always {
+          unstash 'reports4.0'
         }
       }
     }

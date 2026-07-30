@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Conjur::API::VERSION
 
-  gem.required_ruby_version = '>= 1.9'
+  gem.required_ruby_version = '>= 3.3'
 
   # Filter out development only executables
   gem.executables -= %w{parse-changelog.sh}

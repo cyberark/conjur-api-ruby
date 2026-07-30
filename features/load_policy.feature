@@ -60,3 +60,72 @@ Feature: Load a policy.
       "cucumber:user:admin"
     ]
     """
+
+  Scenario: A loaded subpolicy can be fetched back as YAML.
+    Given I run the code:
+    """
+    $conjur.load_policy 'root', <<-POLICY
+    - !policy
+      id: fetch-policy-yaml
+      body:
+      - !group fetch-policy-group
+    POLICY
+    """
+    Then I can run the code:
+    """
+    $conjur.fetch_policy 'fetch-policy-yaml'
+    """
+    Then the result should contain "fetch-policy-group"
+
+  Scenario: A loaded subpolicy can be fetched back as JSON.
+    Given I run the code:
+    """
+    $conjur.load_policy 'root', <<-POLICY
+    - !policy
+      id: fetch-policy-json
+      body:
+      - !group fetch-policy-json-group
+    POLICY
+    """
+    Then I can run the code:
+    """
+    $conjur.fetch_policy 'fetch-policy-json', return_json: true
+    """
+    Then the result should contain "fetch-policy-json-group"
+
+  Scenario: A dry run reports what a policy load would do without applying it.
+    Given I run the code:
+    """
+    $conjur.load_policy 'root', <<-POLICY
+    - !policy
+      id: dry-run-policy
+      body: []
+    POLICY
+    """
+    Then I can run the code:
+    """
+    $conjur.dry_run_policy 'dry-run-policy', <<-POLICY
+    - !group dry-run-group
+    POLICY
+    """
+    Then the JSON should have "status"
+    Then I can run the code:
+    """
+    $conjur.fetch_policy 'dry-run-policy'
+    """
+    Then the result should not contain "dry-run-group"
+
+  Scenario: A dry run reports errors for invalid policy YAML without applying it.
+    Given I run the code:
+    """
+    $conjur.load_policy 'root', <<-POLICY
+    - !policy
+      id: dry-run-invalid-policy
+      body: []
+    POLICY
+    """
+    Then I can run the code:
+    """
+    $conjur.dry_run_policy 'dry-run-invalid-policy', "- !group [invalid"
+    """
+    Then the JSON should have "errors"
