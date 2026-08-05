@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - CI now tests against Ruby 3.3, 3.4, and 4.0. Dropped Ruby 3.2 (end of life)
   and raised the minimum supported Ruby version accordingly.
 
+### Fixed
+- Set `CONJUR_AUTHN_ALLOWED_IP_RANGES` and `CONJUR_AUTHN_HTTP_ALLOWLIST` in the
+  test environment so Conjur's new SSRF guard does not block the authn-oidc
+  `provider-uri` fetch to the compose-local Keycloak server. (CNJR-13786)
+
 ## [6.3.1] - 2026-07-16
 
 ### Added
