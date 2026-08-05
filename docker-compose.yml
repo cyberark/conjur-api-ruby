@@ -11,6 +11,13 @@ services:
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
+      # Conjur's SSRF guard blocks authenticator fetches (authn-oidc provider-uri here) that
+      # resolve to loopback/RFC1918 ranges or use plain HTTP. Keycloak is reached by compose
+      # service name, so it resolves inside the bridge network's private subnet and its
+      # discovery document advertises http://keycloak:8080 endpoints. Both guards must be
+      # opted out of for this test env. Mirrors conjur's own ci/docker-compose.yml.
+      CONJUR_AUTHN_ALLOWED_IP_RANGES: ${CONJUR_AUTHN_ALLOWED_IP_RANGES:-0.0.0.0/0,::/0}
+      CONJUR_AUTHN_HTTP_ALLOWLIST: ${CONJUR_AUTHN_HTTP_ALLOWLIST:-keycloak}
     volumes:
       - authn_local:/run/authn-local
       - ./ci/oauth/keycloak:/scripts
