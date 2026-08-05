@@ -11,6 +11,14 @@ services:
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
+      # NOTE: CONJUR_AUTHENTICATORS is intentionally left unset. When unset the
+      # server is permissive, so both the existing authn-oidc tests and the
+      # cloud-authenticator features can enable their authenticators at runtime
+      # via authenticator_enable. Setting an explicit allowlist here makes the
+      # server strict and breaks the authn-oidc scenarios, and any authenticators
+      # listed would show up in authenticator_list's "enabled" set (which the
+      # authenticators.feature assertions depend on staying ["authn"]).
+      #
       # Conjur's SSRF guard blocks authenticator fetches (authn-oidc provider-uri here) that
       # resolve to loopback/RFC1918 ranges or use plain HTTP. Keycloak is reached by compose
       # service name, so it resolves inside the bridge network's private subnet and its

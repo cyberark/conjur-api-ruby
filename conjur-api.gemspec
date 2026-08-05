@@ -40,4 +40,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'pry-byebug'
   gem.add_development_dependency 'nokogiri'
   gem.add_development_dependency 'webrick'
+  # Optional runtime dependency for the IAM authenticator (authn-iam); not a
+  # hard dependency of the gem, but required to exercise it in the integration
+  # tests.
+  gem.add_development_dependency 'aws-sdk-core'
 end
