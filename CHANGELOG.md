@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [6.4.0] - 2026-08-06
 ### Added
 - Cloud-native authenticators for Azure Managed Identity (`authn-azure`),
   AWS IAM (`authn-iam`), and GCP workload identity (`authn-gcp`), exposed
