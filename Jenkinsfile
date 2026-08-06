@@ -30,8 +30,23 @@ pipeline {
   }
 
   triggers {
-    cron(getDailyCronString())
-    parameterizedCron(getWeeklyCronString("H(1-5)","%MODE=RELEASE"))
+    // Declarative pipelines allow only one parameterizedCron trigger, so both
+    // schedules live in a single multi-line string. The daily build also
+    // exercises the cloud authenticators end-to-end; PR builds leave the
+    // RUN_*_TESTS params false, so those stages are skipped there.
+    parameterizedCron("""
+      ${getDailyCronString("%RUN_AWS_TESTS=true;RUN_AZURE_TESTS=true;RUN_GCP_TESTS=true")}
+      ${getWeeklyCronString("H(1-5)","%MODE=RELEASE")}
+    """)
+  }
+
+  parameters {
+    booleanParam(name: 'RUN_AWS_TESTS', defaultValue: false,
+      description: 'Run the authn-iam integration test on an AWS executor agent')
+    booleanParam(name: 'RUN_AZURE_TESTS', defaultValue: false,
+      description: 'Run the authn-azure integration test on an Azure executor agent')
+    booleanParam(name: 'RUN_GCP_TESTS', defaultValue: false,
+      description: 'Run the authn-jwt/gcp integration test (token fetched on a GCP agent)')
   }
 
   stages {
@@ -61,6 +76,17 @@ pipeline {
       steps {
         script {
           infrapool = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 1, duration: 1)[0]
+          // Provision dedicated cloud agents only when the matching cloud test
+          // is requested. These are real Azure/GCP VMs whose managed identity /
+          // service account the authenticators exercise against the live
+          // metadata service. The AWS test reuses the standard ExecutorV2 agent
+          // (which itself runs in AWS with an instance profile).
+          if (params.RUN_AZURE_TESTS) {
+            azureInfrapool = getInfraPoolAgent.connected(type: "AzureExecutorV2", quantity: 1, duration: 1)[0]
+          }
+          if (params.RUN_GCP_TESTS) {
+            gcpInfrapool = getInfraPoolAgent.connected(type: "GcpExecutorV2", quantity: 1, duration: 1)[0]
+          }
         }
       }
     }
@@ -125,6 +151,12 @@ pipeline {
         script {
           infrapool.agentSh "./test.sh"
           infrapool.agentStash name: 'reports4.0', includes: '**/reports/*.xml'
+          // Stash coverage from the full suite now. The cloud stages below run
+          // ./test.sh again on this agent, and jenkins_init wipes and regenerates
+          // coverage/ from a single cloud feature (no rspec) — which would drop
+          // the reported coverage well below the quality gate. Capturing it here
+          // keeps the submitted coverage that of the complete unit+cucumber run.
+          infrapool.agentStash name: 'coverage', includes: '**/coverage/**'
         }
       }
       post {
@@ -134,16 +166,101 @@ pipeline {
       }
     }
 
+    stage('Run AWS IAM tests') {
+      when { expression { params.RUN_AWS_TESTS } }
+      environment {
+        INFRAPOOL_RUN_AWS_TESTS = 'true'
+        INFRAPOOL_RUBY_VERSION  = '3.3'
+        INFRAPOOL_REGISTRY_URL  = "registry.tld"
+      }
+      steps {
+        script {
+          // authn-iam identifies the Conjur host by the AWS caller identity, so
+          // the host id in the policy must be "<account-id>/<role-name>". Derive
+          // those from the agent's own instance profile (as conjur-api-java does)
+          // and pass them to the feature via env.
+          def callerIdentityJson = infrapool.agentSh(script: 'aws sts get-caller-identity', returnStdout: true).trim()
+          def awsAccountId = (callerIdentityJson =~ /"Account"\s*:\s*"([^"]+)"/)[0][1]
+          def awsArn       = (callerIdentityJson =~ /"Arn"\s*:\s*"([^"]+)"/)[0][1]
+          def awsRoleName  = awsArn.tokenize('/')[1]  // arn:...:assumed-role/<role>/<session>
+          infrapool.agentSh """
+            export INFRAPOOL_AWS_ACCOUNT_ID='${awsAccountId}'
+            export INFRAPOOL_AWS_ROLE_NAME='${awsRoleName}'
+            ./test.sh
+          """
+        }
+      }
+      post {
+        always {
+          script { infrapool.agentStash name: 'reports-aws', includes: '**/reports/*.xml' }
+          unstash 'reports-aws'
+        }
+      }
+    }
+
+    stage('Run Azure tests') {
+      when { expression { params.RUN_AZURE_TESTS } }
+      environment {
+        INFRAPOOL_RUN_AZURE_TESTS = 'true'
+        INFRAPOOL_RUBY_VERSION    = '3.3'
+        INFRAPOOL_REGISTRY_URL    = "registry.tld"
+      }
+      steps {
+        script {
+          // summon injects AZURE_SUBSCRIPTION_ID / AZURE_RESOURCE_GROUP /
+          // USER_ASSIGNED_IDENTITY_CLIENT_ID from the CI vault; the test hits
+          // the real Azure IMDS on this Azure VM.
+          azureInfrapool.agentSh "summon -e azure ./test.sh"
+        }
+      }
+      post {
+        always {
+          script { azureInfrapool.agentStash name: 'reports-azure', includes: '**/reports/*.xml' }
+          unstash 'reports-azure'
+        }
+      }
+    }
+
+    stage('Run GCP tests') {
+      when { expression { params.RUN_GCP_TESTS } }
+      environment {
+        INFRAPOOL_RUN_GCP_TESTS = 'true'
+        INFRAPOOL_RUBY_VERSION  = '3.3'
+        INFRAPOOL_REGISTRY_URL  = "registry.tld"
+        GCP_CTX_DIR = "gcp-ctx"
+      }
+      steps {
+        script {
+          // GCP agents lack a Docker runtime, so fetch a real identity token on
+          // the GCP VM, stash it, then run the actual test on the AWS agent with
+          // the token supplied via GCP_ID_TOKEN.
+          gcpInfrapool.agentSh "./ci/get_gcp_token.sh data/test/gcp-apps/test-app cucumber ${GCP_CTX_DIR}"
+          gcpInfrapool.agentStash name: 'gcp-token', includes: "${GCP_CTX_DIR}/*"
+          infrapool.agentUnstash name: 'gcp-token'
+          infrapool.agentSh """
+            export GCP_ID_TOKEN="\$(cat ${GCP_CTX_DIR}/token)"
+            export GCP_PROJECT_ID="\$(cat ${GCP_CTX_DIR}/project-id)"
+            ./test.sh
+          """
+        }
+      }
+      post {
+        always {
+          script { infrapool.agentStash name: 'reports-gcp', includes: '**/reports/*.xml' }
+          unstash 'reports-gcp'
+        }
+      }
+    }
+
     stage('Submit Coverage Report'){
       steps{
-        script {
-          infrapool.agentStash name: 'coverage', includes: '**/coverage/**'
-        }
+        // Coverage was stashed at the end of 'Test Ruby 4.0', before the cloud
+        // stages regenerated a partial coverage/ on the agent.
         unstash 'coverage'
 
         recordCoverage(
           tools: [[parser: 'COBERTURA', pattern: 'coverage/coverage.xml']],
-          sourceCodeEncoding: 'ASCII',
+          sourceCodeEncoding: 'UTF-8',
           qualityGates: [
             [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', unstable: true],
             [threshold: 70.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true],

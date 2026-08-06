@@ -58,12 +58,15 @@ module Conjur
         )['authn-iam'][fully_escape service_id][fully_escape account][fully_escape identity]['authenticate']
       end
 
-      # POST /authn-jwt/{service_id}/{account}/{login}/authenticate
-      def authn_gcp_authenticate account, service_id, identity
+      # POST /authn-gcp/{account}/authenticate
+      # authn-gcp is a serviceless authenticator: Conjur derives the host from
+      # the GCP identity token's claims, so neither a service id nor the login
+      # appears in the path.
+      def authn_gcp_authenticate account
         RestClient::Resource.new(
           Conjur.configuration.core_url,
           Conjur.configuration.rest_client_options
-        )['authn-jwt'][fully_escape service_id][fully_escape account][fully_escape identity]['authenticate']
+        )['authn-gcp'][fully_escape account]['authenticate']
       end
 
       # Builds the RestClient::Resource for an authn-cert authentication request.
@@ -86,10 +89,14 @@ module Conjur
       end
 
       def authenticator account, authenticator, service_id, credentials
-        RestClient::Resource.new(
+        resource = RestClient::Resource.new(
           Conjur.configuration.core_url,
           Conjur.configuration.create_rest_client_options(credentials)
-        )[fully_escape authenticator][fully_escape service_id][fully_escape account]
+        )[fully_escape authenticator]
+        # Serviceless authenticators (e.g. authn-gcp) have no service id segment:
+        # the path is authn-<type>/<account>.
+        resource = resource[fully_escape service_id] unless service_id.nil? || service_id.empty?
+        resource[fully_escape account]
       end
 
       def authenticators

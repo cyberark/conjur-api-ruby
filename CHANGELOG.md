@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Added
 - Cloud-native authenticators for Azure Managed Identity (`authn-azure`),
-  AWS IAM (`authn-iam`), and GCP workload identity (`authn-jwt/gcp`), exposed
+  AWS IAM (`authn-iam`), and GCP workload identity (`authn-gcp`), exposed
   via `Conjur::API.new_from_azure`, `.new_from_iam`, and `.new_from_gcp`
   (CNJR-14213).
+- Live integration features for the cloud authenticators, gated behind the
+  `RUN_AWS_TESTS` / `RUN_AZURE_TESTS` / `RUN_GCP_TESTS` pipeline params and run
+  on dedicated cloud agents (excluded from the default suite) (CNJR-14213).
 
 ### Changed
 - CI uses Conjur Enterprise 1.27.0+, which removed the `GET /public_keys` endpoint
@@ -24,6 +27,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Set `CONJUR_AUTHN_ALLOWED_IP_RANGES` and `CONJUR_AUTHN_HTTP_ALLOWLIST` in the
   test environment so Conjur's new SSRF guard does not block the authn-oidc
   `provider-uri` fetch to the compose-local Keycloak server. (CNJR-13786)
+- Corrected `Conjur::API.new_from_gcp` / `authenticate_gcp` to target the
+  serviceless `authn-gcp` endpoint (`/authn-gcp/{account}/authenticate`) instead
+  of `authn-jwt`; the `service_id` argument was removed accordingly (CNJR-14213).
 
 ## [6.3.1] - 2026-07-16
 
